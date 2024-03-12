@@ -1,3 +1,5 @@
 code/data/*.csv
 code/__pycache__/
 pptgen/
+ppts/*.pptx
+code/json/*/*.json

@@ -20,7 +20,7 @@ def generate_dicts(csv_file_path):
 
 
 
-TOPICS = ['NLP', 'AI', 'DL', 'CV']
+TOPICS = ['NLP', 'AI', 'Deep Learning', 'Computer Vision']
 FONT_STYLES = ['Arial', 'Times New Roman', 'Georgia', 'Calibiri']
 TITLES_DICT = generate_dicts("code\data\\titles.csv")
 DESC_DICT = generate_dicts("code\data\\descriptions.csv")
@@ -158,7 +158,8 @@ def generate_random_slide(slide_number, topic, bg_color, title_font_family, titl
     
 
 if __name__ == "__main__":
-    for i in range(2):  # Generate 5 JSON files
+    num_files = 3
+    for i in range(num_files): 
         topic = pick_random(TOPICS)
         n_slides = generate_random_value(int, 3, 7)
         bg_color = generate_random_color()
@@ -172,6 +173,6 @@ if __name__ == "__main__":
             "n_slides": n_slides,
             "slides": slides
         }
-        with open(f"code\json\\{topic}\{i}.json", 'w') as json_file:
+        with open(f"code\\buffer\\{topic}_{i}.json", 'w') as json_file:
             json.dump(data, json_file, indent=3)
         print(f"{topic}_{i} JSON file created successfully")

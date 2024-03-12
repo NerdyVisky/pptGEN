@@ -102,7 +102,6 @@ class Enumeration(Description):
         text_frame = textbox.text_frame
         for i, point_text in enumerate(self.content):
             p = text_frame.add_paragraph()
-            print(point_text)
             run = p.add_run()
             run.text = "• " + point_text
             self.apply_font_style_on_run(run)
@@ -144,7 +143,6 @@ class PresentationGenerator:
                         element = Figure(element_info['path'], None, (element_info['xmin'], element_info['ymin'], element_info['width'], element_info['height']))
                     elif element_type == 'description':
                         if element_info['label'] == "enumeration":
-                            print("Enumeration found")
                             element = Enumeration(element_info['value'], element_info['style'], (element_info['xmin'], element_info['ymin'], element_info['width'], element_info['height']))
                         else:
                             element = Description(element_info['value'], element_info['style'], (element_info['xmin'], element_info['ymin'], element_info['width'], element_info['height']))
@@ -161,7 +159,6 @@ class PresentationGenerator:
             for shape in slide.shapes:
                 # print(shape.shape_type)
                 if shape.shape_type == MSO_SHAPE_TYPE.PLACEHOLDER:
-                    print(shape.text_frame.text)
                     if not shape.text_frame.text:
                         sp = slide.shapes._spTree
                         sp.remove(shape._element)
@@ -179,18 +176,37 @@ def load_json_payload(file_path):
 
 def main():
     # Load the JSON payload
-    # ind = os.path.splitext(os.path.basename(__file__))[0]
-    name = "NLP_0"
-    json_file = f'code\json\\NLP\\0.json'
-    json_payload = load_json_payload(json_file)
+    buffer_folder_path = "./code/buffer"
+    base_topic_folder_path = "./code/json"
 
-    # Create an instance of PresentationGenerator with the JSON payload
-    presentation_generator = PresentationGenerator(json_payload, name)
+    json_files = [f for f in os.listdir(buffer_folder_path) if f.endswith('.json')]
 
-    # Generate the presentation
-    presentation_generator.generate_presentation()
+    for json_file in json_files:
+        #Load JSON file from buffer
+        file_name, _ = os.path.splitext(json_file)
+        topic, id = file_name.split('_')
+        # print(topic)
+        # print(id)
+        name = f"{topic}_{id}"
+        json_file_path = os.path.join(buffer_folder_path, json_file)
+        json_payload = load_json_payload(json_file_path)
 
-    print("Presentation generated successfully.")
+        #Generate Presentation from JSON file and save it
+        presentation_generator = PresentationGenerator(json_payload, name)
+        presentation_generator.generate_presentation()
+        print(f"Presentation generated successfully for {name}.")
+
+        #Move JSON file from buffer to respective topic folder
+        destination_folder_path = os.path.join(base_topic_folder_path, topic)
+        if not os.path.exists(destination_folder_path):
+            os.makedirs(destination_folder_path)
+
+        destination_file_path = os.path.join(destination_folder_path, json_file)
+        os.rename(json_file_path, destination_file_path)
+        print(f"Moved {json_file} to {destination_folder_path}.")
+        print('\n')
+    
+    print("All presentations generated and files moved successfully.")
 
 if __name__ == "__main__":
     main()

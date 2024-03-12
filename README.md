@@ -118,7 +118,7 @@ Follow these instructions to run the tool locally on your system.
 * Python v3.6>
 * pip v22.1>
 * Microsoft Powerpoint Viewer
-
+* (temporary requirement) Windows OS
 
 ### Installation
 
@@ -127,7 +127,11 @@ Follow these instructions to run the tool locally on your system.
    ```sh
    git clone https://github.com/NerdyVisky/pptGEN
    ```
-2. Go the root folder of the project and install dependencies using pip
+2. Create a new Python virtual environment
+   ```sh
+   python3 -m venv <virtual-environment-name>
+   ```
+3. Go the root folder of the project and install dependencies using pip
    ```sh
    pip install -r requirements.txt
    ```
@@ -139,22 +143,15 @@ Follow these instructions to run the tool locally on your system.
 
 
 
-1. In your terminal (cmd/powershell/git/bash) run the JSON generator script
+In your Powershell prompt, go the project root folder and run the following script 
   ```sh
-   python3 code\JSON_generator.py
+   .\run.ps1 -py_path "\Custom\Python\Path" -env_path "\Custom\VirtualEnv\Path"
    ```
-2. Go the PPT_generator file, change the name and location of the json_file
-   ```sh
-   name = "NLP_0"
-   json_file = f'code\json\\NLP\\0.json'
-   ```
-3. In your terminal (cmd/powershell/git/bash) run the PPT generator script
-  ```sh
-   python code\PPT_generator.py
-   ```
+(Make sure you have Set-Execution-Policy: RemoteSigned)
+
 You will find your PPT saved in the folder
   ```sh
-   ppts\{topic}\{index}
+   ppts\
    ```
 
 
@@ -168,7 +165,7 @@ You will find your PPT saved in the folder
 
 - [x] Add v0.1 code
 - [ ] Provide Demo Images of generated PPTs
-- [ ] Execute code pipeline using bash script
+- [x] Execute code pipeline using bash script
 - [ ] Enable content coherence
 - [ ] Make the tool web-accessible
 

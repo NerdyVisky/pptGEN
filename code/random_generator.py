@@ -12,9 +12,10 @@ def generate_random_font(element):
         font_size = random.randint(8, 13) * 4
         bold = random.choice([True, False])
     elif element == "description":
-        font_size = random.randint(6, 11) * 2
-        underline = random.choice([True, False])
-        italics = random.choice([True, False])
+        font_size = random.randint(8, 11) * 2
+        underline = random.random() < 0.25
+        italics = random.random() < 0.25
+
     return {
         "font_size": font_size,
         "bold": bold,
@@ -37,7 +38,7 @@ def generate_random_layout(total_body_elements):
         0: [0],
         1: [1], 
         2: [2, 3],
-        3: [4, 5, 6],
+        3: [4, 5, 6, 7, 8]
         }
     return random.choice(layout_mapping[total_body_elements])
 

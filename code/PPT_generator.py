@@ -66,6 +66,7 @@ class Element:
 
 class Title(Element):
     def render(self, slide):
+        print(slide.shapes.title)
         title_shape = slide.shapes.title
         # self.position_element(title_shape)
         title_shape.text = self.content
@@ -129,7 +130,7 @@ class PresentationGenerator:
 
     def generate_presentation(self):
         for slide_info in self.json_payload['slides']:
-            slide_layout = self.presentation.slide_layouts[slide_info['slide_layout']]
+            slide_layout = self.presentation.slide_layouts[0]
             slide = self.presentation.slides.add_slide(slide_layout)
             slide.background.fill.solid()
             if slide_info['bg_color']:
@@ -147,6 +148,7 @@ class PresentationGenerator:
                         else:
                             element = Description(element_info['value'], element_info['style'], (element_info['xmin'], element_info['ymin'], element_info['width'], element_info['height']))
                     elif element_type == 'title':
+                        print(element_info['value'])
                         element = Title(element_info['value'], element_info['style'], (element_info['xmin'], element_info['ymin'], element_info['width'], element_info['height']))
                     else:
                         raise ValueError(f"Unsupported element type: {element_type}")

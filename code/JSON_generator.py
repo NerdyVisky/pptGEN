@@ -39,7 +39,10 @@ def generate_random_slide(slide_number, topic, bg_color, title_font_family, titl
         bg_color = {"r": 255, "g": 255, "b": 255}
 
     # Define total number of body elements
-    total_body_elements = generate_random_value(int, 0, 2)
+    if slide_number == 1:
+        total_body_elements = 0
+    else:
+        total_body_elements = generate_random_value(int, 1, 3)
     # n_elements_list = [descriptions, enumerations, figures]
     n_elements_list = generate_n_numbers_with_sum(total_body_elements, 3)
     # Distribute the total count among the three categories
@@ -49,7 +52,8 @@ def generate_random_slide(slide_number, topic, bg_color, title_font_family, titl
     layout_id = generate_random_layout(total_body_elements)
     layouts = CustomLayouts()
     all_dims = layouts.get_layout_dimensions(layout_id)
-    # print(all_dims)
+    if layout_id == 6:
+        print(all_dims)
 
     ## Skeleton Slide object with Slide-level metadata
     slide = {

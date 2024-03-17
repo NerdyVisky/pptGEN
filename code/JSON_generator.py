@@ -1,7 +1,7 @@
 import random
 import json
 from layouts import CustomLayouts
-from random_generator import generate_random_color, generate_random_font, generate_random_value, pick_random, generate_random_layout, generate_n_numbers_with_sum, generate_contrasting_font_color
+from random_generator import generate_random_style_obj, generate_random_font, generate_random_value, pick_random, generate_random_layout, generate_n_numbers_with_sum, generate_contrasting_font_color
 import pandas as pd
 
 
@@ -19,9 +19,7 @@ def generate_dicts(csv_file_path):
     return dict
 
 
-
 TOPICS = ['NLP', 'AI', 'Deep Learning', 'Computer Vision']
-FONT_STYLES = ['Arial', 'Times New Roman', 'Georgia', 'Calibiri']
 TITLES_DICT = generate_dicts("code\data\\titles.csv")
 DESC_DICT = generate_dicts("code\data\\descriptions.csv")
 ENUM_DICT = generate_dicts("code\data\\enumerations.csv")
@@ -31,8 +29,8 @@ PATH_DICT = generate_dicts("code\data\\figures.csv")
 
 
 
-def generate_random_slide(slide_number, topic, bg_color, title_font_family, title_font_attr, desc_font):
-    
+def generate_random_slide(slide_number, topic, style_obj):
+    bg_color, title_font_family, title_font_attr, desc_font_family, desc_font_attr = style_obj["bg_color"], style_obj["title_font_family"], style_obj["title_font_attr"], style_obj["desc_font_family"], style_obj["desc_font_attr"]
     # Determining when a slide has BG as White
     THRES = 0.667
     if generate_random_value(float, 0, 1) < THRES:
@@ -52,8 +50,6 @@ def generate_random_slide(slide_number, topic, bg_color, title_font_family, titl
     layout_id = generate_random_layout(total_body_elements)
     layouts = CustomLayouts()
     all_dims = layouts.get_layout_dimensions(layout_id)
-    if layout_id == 6:
-        print(all_dims)
 
     ## Skeleton Slide object with Slide-level metadata
     slide = {
@@ -83,9 +79,9 @@ def generate_random_slide(slide_number, topic, bg_color, title_font_family, titl
                 "font_name": title_font_family,
                 "font_size": title_font_attr["font_size"],
                 "font_color": font_color,
-                "bold": title_font_attr["bold"],
-                "italics": title_font_attr["italics"],
-                "underlined": title_font_attr["underline"]
+                "bold": random.random() < 0.33,
+                "italics": random.random() < 0.1,
+                "underlined": random.random() < 0.1
             }
         }]    
        
@@ -108,12 +104,12 @@ def generate_random_slide(slide_number, topic, bg_color, title_font_family, titl
             "width": all_dims['body'][element_index]['width'],
             "height": all_dims['body'][element_index]['height'],
             "style": {
-                "font_name": desc_font,
-                "font_size": font_obj["font_size"],
+                "font_name": desc_font_family,
+                "font_size": desc_font_attr["font_size"],
                 "font_color": font_color,
-                "bold": font_obj["bold"],
-                "italics": font_obj["italics"],
-                "underlined": font_obj["underline"]
+                "bold": False,
+                "italics": random.random() < 0.1,
+                "underlined": random.random() < 0.1
                }
             } 
             slide['elements']['description'].append(desc_instance)
@@ -132,8 +128,8 @@ def generate_random_slide(slide_number, topic, bg_color, title_font_family, titl
             "width": all_dims['body'][element_index]['width'],
             "height": max(all_dims['body'][element_index]['height'], 0.5*len(enum)),
             "style": {
-                "font_name": desc_font,
-                "font_size": font_obj["font_size"],
+                "font_name": desc_font_family,
+                "font_size": desc_font_attr["font_size"],
                 "font_color": font_color,
                 "bold": font_obj["bold"],
                 "italics": font_obj["italics"],
@@ -166,11 +162,9 @@ if __name__ == "__main__":
     for i in range(num_files): 
         topic = pick_random(TOPICS)
         n_slides = generate_random_value(int, 3, 7)
-        bg_color = generate_random_color()
-        title_font_family = pick_random(FONT_STYLES)
-        title_font_attr = generate_random_font("title")
-        desc_font = pick_random(FONT_STYLES)
-        slides = [generate_random_slide(i+1, topic, bg_color, title_font_family, title_font_attr, desc_font) for i in range(n_slides)]
+        style_obj = generate_random_style_obj()
+        # print(style_obj)
+        slides = [generate_random_slide(i+1, topic, style_obj) for i in range(n_slides)]
     
         data = {
             "topic": topic,

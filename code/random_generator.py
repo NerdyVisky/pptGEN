@@ -1,5 +1,6 @@
 import random
 
+FONT_STYLES = ['Arial', 'Times New Roman', 'Georgia', 'Calibiri']
 
 def generate_random_color():
     return {"r": random.randint(0, 255), "g": random.randint(0, 255), "b": random.randint(0, 255)}
@@ -10,12 +11,8 @@ def generate_random_font(element):
     italics = False
     if element == "title":
         font_size = random.randint(8, 13) * 4
-        bold = random.choice([True, False])
     elif element == "description":
         font_size = random.randint(8, 11) * 2
-        underline = random.random() < 0.25
-        italics = random.random() < 0.25
-
     return {
         "font_size": font_size,
         "bold": bold,
@@ -29,6 +26,15 @@ def generate_random_value(type, lb, ub):
     elif type == float:
         return random.uniform(lb, ub)
     
+
+def generate_random_style_obj():
+    style_obj = {}
+    style_obj["bg_color"] = generate_random_color()
+    style_obj["title_font_family"] = pick_random(FONT_STYLES) 
+    style_obj["title_font_attr"] = generate_random_font("title")
+    style_obj["desc_font_family"] = pick_random(FONT_STYLES)
+    style_obj["desc_font_attr"] = generate_random_font("description") 
+    return style_obj
 
 def pick_random(list_name):
     return random.choice(list_name)

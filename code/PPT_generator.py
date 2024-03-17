@@ -55,10 +55,10 @@ class Element:
         shape.height = Inches(self.bounding_box[3])
 
         if shape.has_text_frame:
-            shape.text_frame.margin_left = Pt(0)
-            shape.text_frame.margin_right = Pt(0)
-            shape.text_frame.margin_top = Pt(0)
-            shape.text_frame.margin_bottom = Pt(0)
+            shape.text_frame.margin_left = Pt(5)
+            shape.text_frame.margin_right = Pt(5)
+            shape.text_frame.margin_top = Pt(5)
+            shape.text_frame.margin_bottom = Pt(5)
 
 
     def render(self, slide):

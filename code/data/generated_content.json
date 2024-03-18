@@ -1,0 +1,10 @@
+{
+    "slides": [
+        {
+            "ppt_id": 1,
+            "slide_id": 1,
+            "slide_title": "MATH 224 \u2013 Discrete Mathematics Algorithms and Complexity",
+            "text": "An algorithm is a precise recipe or set of instruction for solving a problem. In addition, to be considered an algorithm the set of instructions must solve the problem with a finite number of steps. In other words, if the algorithm is implemented on a computer, it must terminate with a solution. An algorithm should leave nothing to chance and must not have any infinite loops. (There are some algorithms that do use random or probabilistic techniques, and therefore may leave some things to chance.) Algorithms solve problems such as sorting, find an object, finding the shortest path between two points, determining mathematical functions such as logarithms among others."
+        }
+    ]
+}

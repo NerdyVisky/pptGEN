@@ -1,41 +1,48 @@
 import json
+import os
+from openai import OpenAI
 
-# Function to read data from a JSON file
-def read_json_data(filename):
-  with open(filename, 'r') as f:
-    return json.load(f)
-
-# Function to write data to a JSON file
-def write_json_data(data, filename):
-  with open(filename, 'w') as f:
-    json.dump(data, f, indent=4)
-
-# Read data from the JSON file
-data = read_json_data("slide_summary.json")
-
-prompt_data = data["key"]
-
-# Construct the prompt with the data
-prompt = f"""You are a helpful assistant.
-
-The user says: Hello!
-
-Based on the information provided, {prompt_data}"""
-
-messages = [
-    {"role": "system", "content": "You are a helpful assistant."},
-    {"role": "user", "content": "Hello!"}
-]
-
-completion = client.chat.completions.create(
-    model="gpt-3.5-turbo",
-    messages=messages,
-    prompt=prompt
+client = OpenAI(
+    api_key="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",
 )
 
-# Extract the response
-response = completion.choices[0].message
+def read_json_data(filename):
+  with open(filename, 'r', encoding='utf-8') as f:
+    return json.load(f)
+data = read_json_data("data/seed_Content.json")
 
-write_json_data({"response": response}, "content_API.json")
+# read the OCR of slides
+# for key, value in data.items():
+#   glens_ocr_value = value.get("glensOcr")
+#   if glens_ocr_value:
+#     print(f"ID: {key}, glensOcr: {glens_ocr_value}")
 
-print(response)
+# Specify the ID you want the glensOcr value for
+target_id = "11111"
+ocr_value = data[target_id].get("glensOcr")
+
+prompt_data = ocr_value
+
+prompt = f"""You are an assistant for educational content generation.
+
+The user requests to generate the content for 5 slides based on the following content for the first slide:
+
+{prompt_data}
+
+Please provide the content in JSON format, with ppt_id, slide_id, slide_title and text as the elements."""
+
+response = client.chat.completions.create(
+    model="gpt-3.5-turbo",
+    # prompt=prompt
+    messages=[
+      {"role": "user", "content":prompt}
+    ],
+    # response_format={ "type": "json_object" }
+)
+
+generated_text = response.choices[0].message.content
+jso = json.loads(generated_text)
+
+with open('data/generated_content.json', 'w') as f:
+  json.dump(jso, f, indent=4)
+

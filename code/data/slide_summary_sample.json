@@ -1,0 +1,50 @@
+{
+    "11111": {
+        "glensOcr": "MATH 224 – Discrete Mathematics Algorithms and Complexity - An algorithm is a precise recipe or set of instruction for solving a problem. In addition, to be considered an algorithm the set of instructions must solve the problem with a finite number of steps. In other words, if the algorithm is implemented on a computer, it must terminate with a solution. An algorithm should leave nothing to chance and must not have any infinite loops. (There are some algorithms that do use random or probabilistic techniques, and therefore may leave some things to chance.) Algorithms solve problems such as sorting, find an object, finding the shortest path between two points, determining mathematical functions such as logarithms among others. Specifying an Algorithms • Informal English description • Formal English description • Pseudo-Code • Code in programming language (e.g., C++) 4/13/2015 1 ",
+        "pp1": "Highlighted elements, and Section Employed to elucidate the Discrete Mathematics Algorithms and Complexity - ",
+        "pp2": "bullet points, and text Segment Used for describing Discrete Mathematics Algorithms and Complexity - ",
+        "pp3": "Discrete Mathematics Algorithms and Complexity - Depicts using List items, and paragraph.",
+        "pp4": "Enumerated facts, and text Segment Utilized for clarification of Discrete Mathematics Algorithms and Complexity - ",
+        "summary": "Discrete Mathematics Algorithms and Complexity - explains using Enumeration, Paragraph"
+    },
+    "11112": {
+        "glensOcr": "MATH 224 – Discrete Mathematics Describing an Algorithm – Sorting an Array 0..n-1 Informal description of selection sort • Find the smallest number and put it in the first position • Find the second smallest number and put it in the second position • Continue as above until the array is sorted Formal Description Set i = 0 Find the smallest value between positions i and n-1 Swap the value at i with the smallest value Set i = i+1 If i<n -1 go back to Step 2, otherwise quit 1. 2. 3. 4. 5. 4/13/2015 2 ",
+        "pp1": "Distinctive highlights, Section, and Abstract code Utilized for clarification of math 224 – discrete mathematics describing an algorithm – sorting an array 0..n-1 informal description of selection sort formal description ",
+        "pp2": "math 224 – discrete mathematics describing an algorithm – sorting an array 0..n-1 informal description of selection sort formal description Describes with bullet points, text Segment, and algorithm.",
+        "pp3": "math 224 – discrete mathematics describing an algorithm – sorting an array 0..n-1 informal description of selection sort formal description clarifies utilizing Key details, text Segment, and pseudo code.",
+        "pp4": "math 224 – discrete mathematics describing an algorithm – sorting an array 0..n-1 informal description of selection sort formal description clarifies utilizing Itemized points, paragraph, and algorithm.",
+        "summary": "math 224 – discrete mathematics describing an algorithm – sorting an array 0..n-1 informal description of selection sort formal description  explains using   enumeration,  paragraph,  pseudocode"
+    },
+    "11113": {
+        "glensOcr": "MATH 224 – Discrete Mathematics Describing an Algorithm – Sorting an Array 0.. n-1 Pseudo-Code C++ Version void function sort(Array A[n]) for i in [0..n-2] - void function sort (A type A[ ], int n) { for (int i = 0; i<n-1; i++) { pos := i for j in [i+1.. n-1] pos = i; for (int j = i+1;j<n; j++) if (A[j] <A[pos]) if A[i] < A[pos] → pos := j pos = j; fi // fi rof // rof swap(A[i], A[pos]) swap(A[i], A[pos]): } // rof } // end sort rof end sort Note the use of \":=\" for assignment as do Pascal and Ada. 4/13/2015 3 ",
+        "pp1": "Key details, text Segment, and Abstract code Utilized for exposition of Discrete Mathematics ",
+        "pp2": "enumeration, Passage, and pseudocode Utilized for exposition of Discrete Mathematics ",
+        "pp3": "Itemized points, paragraph, and pseudo code Employed to elucidate the Discrete Mathematics ",
+        "pp4": "Discrete Mathematics Depicts using List items, Passage, and pseudocode.",
+        "summary": "Discrete Mathematics explains using Enumeration, Paragraph, Pseudocode"
+    },
+    "11114": {
+        "glensOcr": "MATH 224 – Discrete Mathematics Describing an Algorithm – Insertion Sort Array 0.. n-1 Pseudo-Code C++ Version void function insert_sort (A_type A[ ], int n) { procedure insert_sort (A_type A[ ], int n) for il in [1.n-1]→ int il. i2; i2 := il-1 A_type item; for (int il = 1; i<n; i++) { item := A[il] do (12 2 0) and (item < A[i2]) – A[i2+1] := A[i2]: i2 := i2 –1 i2 = il –1: item = A[il]: while (i2 >= 0 && item < A[i2]) { A[i2+1] = A[i2]; i2 --: } // end while A[i2 + 1] = item; } // rof od A[i2+1] := item rof end insert_sort } // end insert_sort 4/13/2015 4 ",
+        "pp1": "Outlined features, Section, and pseudocode Utilized for clarification of math 224 – discrete mathematics describing an algorithm – insertion sort array 0.. n-1 pseudo-code ",
+        "pp2": "Key details, Passage, and algorithm Employed to elucidate the math 224 – discrete mathematics describing an algorithm – insertion sort array 0.. n-1 pseudo-code ",
+        "pp3": "math 224 – discrete mathematics describing an algorithm – insertion sort array 0.. n-1 pseudo-code clarifies utilizing Itemized points, Block of text, and algorithm.",
+        "pp4": "Key details, Section, and Abstract code Employed to elucidate the math 224 – discrete mathematics describing an algorithm – insertion sort array 0.. n-1 pseudo-code ",
+        "summary": "math 224 – discrete mathematics describing an algorithm – insertion sort array 0.. n-1 pseudo-code  explains using   enumeration,  paragraph,  pseudocode"
+    },
+    "11115": {
+        "glensOcr": "MATH 224 – Discrete Mathematics Binary search of an Array 1.. n Pseudo-Code -Algorithm 3 from the textbook (Page 172) procedure binary_search(x: integer a[1..n] : integer) j:=n i := 1; while i<j // just integer division in C++ m := L(i+j)/2] if x > a[m] j:= m i := m+1 else fi end while if x = a[i] location is i else x is not in the array // here = corresponds to // C++ == end binary_search Note the text uses \":=\" for assignment as do Pascal and Ada. 4/13/2015 5 ",
+        "pp1": "Depicts using Highlighted elements, Section, and pseudo code.",
+        "pp2": "Elucidate with enumeration, Passage, and pseudocode.",
+        "pp3": "Describes with bullet points, Block of text, and pseudocode.",
+        "pp4": "Elucidate with Key details, text Segment, and pseudo code.",
+        "summary": "explains using   enumeration,  paragraph,  pseudocode"
+    },
+    "11116": {
+        "glensOcr": "MATH 224 – Discrete Mathematics Exponentiation aP Incremental version int function exp(int a, int p) if p<0 → return 1 |p> 0 → val := a for i in [1.p-1] val := val*a rof fi return val end exp How times does the code inside the for statement execute? 4/13/2015 6 ",
+        "pp1": "Discrete Mathematics Exponentiation aP Incremental version clarifies utilizing algorithm.",
+        "pp2": "Discrete Mathematics Exponentiation aP Incremental version clarifies utilizing pseudocode.",
+        "pp3": "Discrete Mathematics Exponentiation aP Incremental version Elucidate with pseudo code.",
+        "pp4": "Discrete Mathematics Exponentiation aP Incremental version Depicts using pseudocode.",
+        "summary": "Discrete Mathematics Exponentiation aP Incremental version explains using psudocode,"
+    }
+}

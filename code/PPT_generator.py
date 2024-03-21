@@ -123,9 +123,9 @@ class Figure(Element):
         self.image = img 
 
 class PresentationGenerator:
-    def __init__(self, json_payload, name):
+    def __init__(self, json_payload, slide_id):
         self.json_payload = json_payload
-        self.name = name
+        self.slide_id = slide_id
         self.presentation = Presentation()
 
     def generate_presentation(self):
@@ -170,7 +170,7 @@ class PresentationGenerator:
             print("false")
             os.mkdir(ppts_path)
 
-        self.presentation.save(os.path.join(ppts_path, f'{self.name}.pptx'))
+        self.presentation.save(os.path.join(ppts_path, f'{self.slide_id}.pptx'))
 
 def load_json_payload(file_path):
     with open(file_path, 'r') as file:
@@ -178,34 +178,29 @@ def load_json_payload(file_path):
 
 def main():
     # Load the JSON payload
-    buffer_folder_path = "./code/buffer"
+    buffer_folder_path = "./code/buffer/full"
     base_topic_folder_path = "./code/json"
 
     json_files = [f for f in os.listdir(buffer_folder_path) if f.endswith('.json')]
 
     for json_file in json_files:
         #Load JSON file from buffer
-        file_name, _ = os.path.splitext(json_file)
-        topic, id = file_name.split('_')
-        # print(topic)
-        # print(id)
-        name = f"{topic}_{id}"
+        slide_id , _ = os.path.splitext(json_file)
         json_file_path = os.path.join(buffer_folder_path, json_file)
         json_payload = load_json_payload(json_file_path)
 
         #Generate Presentation from JSON file and save it
-        presentation_generator = PresentationGenerator(json_payload, name)
+        presentation_generator = PresentationGenerator(json_payload, slide_id)
         presentation_generator.generate_presentation()
-        print(f"Presentation generated successfully for {name}.")
+        print(f"Presentation generated successfully for {slide_id}.")
 
         #Move JSON file from buffer to respective topic folder
-        destination_folder_path = os.path.join(base_topic_folder_path, topic)
-        if not os.path.exists(destination_folder_path):
-            os.makedirs(destination_folder_path)
+        if not os.path.exists(base_topic_folder_path):
+            os.makedirs(base_topic_folder_path)
 
-        destination_file_path = os.path.join(destination_folder_path, json_file)
+        destination_file_path = os.path.join(base_topic_folder_path, json_file)
         os.rename(json_file_path, destination_file_path)
-        print(f"Moved {json_file} to {destination_folder_path}.")
+        print(f"Moved {json_file} to {base_topic_folder_path}.")
         print('\n')
     
     print("All presentations generated and files moved successfully.")

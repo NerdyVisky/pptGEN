@@ -1,3 +1,4 @@
+import os
 import random
 import json
 from layouts import CustomLayouts
@@ -19,30 +20,32 @@ def generate_dicts(csv_file_path):
     return dict
 
 
-TOPICS = ['NLP', 'AI', 'Deep Learning', 'Computer Vision']
-TITLES_DICT = generate_dicts("code\data\\titles.csv")
-DESC_DICT = generate_dicts("code\data\\descriptions.csv")
-ENUM_DICT = generate_dicts("code\data\\enumerations.csv")
-PATH_DICT = generate_dicts("code\data\\figures.csv")
+# TOPICS = ['NLP', 'AI', 'Deep Learning', 'Computer Vision']
+# TITLES_DICT = generate_dicts("code\data\\titles.csv")
+# DESC_DICT = generate_dicts("code\data\\descriptions.csv")
+# ENUM_DICT = generate_dicts("code\data\\enumerations.csv")
+# PATH_DICT = generate_dicts("code\data\\figures.csv")
 
 # print(TITLES_DICT['NLP'])
 
 
 
-def generate_random_slide(slide_number, topic, style_obj):
+def generate_random_slide(slide_number, data, style_obj):
     bg_color, title_font_family, title_font_attr, desc_font_family, desc_font_attr = style_obj["bg_color"], style_obj["title_font_family"], style_obj["title_font_attr"], style_obj["desc_font_family"], style_obj["desc_font_attr"]
     # Determining when a slide has BG as White
     THRES = 0.667
     if generate_random_value(float, 0, 1) < THRES:
         bg_color = {"r": 255, "g": 255, "b": 255}
 
-    # Define total number of body elements
-    if slide_number == 1:
-        total_body_elements = 0
-    else:
-        total_body_elements = generate_random_value(int, 1, 3)
+    # # Define total number of body elements
+    # if slide_number == 1:
+    #     total_body_elements = 0
+    # else:
+    #     total_body_elements = generate_random_value(int, 1, 3)
+    total_body_elements = 2
     # n_elements_list = [descriptions, enumerations, figures]
-    n_elements_list = generate_n_numbers_with_sum(total_body_elements, 3)
+    n_elements_list = [1, 1, 0]
+    # n_elements_list = generate_n_numbers_with_sum(total_body_elements, 3)
     # Distribute the total count among the three categories
 
 
@@ -64,7 +67,7 @@ def generate_random_slide(slide_number, topic, style_obj):
     font_color = generate_contrasting_font_color(bg_color)
 
     ## Fetch Random content
-    title_content = pick_random(TITLES_DICT[topic])
+    title_content = data.get('title', '<NO TITLE LOADED>')
     # print(title_content)
 
     ## Putting it together for the title object
@@ -95,7 +98,7 @@ def generate_random_slide(slide_number, topic, style_obj):
         slide['elements']['description'] = []
         for _ in range(n_elements_list[0]):
             font_obj = generate_random_font("description")
-            desc = pick_random(DESC_DICT[topic])
+            desc = data.get('description', '')
             desc_instance = {
             "label": "text",
             "value": desc,
@@ -118,8 +121,7 @@ def generate_random_slide(slide_number, topic, style_obj):
         ## Generate Enumerations
         for _ in range(n_elements_list[1]):
             font_obj = generate_random_font("description")
-            enum_raw = pick_random(ENUM_DICT[topic])
-            enum = enum_raw.split('<pt>')
+            enum = data.get('enumeration', [])
             enum_instance = {
             "label": "enumeration",
             "value": enum,
@@ -148,7 +150,7 @@ def generate_random_slide(slide_number, topic, style_obj):
             "ymin": all_dims['body'][element_index]['top'],
             "width": all_dims['body'][element_index]['width'],
             "height": all_dims['body'][element_index]['height'],
-            "path": pick_random(PATH_DICT[topic])
+            "path": 'code\\assets\\frog_img.png'
             }
             slide['elements']['figure'].append(fig_instance)
             element_index += 1
@@ -158,19 +160,30 @@ def generate_random_slide(slide_number, topic, style_obj):
     
 
 if __name__ == "__main__":
-    num_files = 3
-    for i in range(num_files): 
-        topic = pick_random(TOPICS)
-        n_slides = generate_random_value(int, 3, 7)
+    # num_files = 3
+    buffer_dir = 'code/buffer'
+    json_files = [f for f in os.listdir(buffer_dir) if f.endswith('.json')]
+
+    for json_file in json_files: 
         style_obj = generate_random_style_obj()
         # print(style_obj)
-        slides = [generate_random_slide(i+1, topic, style_obj) for i in range(n_slides)]
+        slide_id, _ = os.path.splitext(json_file)
+        file_path = os.path.join(buffer_dir, json_file)
+        with open(file_path, 'r') as file:
+            data = json.load(file)
+        slides = [generate_random_slide(i+1, data, style_obj) for i in range(1)]
     
         data = {
-            "topic": topic,
-            "n_slides": n_slides,
+            "slide_id": slide_id,
+            "n_slides": 1,
             "slides": slides
         }
-        with open(f"code\\buffer\\{topic}_{i}.json", 'w') as json_file:
+        with open(f"code\\buffer\\{slide_id}.json", 'w') as json_file:
             json.dump(data, json_file, indent=3)
-        print(f"{topic}_{i} JSON file created successfully")
+        print(f"{slide_id} JSON file created successfully")
+    
+    #Delete content JSON files
+    for json_file in json_files:
+        os.remove(os.path.join(buffer_dir, json_file))
+    
+

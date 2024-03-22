@@ -1,2 +1,4 @@
 pandas
 python-pptx
+openai
+python-dotenv

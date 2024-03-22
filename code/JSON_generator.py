@@ -178,7 +178,7 @@ if __name__ == "__main__":
             "n_slides": 1,
             "slides": slides
         }
-        with open(f"code\\buffer\\{slide_id}.json", 'w') as json_file:
+        with open(f"code\\buffer\\full\\{slide_id}.json", 'w') as json_file:
             json.dump(data, json_file, indent=3)
         print(f"{slide_id} JSON file created successfully")
     

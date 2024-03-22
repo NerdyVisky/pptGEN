@@ -155,7 +155,7 @@ def save_slide_content_to_json(slide_id, slide_content, file_path):
         json.dump(slide_content_dict, json_file, indent=3)
 
 def main():
-    slide_summaries = fetch_slide_summaries("code/data/slide_summary_sample.json")
+    slide_summaries = fetch_slide_summaries("code\data\slide_summary_sample.json")
     for slide_id, summary_data in slide_summaries.items():
         summary = summary_data["glensOcr"]
         generated_content = generate_slide_content(slide_id, summary)

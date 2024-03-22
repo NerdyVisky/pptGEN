@@ -1,9 +1,10 @@
 code/data/*.csv
 code/__pycache__/
-pptgen/
+pptENV/
 ppts/*.pptx
 code/json/*/*.json
 code/json/*.json
 code/data/slide_summary.json
 .env
 code/buffer/*.json
+code/buffer/full/*.json

@@ -178,7 +178,7 @@ def load_json_payload(file_path):
 
 def main():
     # Load the JSON payload
-    buffer_folder_path = "./code/buffer"
+    buffer_folder_path = "./code/buffer/full"
     base_topic_folder_path = "./code/json"
 
     json_files = [f for f in os.listdir(buffer_folder_path) if f.endswith('.json')]

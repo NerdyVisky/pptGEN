@@ -42,9 +42,9 @@ def generate_random_slide(slide_number, data, style_obj):
     #     total_body_elements = 0
     # else:
     #     total_body_elements = generate_random_value(int, 1, 3)
-    total_body_elements = 1
+    total_body_elements = 2
     # n_elements_list = [descriptions, enumerations, figures]
-    n_elements_list = [1, 0, 0]
+    n_elements_list = [1, 1, 0]
     # n_elements_list = generate_n_numbers_with_sum(total_body_elements, 3)
     # Distribute the total count among the three categories
 

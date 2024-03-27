@@ -42,9 +42,9 @@ def generate_random_slide(slide_number, data, style_obj):
     #     total_body_elements = 0
     # else:
     #     total_body_elements = generate_random_value(int, 1, 3)
-    total_body_elements = 2
+    total_body_elements = 1
     # n_elements_list = [descriptions, enumerations, figures]
-    n_elements_list = [1, 1, 0]
+    n_elements_list = [1, 0, 0]
     # n_elements_list = generate_n_numbers_with_sum(total_body_elements, 3)
     # Distribute the total count among the three categories
 
@@ -67,7 +67,7 @@ def generate_random_slide(slide_number, data, style_obj):
     font_color = generate_contrasting_font_color(bg_color)
 
     ## Fetch Random content
-    title_content = data.get('title', '<NO TITLE LOADED>')
+    title_content = data["slides"][slide_number - 1]["title"]
     # print(title_content)
 
     ## Putting it together for the title object
@@ -98,7 +98,7 @@ def generate_random_slide(slide_number, data, style_obj):
         slide['elements']['description'] = []
         for _ in range(n_elements_list[0]):
             font_obj = generate_random_font("description")
-            desc = data.get('description', '')
+            desc = data["slides"][slide_number - 1]["description"]
             desc_instance = {
             "label": "text",
             "value": desc,
@@ -121,7 +121,7 @@ def generate_random_slide(slide_number, data, style_obj):
         ## Generate Enumerations
         for _ in range(n_elements_list[1]):
             font_obj = generate_random_font("description")
-            enum = data.get('enumeration', [])
+            enum = data["slides"][slide_number - 1]["enumeration"]
             enum_instance = {
             "label": "enumeration",
             "value": enum,
@@ -171,19 +171,21 @@ if __name__ == "__main__":
         file_path = os.path.join(buffer_dir, json_file)
         with open(file_path, 'r') as file:
             data = json.load(file)
-        slides = [generate_random_slide(i+1, data, style_obj) for i in range(1)]
+        print(data)
+        n_slides = 4
+        slides = [generate_random_slide(i+1, data, style_obj) for i in range(n_slides)]
     
         data = {
             "slide_id": slide_id,
-            "n_slides": 1,
+            "n_slides": len(slides),
             "slides": slides
         }
         with open(f"code\\buffer\\full\\{slide_id}.json", 'w') as json_file:
             json.dump(data, json_file, indent=3)
         print(f"{slide_id} JSON file created successfully")
     
-    #Delete content JSON files
-    for json_file in json_files:
-        os.remove(os.path.join(buffer_dir, json_file))
+    # #Delete content JSON files
+    # for json_file in json_files:
+    #     os.remove(os.path.join(buffer_dir, json_file))
     
 

@@ -7,3 +7,4 @@ code/json/*.json
 code/data/slide_summary.json
 .env
 code/buffer/*.json
+code/test.py

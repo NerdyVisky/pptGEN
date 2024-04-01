@@ -1,85 +1,96 @@
-import json
 import os
-from openai import OpenAI
+import json
+import csv
 import random
-from dotenv import load_dotenv, find_dotenv
+from langchain_core.prompts import ChatPromptTemplate
+from langchain_openai import ChatOpenAI
+from langchain.output_parsers.openai_functions import JsonOutputFunctionsParser
+from langchain_core.pydantic_v1 import BaseModel, Field
+from langchain_core.utils.function_calling import convert_to_openai_function
 
-def fetch_slide_summaries(json_file_path):
-    with open(json_file_path, 'r', encoding='utf-8') as file:
-        slide_summaries = json.load(file)
-    return slide_summaries
+class SlideContentJSON(BaseModel):
+    slide_id: int = Field(description="The number of the slide in the presentation")
+    title: str = Field(description="Title content of the slide")
+    description: str = Field(description="Body content represented as a paragraph anywhere around 5 to 30 words long")
+    enumeration: list = Field(description="Body Content represented as a list of points where each point is around 2 to 5 wordws long")
+    image_prompt: str = Field(description="Prompt for generating image for the slide")
 
-def generate_slide_content(ppt_id, summary):
-    load_dotenv(find_dotenv())
-    print(os.environ['OPENAI_API_KEY'])
-    client = OpenAI(
-        api_key=os.environ.get("OPENAI_API_KEY")
-    )
+class PPTContentJSON(BaseModel):
+    presentation_ID : int = Field(description="Unique ID for each presentation provided in the prompt")
+    slides: list[SlideContentJSON] = Field(description="A list of slide objects")
+
+def generate_slide_content(ppt_id, arg_topic):
+    TEMPERATURE = 0.5
+    LLM_MODEL = 'gpt-4-1106-preview'
+        
+    model = ChatOpenAI(
+        model_name=LLM_MODEL, 
+        temperature=TEMPERATURE,
+        )
+
+    prompt_content = f"""
+        I am a university professor and I want you to help me prepare content of presentations based on a lecture topic I will provide.\n
+        Each topic is from AI field. You can access to all online resources to acquire content on the provided topic.\n
+        I want you to provide slide-wise detailed content in a JSON format. Make sure you understand the semantic meaning of each title to generate body content for that slide. Make use of bulleted enumerations, and maintain coherence from one slide to the next.\n
+        Prepare a presentation having 6 slides on {arg_topic}.
+        Out of 6 slides, only 1 slide should have title and an image, which will be genrated by Dall-E model.
+        Ensure the following constraints:
+        1. Title: 1-4 words
+        2. Description: 5-50 words
+        3. Enumeration: 1-5 items (1-20 words each)
+        Lnly for the image slide, which can be any slide, the title and image_prompt field should be filled. The rest 5 slides should have rest fields filled, with image_prompt field empty.\n
+        Consider this a graduate level course, and prepare the depth of content accordingly.
+        I am providing you a unique presentation_ID for each presentation which you need to attach as a key in your JSON output: {ppt_id}
+        """
     
-    MAX_TITLE_WORDS = 3
-    MAX_DESCRIPTION_WORDS = 20
-    MAX_ENUM_POINTS = 8
-    # prompt = f"""Given the summary: '{summary}', generate a JSON object for a slide with the following structure:
-    # \n\n{{\n    \"slide_id\": \"{slide_id}\",\n    \"title\": \"<content of the title>\",\n    \"description\": \"<content of the description>\",\n    \"enumeration\": [\"<content of pt 1>\", \"<content of pt 2>\", ...]\n}}
-    # \n\nFollow these instructions while generating the content:
-    # \n1. For every slide there should be only one title and it be between 1 to {MAX_TITLE_WORDS} words long.
-    # \n2. For every slide there should be only one description and it has to be between 5 to {MAX_DESCRIPTION_WORDS} words long.
-    # \n3. For every slide there should be only one enumeration. The content in the enumeration should be generated in form of points such that there are between 3 to {MAX_ENUM_POINTS} points for the enumeration. Each point in the enumeration should have between 1 to 3 words.
-    # \n\nPlease provide the content for each element described by the <> brackets and do not provide any other output other than the JSON file"
-    # """
+    final_prompt = ChatPromptTemplate.from_messages([
+        ("system", "You are a professor's assistant for an educational course. Your role is to generate presentation slide content in JSON format based on the provided topic."),
+        ("user", prompt_content.format(arg_topic=arg_topic))
+    ])
     
-    # make a prompt in similar format as above for 5 slides
-    prompt = f"""First slide content : {summary}. JSON object structure:
-    \n\n{{
-        \"{ppt_id}\" : [
-        {{  \"slide_id\": \"001\", 
-            \"content\": {{ \"title\": \"<content of the title>\", \"description\": \"<content of the description>\", \"enumeration\": [\"<content of pt 1>\", \"<content of pt 2>\", ...]}}
-        }},
-        {{  \"slide_id\": \"002\", 
-            \"content\": {{ \"title\": \"<content of the title>\", \"description\": \"<content of the description>\", \"enumeration\": [\"<content of pt 1>\", \"<content of pt 2>\", ...]}}
-        }},
-        ...
-        ]
-    }}
-    Provided the content for first slide, generate the content for slide_01, slide_02, slide_03, slide_04 and slide_05 in the JSON object structure provided.
-    Slide 1 will contain the content provided by user, generate the content for 2 to 5th slide."""
-    
-    response = client.chat.completions.create(
-        model="gpt-3.5-turbo",
-        messages=[
-            {"role": "system", "content": "You are a professor's assistant for an educational course. Your role is to generate presentation slide content given the summary of a slide. You should generate meaningful content that can be used in a classroom slide"},
-            {"role": "user", "content": prompt}
-            ])
-    return response.choices[0].message.content
-
-def parse_generated_content(content):
-    try:
-        slide_content = json.loads(content)
-        return slide_content
-    except json.JSONDecodeError:
-        print("Error: The generated content could not be parsed as JSON.")
-        return None
-
-def save_slide_content_to_json(ppt_id, slide_content, file_path):
+    openai_functions = [convert_to_openai_function(PPTContentJSON)]
+    parser = JsonOutputFunctionsParser()
+    chain = ( final_prompt
+                | model.bind(functions=openai_functions)
+                | parser)   
+    llm_output = chain.invoke({"prmopt": "Generate the content."})
+    return llm_output
+   
+def save_slide_content_to_json(slide_content, file_path):
     with open(file_path, 'w') as json_file:
         json.dump(slide_content, json_file, indent=3)
-    
+
+def fetch_seed_content(json_file_path):
+    with open(json_file_path, 'r') as file:
+        slide_seed = json.load(file)
+    return slide_seed
+
+def fetch_seed_content(csv_file_path):
+    slide_seeds = {}
+    with open(csv_file_path, 'r') as file:
+        reader = csv.reader(file)
+        next(reader)
+        for row in reader:
+            ppt_id = int(row[0])
+            topic = row[1]
+            slide_seeds[ppt_id] = topic
+    return slide_seeds
 
 def main():
-    slide_summaries = fetch_slide_summaries("code\data\slide_summary_sample.json")
+    CSV_PATH = "code\data\\topics.csv"
+    slide_seeds = fetch_seed_content(CSV_PATH)
     
-    # run the loop for any 5 random data items from the seed content json file
-    for ppt_id, summary_data in slide_summaries.items():
-        summary = summary_data["glensOcr"]
-    # for i in range(5):
-        # ppt_id = random.choice(list(slide_summaries.keys()))
-        # summary = slide_summary[ppt_id]["glensOcr"]
-        
-        generated_content = generate_slide_content(ppt_id, summary)
-        slide_content = parse_generated_content(generated_content)
-        if slide_content:
+    slide_seed_list = list(slide_seeds.items())
+    random_selections = random.sample(slide_seed_list, 1)
+    
+    # for ppt_id, topic in slide_seeds.items():
+    for ppt_id, topic in random_selections:
+        # print(f"Topic ID: {ppt_id}, Topic: {topic}")
+        generated_content = generate_slide_content(ppt_id, topic)
+        if isinstance(generated_content, dict):
             file_path = f"code/buffer/{ppt_id}.json"
-            save_slide_content_to_json(ppt_id, slide_content, file_path)
+            save_slide_content_to_json(generated_content, file_path)
+            print(f"Intermediate JSON file created: {ppt_id}.json")
 
 if __name__ == "__main__":
     main()

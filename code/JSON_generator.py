@@ -53,7 +53,7 @@ def generate_random_slide(slide_number, data, style_obj):
     ## Generate Font-level random values for Title
     font_color = generate_contrasting_font_color(bg_color)
     ## Fetch content data object, its in title element in content element, if not present, use default
-    title_content = data.get('content', {}).get('title', '<NO TITLE LOADED>')
+    title_content = data.get('title', '<NO TITLE LOADED>')
     # Putting it together for the title object
     slide['elements']['title'] = [{
             "label": "text",
@@ -82,7 +82,7 @@ def generate_random_slide(slide_number, data, style_obj):
         slide['elements']['description'] = []
         for _ in range(n_elements_list[0]):
             font_obj = generate_random_font("description")
-            desc = data.get('content', {}).get('description', '')
+            desc = data.get('description', '')
             desc_instance = {
             "label": "text",
             "value": desc,
@@ -105,7 +105,7 @@ def generate_random_slide(slide_number, data, style_obj):
         ## Generate Enumerations
         for _ in range(n_elements_list[1]):
             font_obj = generate_random_font("description")
-            enum = data.get('content', {}).get('enumeration', [])
+            enum = data.get('enumeration', [])
             enum_instance = {
             "label": "enumeration",
             "value": enum,
@@ -155,7 +155,7 @@ if __name__ == "__main__":
             data = json.load(file)
         # print(data)
         
-        slides = [generate_random_slide(i+1, data[ppt_id][i], style_obj) for i in range(5)]
+        slides = [generate_random_slide(i+1, data["slides"][i], style_obj) for i in range(6)]
         # for slide slide ppts
         # slides = [generate_random_slide(i+1, data, style_obj) for i in range(1)]
         # print(slides)

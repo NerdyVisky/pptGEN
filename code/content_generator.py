@@ -14,9 +14,10 @@ from langchain_openai import OpenAIEmbeddings
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain.tools.retriever import create_retriever_tool
 from langchain.agents import create_openai_functions_agent
-from langchain import hub
 from langchain.agents import AgentExecutor
-from prompt_store import few_shot_examples, suffix, prefix, template
+from langchain.chains.combine_documents import create_stuff_documents_chain
+from langchain.chains import create_retrieval_chain
+from prompt_store import prefix, suffix, few_shot_examples, few_shot_template
 
 
 
@@ -41,36 +42,100 @@ def configure_llm(TEMPERATURE=0,LLM_MODEL='gpt-3.5-turbo'):
      return model
      
      
-def configure_few_shots_prompt():
+def configure_prompt():
     example_prompt = PromptTemplate(
-       input_variables=["topic", "presentation_ID", "level", "TOC", "ppt_content"],
-       template=template
+       input_variables=["topic", "presentation_ID", "ppt_content"],
+       template=few_shot_template
        )
     final_prompt = FewShotPromptTemplate(
        examples=few_shot_examples,
        prefix=prefix,
        example_prompt=example_prompt,
        suffix=suffix,
-       input_variables=["topic", "presentation_ID", "level", "TOC"],
+       input_variables=["topic", "presentation_ID"],
        example_separator="\n\n"
        )
+    # prompt = PromptTemplate(
+    #    input_variables=["topic", "presentation_ID"],
+    #    template=template
+    #    )
     return final_prompt
 
-def construct_chain(final_prompt, model):
-    openai_functions = [convert_pydantic_to_openai_function(PPTContentJSON)]
+def construct_retrieval_chain(prompt, model, retriever):
     parser = JsonOutputFunctionsParser()
-    chain = ( final_prompt
-             | model.bind(functions=openai_functions)
-             | parser)
-    return chain
-     
+    # chain = ( final_prompt
+    #          | model.bind(functions=openai_functions)
+    #          | parser)
+    document_chain = create_stuff_documents_chain(model, prompt)
+    retrieval_chain = create_retrieval_chain(retriever, document_chain)
+    
+    return retrieval_chain
 
-def generate_slide_content(slide_id, arg_topic, arg_level, arg_toc):
-   model = configure_llm()
-   final_prompt = configure_few_shots_prompt()
-   chain = construct_chain(final_prompt, model)
-   llm_output = chain.invoke({"presentation_ID": slide_id, "topic": arg_topic, "TOC": arg_toc, "level": arg_level})
-   return llm_output
+def construct_retriever(url):
+    loader = WebBaseLoader(url)
+    docs = loader.load()
+    documents = RecursiveCharacterTextSplitter(
+        chunk_size=1000, chunk_overlap=200
+        ).split_documents(docs)
+    vector = FAISS.from_documents(documents, OpenAIEmbeddings())
+    return vector.as_retriever()
+
+
+
+def initalize_tools(tools_list, retriever=None):
+    tools = []
+    for name in tools_list:
+        match name:
+            case 'search':
+                search = TavilySearchResults()
+                tools.append(search)
+            case 'retrieve':
+                if retriever != None:
+                    retriever_tool = create_retriever_tool(
+                        retriever,
+                        "python_pptx_retriever",
+                        "Search for information about python-pptx library. For any questions about python-pptx, you must use this tool!",
+                        )
+                    tools.append(retriever_tool)
+                else:
+                    raise Exception("Retriever not configured.")
+            case _:
+                raise Exception("specified tool not available")
+    return tools
+
+def configure_agent(llm, tools, prompt):
+    agent = create_openai_functions_agent(llm, tools, prompt)
+    return AgentExecutor(agent=agent, tools=tools, verbose=True)
+     
+def construct_query(vars):
+    query = {}
+    query["input"] = """
+    Create extremely detailed lecture-style presentation content on the topic: {topic}
+    The presenation ID (not related to the content creation) is {presentation_ID}\n
+    """.format(topic=vars["topic"], presentation_ID=vars["presentation_ID"])
+    print(query)
+    return query
+
+
+def generate_slide_content(slide_id, arg_topic):
+    model = configure_llm()
+    prompt = configure_prompt()
+    print(prompt.format(
+       topic=arg_topic,
+       presentation_ID=slide_id,
+   ))
+    retriever = construct_retriever("https://brilliant.org/wiki/dijkstras-short-path-finder/")
+    chain = construct_retrieval_chain(prompt, model, retriever)
+    # tools_list = ['search', 'retrieve']
+    # tools = initalize_tools(tools_list, retriever)
+    # agent_executor = configure_agent(model, tools, final_prompt)
+    # agent_output = agent_executor.invoke({"topic": arg_topic, "presentation_ID": slide_id, "level": arg_level, "TOC": arg_toc})
+    query = construct_query({"presentation_ID": slide_id, "topic": arg_topic})
+    # llm_output = chain.invoke({"input": query["input"], "presentation_ID": slide_id, "topic": arg_topic})
+    # print(llm_output["answer"])
+    llm_output = ""
+    return llm_output
+
    
 
 
@@ -90,14 +155,12 @@ def main():
     slide_seeds = fetch_seed_content(SEED_PATH)
     for slide_id, seed_items in slide_seeds.items():
         topic = seed_items["topic"]
-        level = seed_items["level"]
-        table_of_content = seed_items["TOC"]
         # print(topic)
-        generated_content = generate_slide_content(slide_id, topic, level, table_of_content)
-        if isinstance(generated_content, dict):
-            file_path = f"code/buffer/{slide_id}.json"
-            save_slide_content_to_json(generated_content, file_path)
-            print(f"Intermediate JSON file created: {slide_id}.json")
+        generated_content = generate_slide_content(slide_id, topic)
+        # if isinstance(generated_content, dict):
+        #     file_path = f"code/buffer/{slide_id}.json"
+        #     save_slide_content_to_json(generated_content, file_path)
+        #     print(f"Intermediate JSON file created: {slide_id}.json")
 
 if __name__ == "__main__":
     main()

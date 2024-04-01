@@ -17,7 +17,7 @@ from langchain.agents import create_openai_functions_agent
 from langchain.agents import AgentExecutor
 from langchain.chains.combine_documents import create_stuff_documents_chain
 from langchain.chains import create_retrieval_chain
-from prompt_store import prefix, suffix, few_shot_examples, few_shot_template
+from prompt_store import prefix, suffix, few_shot_examples, few_shot_template, sample_context
 
 
 
@@ -44,7 +44,7 @@ def configure_llm(TEMPERATURE=0,LLM_MODEL='gpt-3.5-turbo'):
      
 def configure_prompt():
     example_prompt = PromptTemplate(
-       input_variables=["topic", "presentation_ID", "ppt_content"],
+       input_variables=["topic", "presentation_ID", "context", "ppt_content"],
        template=few_shot_template
        )
     final_prompt = FewShotPromptTemplate(
@@ -52,7 +52,7 @@ def configure_prompt():
        prefix=prefix,
        example_prompt=example_prompt,
        suffix=suffix,
-       input_variables=["topic", "presentation_ID"],
+       input_variables=["topic", "presentation_ID", "context"],
        example_separator="\n\n"
        )
     # prompt = PromptTemplate(
@@ -120,21 +120,22 @@ def construct_query(vars):
 def generate_slide_content(slide_id, arg_topic):
     model = configure_llm()
     prompt = configure_prompt()
-    print(prompt.format(
-       topic=arg_topic,
-       presentation_ID=slide_id,
-   ))
-    retriever = construct_retriever("https://brilliant.org/wiki/dijkstras-short-path-finder/")
+#     print(prompt.format(
+#        topic=arg_topic,
+#        presentation_ID=slide_id,
+#        context=sample_context
+#    ))
+    retriever = construct_retriever("https://brilliant.org/wiki/k-nearest-neighbors/")
     chain = construct_retrieval_chain(prompt, model, retriever)
     # tools_list = ['search', 'retrieve']
     # tools = initalize_tools(tools_list, retriever)
     # agent_executor = configure_agent(model, tools, final_prompt)
     # agent_output = agent_executor.invoke({"topic": arg_topic, "presentation_ID": slide_id, "level": arg_level, "TOC": arg_toc})
     query = construct_query({"presentation_ID": slide_id, "topic": arg_topic})
-    # llm_output = chain.invoke({"input": query["input"], "presentation_ID": slide_id, "topic": arg_topic})
-    # print(llm_output["answer"])
-    llm_output = ""
-    return llm_output
+    llm_output = chain.invoke({"input": query["input"], "presentation_ID": slide_id, "topic": arg_topic})
+    # print(type(json.loads(llm_output["answer"])))
+    # llm_output = ""
+    return json.loads(llm_output["answer"])
 
    
 
@@ -157,10 +158,10 @@ def main():
         topic = seed_items["topic"]
         # print(topic)
         generated_content = generate_slide_content(slide_id, topic)
-        # if isinstance(generated_content, dict):
-        #     file_path = f"code/buffer/{slide_id}.json"
-        #     save_slide_content_to_json(generated_content, file_path)
-        #     print(f"Intermediate JSON file created: {slide_id}.json")
+        if isinstance(generated_content, dict):
+            file_path = f"code/buffer/{slide_id}.json"
+            save_slide_content_to_json(generated_content, file_path)
+            print(f"Intermediate JSON file created: {slide_id}.json")
 
 if __name__ == "__main__":
     main()

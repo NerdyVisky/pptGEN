@@ -113,12 +113,14 @@ few_shot_examples = [
 suffix = """
        Look at the above examples and help me create the content for a presentation of the following details:
        Topic : {topic}\n
-       The presentation ID is {presentation_ID}
+       Refer the following context when you make the presentation:\n
+       {context}
+       The presentation ID is {presentation_ID}.
        """
 
 prefix = f"""
         I am a university professor and I want you to help me prepare content of presentations based on a lecture topic I will provide.
-        You can access to all online resources to acquire content on the provided topic\n
+        You can access to all online resources and the context I proivde on the provided topic\n
         I want you to provide slide-wise detailed content in a JSON format. Make sure you understand the semantic meaning of each title to generate body content for that slide. Make use of bulleted enumerations, and maintain coherence from one slide to the next.
         I am also providing context to generate the content. Generate content only based on the context I provide. 
         \nAdditionally, I am sharing a few examples where "User" is my prompt and "Expected JSON Output" is the expected output.\n
@@ -138,16 +140,25 @@ template = """
        """
 
 few_shot_template = """
-       
-       The presentation must have 6 slides on {topic}
-       First determine an appropriate Table of Contents of the presentation.
-       Each slide should have a title, and two textboxes - one paragraph-style (named description), and one point-wise-style (named enumeration)\n
-       The title should be between 1 to 4 words.\n
-       The description textbox should be between 10-50 words.\n
-       The enumeration should be rendered as a list where each element is a string is a bullet point of length between 1 to 4 words. 
-       Consider this an advanced university level course, and prepare the depth of content accordingly.
+       User:\n
+       Create presentation content for a lecture to be presented on {topic}\n
+       Use the following context to derive knowledge about the topic:\n
+       {context}
+       \n
+       Keep the following requirements in mind:\n
+       1. The presentation must have 6 slides.
+       2. Each slide should have a title, and two textboxes - one paragraph-style (named description), and one point-wise-style (named enumeration)\n
+       3. The title should be between 1 to 4 words.\n
+       4. The description textbox should be between 10-50 words.\n
+       5. The enumeration should be rendered as a list where each element is a string is a bullet point of length between 1 to 5 words. 
+       Consider this an advanced university level course, and prepare the depth of content accordingly. Keep the content as detailed as possible.\n
        \n I am providing you a unique presentation_ID for each presentation which you need to attach as a key in your JSON output: {presentation_ID}
        \n\n
        Expected JSON Output:\n
        {ppt_content}
        """
+
+sample_context = """
+Dijkstra's algorithm is a foundational method in computer science used for finding the shortest paths between nodes in a graph, particularly in weighted graphs with non-negative edge weights. Named after Dutch computer scientist Edsger W. Dijkstra, the algorithm efficiently explores the graph from a starting node outward, iteratively updating the shortest distance to each node it encounters. It maintains a priority queue or a set to keep track of the nodes whose shortest distances from the source have not yet been finalized. At each iteration, it selects the node with the smallest tentative distance and relaxes the distances of its neighboring nodes, potentially reducing their tentative distances. This process continues until all nodes have been visited or until the shortest path to the target node is found. Dijkstra's algorithm guarantees the shortest path under the condition that the graph does not contain negative weight cycles.\n
+Real-life applications of Dijkstra's algorithm are widespread across various domains. In transportation networks, it can be used to find the shortest route between two locations on a road map, optimizing travel time or distance for navigation systems. Similarly, in telecommunications, it aids in routing data packets through networks efficiently, minimizing latency and congestion. Additionally, Dijkstra's algorithm finds utility in network routing protocols, such as the Open Shortest Path First (OSPF) protocol used in Internet Protocol (IP) networks, where it determines the shortest paths between routers to facilitate packet forwarding. Moreover, it is employed in logistics and supply chain management to optimize delivery routes, reducing transportation costs and improving delivery times. By enabling efficient pathfinding in various applications, Dijkstra's algorithm plays a crucial role in enhancing efficiency and performance across diverse industries.
+"""

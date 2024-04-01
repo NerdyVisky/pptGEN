@@ -171,8 +171,7 @@ if __name__ == "__main__":
         file_path = os.path.join(buffer_dir, json_file)
         with open(file_path, 'r') as file:
             data = json.load(file)
-        print(data)
-        n_slides = 4
+        n_slides = len(data["slides"])
         slides = [generate_random_slide(i+1, data, style_obj) for i in range(n_slides)]
     
         data = {

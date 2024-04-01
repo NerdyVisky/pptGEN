@@ -66,7 +66,6 @@ class Element:
 
 class Title(Element):
     def render(self, slide):
-        print(slide.shapes.title)
         title_shape = slide.shapes.title
         # self.position_element(title_shape)
         title_shape.text = self.content
@@ -148,7 +147,6 @@ class PresentationGenerator:
                         else:
                             element = Description(element_info['value'], element_info['style'], (element_info['xmin'], element_info['ymin'], element_info['width'], element_info['height']))
                     elif element_type == 'title':
-                        print(element_info['value'])
                         element = Title(element_info['value'], element_info['style'], (element_info['xmin'], element_info['ymin'], element_info['width'], element_info['height']))
                     else:
                         raise ValueError(f"Unsupported element type: {element_type}")
@@ -167,7 +165,6 @@ class PresentationGenerator:
         
         ppts_path = "./ppts/"
         if os.path.isdir(ppts_path) == False:
-            print("false")
             os.mkdir(ppts_path)
 
         self.presentation.save(os.path.join(ppts_path, f'{self.slide_id}.pptx'))

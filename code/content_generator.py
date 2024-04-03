@@ -125,7 +125,7 @@ def generate_slide_content(slide_id, arg_topic):
 #        presentation_ID=slide_id,
 #        context=sample_context
 #    ))
-    retriever = construct_retriever("https://brilliant.org/wiki/k-nearest-neighbors/")
+    retriever = construct_retriever("https://www.allaboutcircuits.com/technical-articles/an-introduction-to-the-fast-fourier-transform/")
     chain = construct_retrieval_chain(prompt, model, retriever)
     # tools_list = ['search', 'retrieve']
     # tools = initalize_tools(tools_list, retriever)

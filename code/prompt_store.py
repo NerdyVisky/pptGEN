@@ -9,6 +9,7 @@ few_shot_examples = [
            """
        {{
         "presentation_ID": 11237,
+        "topic": "0/1 Knapsack Problem"
         "slides": [
            {{
               "slide_number": 1,
@@ -62,6 +63,7 @@ few_shot_examples = [
             """
         {{
         "presentation_ID": 11112,
+        "topic": "Machine Translation"
         "slides": [
            {{
               "slide_number": 1,

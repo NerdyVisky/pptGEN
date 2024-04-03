@@ -2,7 +2,15 @@ import os
 import random
 import json
 from layouts import CustomLayouts
-from random_generator import generate_random_style_obj, generate_random_font, generate_random_value, pick_random, generate_random_layout, generate_n_numbers_with_sum, generate_contrasting_font_color
+from random_generator import (generate_random_style_obj, 
+                              generate_random_font, 
+                              generate_random_value, 
+                              pick_random, 
+                              generate_random_layout, 
+                              generate_n_numbers_with_sum, 
+                              generate_contrasting_font_color,
+                              generate_random_date,
+                              pick_random_presenter)
 import pandas as pd
 
 
@@ -31,7 +39,7 @@ PATH_DICT = generate_dicts("code\data\\figures.csv")
 
 
 def generate_random_slide(slide_number, data, style_obj):
-    bg_color, title_font_family, title_font_attr, desc_font_family, desc_font_attr = style_obj["bg_color"], style_obj["title_font_family"], style_obj["title_font_attr"], style_obj["desc_font_family"], style_obj["desc_font_attr"]
+    bg_color, title_font_family, title_font_bold, title_font_attr, desc_font_family, desc_font_attr = style_obj["bg_color"], style_obj["title_font_family"], style_obj["title_font_bold"], style_obj["title_font_attr"], style_obj["desc_font_family"], style_obj["desc_font_attr"]
     # Determining when a slide has BG as White
     THRES = 0.667
     if generate_random_value(float, 0, 1) < THRES:
@@ -82,9 +90,9 @@ def generate_random_slide(slide_number, data, style_obj):
                 "font_name": title_font_family,
                 "font_size": title_font_attr["font_size"],
                 "font_color": font_color,
-                "bold": random.random() < 0.33,
-                "italics": random.random() < 0.1,
-                "underlined": random.random() < 0.1
+                "bold": title_font_bold,
+                "italics": False,
+                "underlined": False
             }
         }]    
        
@@ -111,8 +119,8 @@ def generate_random_slide(slide_number, data, style_obj):
                 "font_size": desc_font_attr["font_size"],
                 "font_color": font_color,
                 "bold": False,
-                "italics": random.random() < 0.1,
-                "underlined": random.random() < 0.1
+                "italics": False,
+                "underlined": False
                }
             } 
             slide['elements']['description'].append(desc_instance)
@@ -174,13 +182,16 @@ if __name__ == "__main__":
         n_slides = len(data["slides"])
         slides = [generate_random_slide(i+1, data, style_obj) for i in range(n_slides)]
     
-        data = {
+        new_data = {
             "slide_id": slide_id,
             "n_slides": len(slides),
+            "topic" : data["topic"],
+            "presenter": pick_random_presenter(),
+            "date": generate_random_date(),
             "slides": slides
         }
         with open(f"code\\buffer\\full\\{slide_id}.json", 'w') as json_file:
-            json.dump(data, json_file, indent=3)
+            json.dump(new_data, json_file, indent=3)
         print(f"{slide_id} JSON file created successfully")
     
     # #Delete content JSON files

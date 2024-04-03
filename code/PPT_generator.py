@@ -67,7 +67,6 @@ class Element:
 class Title(Element):
     def render(self, slide):
         title_shape = slide.shapes.title
-        # self.position_element(title_shape)
         title_shape.text = self.content
         self.apply_font_style(title_shape)
         self.position_element(title_shape)
@@ -80,16 +79,8 @@ class Description(Element):
     def render(self, slide):
         left, top, width, height = self.bounding_box
         textbox = slide.shapes.add_textbox(Inches(left), Inches(top), Inches(width), Inches(height))
-        # textbox.text = self.content
-        # self.apply_font_style(textbox)
-        lines = self.content.split('\n')
-        # Add each line as a separate paragraph with its own run
-        for line in lines:
-            paragraph = textbox.text_frame.add_paragraph()
-            run = paragraph.add_run()
-            run.text = line
-            self.apply_font_style_on_run(run)
-        # Store the textbox for later clean-up
+        textbox.text = self.content
+        self.apply_font_style(textbox)
         textbox.text_frame.auto_size = True
         textbox.text_frame.word_wrap = True 
         self.position_element(textbox)
@@ -97,18 +88,32 @@ class Description(Element):
 
 class Enumeration(Description):
     def render(self, slide):
-        left, top, width, height = self.bounding_box
-        textbox = slide.shapes.add_textbox(Inches(left), Inches(top), Inches(width), Inches(height))
-        text_frame = textbox.text_frame
-        for i, point_text in enumerate(self.content):
-            p = text_frame.add_paragraph()
-            run = p.add_run()
-            run.text = "• " + point_text
-            self.apply_font_style_on_run(run)
-        textbox.text_frame.auto_size = True
-        textbox.text_frame.word_wrap = True
-        self.position_element(textbox)
-        self.textbox = textbox
+        enum_shape = slide.shapes.placeholders[1]
+        enum_tf = enum_shape.text_frame
+        enum_tf.text = self.content[0]
+        self.apply_font_style(enum_shape)
+        for i, pt_text in enumerate(self.content):
+            if i>0:
+                if isinstance(pt_text, str):
+                    p = enum_tf.add_paragraph()
+                    run = p.add_run()
+                    run.text = pt_text
+                    self.apply_font_style_on_run(run)
+
+                elif isinstance(pt_text, list):
+                    for sub_pt in pt_text:
+                        s_p = enum_tf.add_paragraph()
+                        s_p.level = 1
+                        sub_run = s_p.add_run()
+                        sub_run.text = sub_pt
+                        self.apply_font_style_on_run(run)
+                else:
+                    raise Exception("Invalid Enumeration format")
+                
+        enum_tf.auto_size = True
+        enum_tf.word_wrap = True
+        self.position_element(enum_shape)
+        self.enum_tf = enum_tf
             
 
 class Figure(Element):
@@ -126,10 +131,34 @@ class PresentationGenerator:
         self.json_payload = json_payload
         self.slide_id = slide_id
         self.presentation = Presentation()
+    
+    def insert_title_slide(self):
+        title_font = self.json_payload["slides"][0]["elements"]["title"][0]["style"]["font_name"]
+        title_slide = self.presentation.slides.add_slide(self.presentation.slide_layouts[0])
+        title_shape = title_slide.shapes.title
+        title_shape.text = self.json_payload['topic']
+        title_shape.left = Inches(0.5)
+        title_shape.top = Inches(2)
+        title_shape.width = Inches(9)
+        title_shape.height = Inches(1.25)
+        title_shape.text_frame.paragraphs[0].font.bold = True
+        title_shape.text_frame.paragraphs[0].font.size = Pt(48)
+        title_shape.text_frame.paragraphs[0].font.name = title_font
+        presenter = title_slide.shapes.add_textbox(Inches(3.5),Inches(3.25),Inches(3),Inches(0.75))
+        presenter.text = self.json_payload["presenter"]
+        presenter.text_frame.paragraphs[0].alignment = PP_ALIGN.CENTER
+        presenter.text_frame.paragraphs[0].font.italic = True
+        presenter.text_frame.paragraphs[0].font.size = Pt(28)
+        presenter.text_frame.paragraphs[0].font.name = title_font
+        date = title_slide.shapes.add_textbox(Inches(4),Inches(4),Inches(2),Inches(0.5))
+        date.text = self.json_payload["date"]
+        date.text_frame.paragraphs[0].alignment = PP_ALIGN.CENTER
+        date.text_frame.paragraphs[0].font.name = title_font
 
     def generate_presentation(self):
+        self.insert_title_slide()
         for slide_info in self.json_payload['slides']:
-            slide_layout = self.presentation.slide_layouts[0]
+            slide_layout = self.presentation.slide_layouts[1]
             slide = self.presentation.slides.add_slide(slide_layout)
             slide.background.fill.solid()
             if slide_info['bg_color']:

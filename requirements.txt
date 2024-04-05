@@ -2,3 +2,7 @@ pandas
 python-pptx
 python-dotenv
 langchain
+langchain_community
+langchain_openai
+langchain_core
+langchain_text_splitters

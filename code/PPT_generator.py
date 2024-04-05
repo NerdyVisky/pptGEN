@@ -90,33 +90,45 @@ class Enumeration(Description):
     def render(self, slide):
         enum_shape = slide.shapes.placeholders[1]
         enum_tf = enum_shape.text_frame
-        enum_tf.text = self.content[0]
-        self.apply_font_style(enum_shape)
-        for i, pt_text in enumerate(self.content):
-            if i>0:
-                if isinstance(pt_text, str):
-                    p = enum_tf.add_paragraph()
-                    run = p.add_run()
-                    run.text = pt_text
-                    self.apply_font_style_on_run(run)
-
-                elif isinstance(pt_text, list):
-                    for sub_pt in pt_text:
-                        s_p = enum_tf.add_paragraph()
-                        s_p.level = 1
-                        sub_run = s_p.add_run()
-                        sub_run.text = sub_pt
+        if self.content != []:            
+            enum_tf.text = self.content[0]
+            self.apply_font_style(enum_shape)
+            for i, pt_text in enumerate(self.content):
+                if i>0:
+                    if isinstance(pt_text, str):
+                        p = enum_tf.add_paragraph()
+                        run = p.add_run()
+                        run.text = pt_text
                         self.apply_font_style_on_run(run)
-                else:
-                    raise Exception("Invalid Enumeration format")
+
+                    elif isinstance(pt_text, list):
+                        for sub_pt in pt_text:
+                            s_p = enum_tf.add_paragraph()
+                            s_p.level = 1
+                            sub_run = s_p.add_run()
+                            sub_run.text = sub_pt
+                            self.apply_font_style_on_run(run)
+                    else:
+                        raise Exception("Invalid Enumeration format")
                 
         enum_tf.auto_size = True
         enum_tf.word_wrap = True
+
         self.position_element(enum_shape)
         self.enum_tf = enum_tf
             
 
 class Figure(Element):
+    def render(self, slide):
+        left, top, width, height = self.bounding_box
+        img = slide.shapes.add_picture(self.content, Inches(left), Inches(top), Inches(width), Inches(height))
+        # original_width, original_height = img.image.size
+        # # Convert dimensions from pixels to inches
+        # img.width = Inches(original_width * scale_factor / img.image.dpi[0])
+        # img.height = Inches(original_height * scale_factor / img.image.dpi[1])
+        self.image = img 
+
+class Equation(Element):
     def render(self, slide):
         left, top, width, height = self.bounding_box
         img = slide.shapes.add_picture(self.content, Inches(left), Inches(top), Inches(width), Inches(height))
@@ -170,6 +182,8 @@ class PresentationGenerator:
                 for element_info in elements:
                     if element_type == 'figure':
                         element = Figure(element_info['path'], None, (element_info['xmin'], element_info['ymin'], element_info['width'], element_info['height']))
+                    elif element_type == 'equations':
+                        element = Equation(element_info['path'], None, (element_info['xmin'], element_info['ymin'], element_info['width'], element_info['height']))
                     elif element_type == 'description':
                         if element_info['label'] == "enumeration":
                             element = Enumeration(element_info['value'], element_info['style'], (element_info['xmin'], element_info['ymin'], element_info['width'], element_info['height']))

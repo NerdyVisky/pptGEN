@@ -21,12 +21,18 @@ from prompt_store import prefix, suffix, few_shot_examples, few_shot_template, s
 
 
 
+class EquationObject(BaseModel):
+    eq_desc: str = Field(description='The description of the equation')
+    tex_code: str = Field(description='Equation described in LaTeX format')
+
+
 
 class SlideContentJSON(BaseModel):
     slide_number: int = Field(description="The number of the slide in the presentation")
     title: str = Field(description="Title content of the slide")
     description: str = Field(description="Body content represented as a paragraph anywhere around 5 to 30 words long")
     enumeration: list = Field(description="Body Content represented as a list of points where each point is around 2 to 5 wordws long")
+    equations: list[EquationObject] = Field(description="Information about equations to explain a mathematical concept")
 
 
 class PPTContentJSON(BaseModel):

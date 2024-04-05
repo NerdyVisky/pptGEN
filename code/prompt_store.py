@@ -15,7 +15,8 @@ few_shot_examples = [
               "slide_number": 1,
               "title": "Solving the 0/1 Knapsack Problem",
               "description": "Djikstra's Algorithm is a foundational tool in computer science for finding the shortest path between nodes in a graphExploring Dynamic Programming Approaches",
-              "enumeration": []
+              "enumeration": [],
+              "equations": []
            }},
            {{
               "slide_number": 2,
@@ -24,7 +25,8 @@ few_shot_examples = [
               "enumeration": [
                   "Widely applicable in various fields such as resource allocation, finance, and logistics.",
                   "Foundation for understanding dynamic programming techniques."
-              ]
+              ],
+              "equations": []
            }},
            {{
               "slide_number": 3,
@@ -36,6 +38,12 @@ few_shot_examples = [
                   "-> At each step, determine whether including the current item would increase the total value.",
                   "-> Update the 'dp' table accordingly.",
                   "-> The final entry in 'dp[n][W]' contains the maximum achievable value."
+              ],
+              "equations":[
+                {{
+                "eq_desc": "DP Algorithm for 0/1 Knapsack",
+                "tex_code": "$DP[i][j] = \\max(DP[i-1][j], DP[i-1][j - w[i]] + v[i])$"
+                }}
               ]
            }},
            {{
@@ -47,7 +55,8 @@ few_shot_examples = [
                  "Portfolio optimization in finance.",
                  "Cargo loading in transportation logistics.",
                  "Subset selection in machine learning feature engineering."
-              ]
+              ],
+              "equations": []
            }}
         ]
         }}
@@ -69,7 +78,8 @@ few_shot_examples = [
               "slide_number": 1,
               "title": "Machine Translation",
               "description": "The art of translating between languages by the machines!",
-              "enumeration": []
+              "enumeration": [],
+              "equations": []
            }},
            {{
               "slide_number": 2,
@@ -78,7 +88,8 @@ few_shot_examples = [
               "enumeration": [
                 "The idea of machine translation may be traced back to the 17th century",
                 "MT on the web starts with Systran offering free translation of small texts (1996)"
-              ]
+              ],
+              "equations": []
            }},
            {{
               "slide_number": 3,
@@ -93,7 +104,8 @@ few_shot_examples = [
                  "Statistical",
                  "Interlingual",
                  "Transfer-based"
-              ]
+              ],
+              "equations": []
            }},
            {{
               "slide_number": 4,
@@ -103,7 +115,8 @@ few_shot_examples = [
                  "Direct Systems",
                  "Transfer RBMT Systems",
                  "Interlingual RBMT Systems"
-              ]
+              ],
+              "equations": []
            }}
         ]
      }}
@@ -135,7 +148,7 @@ template = """
        Each slide should have a title, and two textboxes - one paragraph-style (named description), and one point-wise-style (named enumeration)\n
        The title should be between 1 to 4 words.\n
        The description textbox should be between 10-50 words.\n
-       The enumeration should be rendered as a list where each element is a string is a bullet point of length between 1 to 4 words. 
+       The enumeration should be rendered as a list where each element is a string is a bullet point of length between 1 to 4 words.
        Consider this an advanced university level course, and prepare the depth of content accordingly.
        \n I am providing you a unique presentation_ID for each presentation which you need to attach as a key in your JSON output: {presentation_ID}
        \n\n
@@ -153,6 +166,8 @@ few_shot_template = """
        3. The title should be between 1 to 4 words.\n
        4. The description textbox should be between 10-50 words.\n
        5. The enumeration should be rendered as a list where each element is a string is a bullet point of length between 1 to 5 words. 
+       6. The equation is optional for each slide. Hence, for every slide, determine whether you require an equation to explain a concept described in the slide and then generate the LaTex format of the equation and  
+       
        Consider this an advanced university level course, and prepare the depth of content accordingly. Keep the content as detailed as possible.\n
        \n I am providing you a unique presentation_ID for each presentation which you need to attach as a key in your JSON output: {presentation_ID}
        \n\n

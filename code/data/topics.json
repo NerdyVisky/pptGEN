@@ -1,7 +1,11 @@
 {
-    "11239": {
-        "topic": "Djikstra's Algorithm",
-        "level": "advanced",
-        "TOC": "1. Introduction to Djikstra's Algorithm\n 2. Underlying Core Concepts\n 3. Algorithm Pseudocode\n 4. Use Cases"
+    "11301": {
+        "topic": "Fast Fourier Transform"
+    },
+    "11302": {
+        "topic": "Time and Space Complexity of Algorithms"
+    },
+    "11303": {
+        "topic": "Adjacency Matrix for Graphs"
     }
 }

@@ -66,9 +66,7 @@ class Element:
 
 class Title(Element):
     def render(self, slide):
-        print(slide.shapes.title)
         title_shape = slide.shapes.title
-        # self.position_element(title_shape)
         title_shape.text = self.content
         self.apply_font_style(title_shape)
         self.position_element(title_shape)
@@ -81,16 +79,8 @@ class Description(Element):
     def render(self, slide):
         left, top, width, height = self.bounding_box
         textbox = slide.shapes.add_textbox(Inches(left), Inches(top), Inches(width), Inches(height))
-        # textbox.text = self.content
-        # self.apply_font_style(textbox)
-        lines = self.content.split('\n')
-        # Add each line as a separate paragraph with its own run
-        for line in lines:
-            paragraph = textbox.text_frame.add_paragraph()
-            run = paragraph.add_run()
-            run.text = line
-            self.apply_font_style_on_run(run)
-        # Store the textbox for later clean-up
+        textbox.text = self.content
+        self.apply_font_style(textbox)
         textbox.text_frame.auto_size = True
         textbox.text_frame.word_wrap = True 
         self.position_element(textbox)
@@ -98,18 +88,34 @@ class Description(Element):
 
 class Enumeration(Description):
     def render(self, slide):
-        left, top, width, height = self.bounding_box
-        textbox = slide.shapes.add_textbox(Inches(left), Inches(top), Inches(width), Inches(height))
-        text_frame = textbox.text_frame
-        for i, point_text in enumerate(self.content):
-            p = text_frame.add_paragraph()
-            run = p.add_run()
-            run.text = "• " + point_text
-            self.apply_font_style_on_run(run)
-        textbox.text_frame.auto_size = True
-        textbox.text_frame.word_wrap = True
-        self.position_element(textbox)
-        self.textbox = textbox
+        enum_shape = slide.shapes.placeholders[1]
+        enum_tf = enum_shape.text_frame
+        if self.content != []:            
+            enum_tf.text = self.content[0]
+            self.apply_font_style(enum_shape)
+            for i, pt_text in enumerate(self.content):
+                if i>0:
+                    if isinstance(pt_text, str):
+                        p = enum_tf.add_paragraph()
+                        run = p.add_run()
+                        run.text = pt_text
+                        self.apply_font_style_on_run(run)
+
+                    elif isinstance(pt_text, list):
+                        for sub_pt in pt_text:
+                            s_p = enum_tf.add_paragraph()
+                            s_p.level = 1
+                            sub_run = s_p.add_run()
+                            sub_run.text = sub_pt
+                            self.apply_font_style_on_run(run)
+                    else:
+                        raise Exception("Invalid Enumeration format")
+                
+        enum_tf.auto_size = True
+        enum_tf.word_wrap = True
+
+        self.position_element(enum_shape)
+        self.enum_tf = enum_tf
             
 
 class Figure(Element):
@@ -122,15 +128,49 @@ class Figure(Element):
         # img.height = Inches(original_height * scale_factor / img.image.dpi[1])
         self.image = img 
 
+class Equation(Element):
+    def render(self, slide):
+        left, top, width, height = self.bounding_box
+        img = slide.shapes.add_picture(self.content, Inches(left), Inches(top), Inches(width), Inches(height))
+        # original_width, original_height = img.image.size
+        # # Convert dimensions from pixels to inches
+        # img.width = Inches(original_width * scale_factor / img.image.dpi[0])
+        # img.height = Inches(original_height * scale_factor / img.image.dpi[1])
+        self.image = img 
+
 class PresentationGenerator:
-    def __init__(self, json_payload, ppt_id):
+    def __init__(self, json_payload, slide_id):
         self.json_payload = json_payload
-        self.ppt_id = ppt_id
+        self.slide_id = slide_id
         self.presentation = Presentation()
+    
+    def insert_title_slide(self):
+        title_font = self.json_payload["slides"][0]["elements"]["title"][0]["style"]["font_name"]
+        title_slide = self.presentation.slides.add_slide(self.presentation.slide_layouts[0])
+        title_shape = title_slide.shapes.title
+        title_shape.text = self.json_payload['topic']
+        title_shape.left = Inches(0.5)
+        title_shape.top = Inches(2)
+        title_shape.width = Inches(9)
+        title_shape.height = Inches(1.25)
+        title_shape.text_frame.paragraphs[0].font.bold = True
+        title_shape.text_frame.paragraphs[0].font.size = Pt(48)
+        title_shape.text_frame.paragraphs[0].font.name = title_font
+        presenter = title_slide.shapes.add_textbox(Inches(3.5),Inches(3.25),Inches(3),Inches(0.75))
+        presenter.text = self.json_payload["presenter"]
+        presenter.text_frame.paragraphs[0].alignment = PP_ALIGN.CENTER
+        presenter.text_frame.paragraphs[0].font.italic = True
+        presenter.text_frame.paragraphs[0].font.size = Pt(28)
+        presenter.text_frame.paragraphs[0].font.name = title_font
+        date = title_slide.shapes.add_textbox(Inches(4),Inches(4),Inches(2),Inches(0.5))
+        date.text = self.json_payload["date"]
+        date.text_frame.paragraphs[0].alignment = PP_ALIGN.CENTER
+        date.text_frame.paragraphs[0].font.name = title_font
 
     def generate_presentation(self):
+        self.insert_title_slide()
         for slide_info in self.json_payload['slides']:
-            slide_layout = self.presentation.slide_layouts[0]
+            slide_layout = self.presentation.slide_layouts[1]
             slide = self.presentation.slides.add_slide(slide_layout)
             slide.background.fill.solid()
             if slide_info['bg_color']:
@@ -142,13 +182,14 @@ class PresentationGenerator:
                 for element_info in elements:
                     if element_type == 'figure':
                         element = Figure(element_info['path'], None, (element_info['xmin'], element_info['ymin'], element_info['width'], element_info['height']))
+                    elif element_type == 'equations':
+                        element = Equation(element_info['path'], None, (element_info['xmin'], element_info['ymin'], element_info['width'], element_info['height']))
                     elif element_type == 'description':
                         if element_info['label'] == "enumeration":
                             element = Enumeration(element_info['value'], element_info['style'], (element_info['xmin'], element_info['ymin'], element_info['width'], element_info['height']))
                         else:
                             element = Description(element_info['value'], element_info['style'], (element_info['xmin'], element_info['ymin'], element_info['width'], element_info['height']))
                     elif element_type == 'title':
-                        print(element_info['value'])
                         element = Title(element_info['value'], element_info['style'], (element_info['xmin'], element_info['ymin'], element_info['width'], element_info['height']))
                     else:
                         raise ValueError(f"Unsupported element type: {element_type}")
@@ -167,10 +208,9 @@ class PresentationGenerator:
         
         ppts_path = "./ppts/"
         if os.path.isdir(ppts_path) == False:
-            print("false")
             os.mkdir(ppts_path)
 
-        self.presentation.save(os.path.join(ppts_path, f'{self.ppt_id}.pptx'))
+        self.presentation.save(os.path.join(ppts_path, f'{self.slide_id}.pptx'))
 
 def load_json_payload(file_path):
     with open(file_path, 'r') as file:
@@ -185,26 +225,23 @@ def main():
 
     for json_file in json_files:
         #Load JSON file from buffer
-        ppt_id , _ = os.path.splitext(json_file)
+        slide_id , _ = os.path.splitext(json_file)
         json_file_path = os.path.join(buffer_folder_path, json_file)
         json_payload = load_json_payload(json_file_path)
 
-        # print(json_payload)
-        
-        
         #Generate Presentation from JSON file and save it
-        presentation_generator = PresentationGenerator(json_payload, ppt_id)
+        presentation_generator = PresentationGenerator(json_payload, slide_id)
         presentation_generator.generate_presentation()
-        print(f"Presentation generated successfully for {ppt_id}.")
+        print(f"Presentation generated successfully for {slide_id}.")
 
         #Move JSON file from buffer to respective topic folder
-        # if not os.path.exists(base_topic_folder_path):
-        #     os.makedirs(base_topic_folder_path)
+        if not os.path.exists(base_topic_folder_path):
+            os.makedirs(base_topic_folder_path)
 
-        # destination_file_path = os.path.join(base_topic_folder_path, json_file)
-        # os.rename(json_file_path, destination_file_path)
-        # print(f"Moved {json_file} to {base_topic_folder_path}.")
-        # print('\n')
+        destination_file_path = os.path.join(base_topic_folder_path, json_file)
+        os.rename(json_file_path, destination_file_path)
+        print(f"Moved {json_file} to {base_topic_folder_path}.")
+        print('\n')
     
     print("All presentations generated and files moved successfully.")
 

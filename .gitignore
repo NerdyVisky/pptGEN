@@ -9,3 +9,4 @@ code/data/slide_summary.json
 code/buffer/*.json
 code/buffer/full/*.json
 code/buffer/xtra/*.json
+code/latex.py

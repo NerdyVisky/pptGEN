@@ -36,20 +36,27 @@ def count_body_elements(data, slide_number):
     return [ttl_desc, ttl_enum, ttl_eq]
 
 def get_eq_img_path(tex_code, slide_number, eq_num):
-    img_dir = 'code/data/equations/'
-    img_path = os.path.join(img_dir, f'eq_{slide_number}_{eq_num + 1}.png')
+    img_dir = 'code/buffer/equations/'
+    img_name = f'eq_{slide_number}_{eq_num + 1}.png'
     dpi = 600
-    tex_file = 'tmp_equation.tex'
+    tex_file = f'tmp_equation.tex'
     with open(tex_file, 'w') as latexfile:
         latexfile.write('\\documentclass[preview]{standalone}\n')
         latexfile.write('\\begin{document}\n')
-        latexfile.write('$%s$\n' % tex_code)
+        latexfile.write('%s\n' % tex_code)
         latexfile.write('\\end{document}\n')
     subprocess.call(['pdflatex', '-interaction=nonstopmode', tex_file], creationflags=subprocess.CREATE_NO_WINDOW)
-    doc = fitz.open(tex_file.replace('.tex', '.pdf'))
-    pix = doc[0].get_pixmap(matrix=fitz.Matrix(dpi / 72, dpi / 72))
-    pix.save(img_path)
-    os.remove(tex_file)
+    doc = fitz.open(f'tmp_equation.pdf')
+    page = doc[0]
+    content_rect = page.rect
+    content_width_inches = content_rect.width / 72
+    content_height_inches = content_rect.height / 72
+    image_width = int(content_width_inches * dpi)
+    image_height = int(content_height_inches * dpi)
+    pix = page.get_pixmap(matrix=fitz.Matrix(dpi / 72, dpi / 72), clip=content_rect)
+    pix.save(img_name)
+    img_path = os.path.join(img_dir, img_name)
+    os.rename(img_name, img_path)
     return img_path
 
 def generate_random_slide(slide_number, data, style_obj):
@@ -166,6 +173,11 @@ def generate_random_slide(slide_number, data, style_obj):
         # Render Equations
         slide['elements']['equations'] = []
         for i in range(n_elements_list[2]):
+            img_path = get_eq_img_path(data["slides"][slide_number - 1]["equations"][i]['tex_code'], slide_number, i)
+            os.remove('tmp_equation.pdf')
+            os.remove('tmp_equation.aux')
+            os.remove('tmp_equation.log')
+            os.remove('tmp_equation.tex')
             fig_instance = {
             "label": "equation",
             "xmin": all_dims['body'][element_index]['left'],
@@ -173,7 +185,7 @@ def generate_random_slide(slide_number, data, style_obj):
             "width": all_dims['body'][element_index]['width'],
             "height": all_dims['body'][element_index]['height'],
             "desc": data["slides"][slide_number - 1]["equations"][i]["eq_desc"],
-            "path": get_eq_img_path(data["slides"][slide_number - 1]["equations"][i]['tex_code'], slide_number, i)
+            "path": img_path
             }
             slide['elements']['equations'].append(fig_instance)
             element_index += 1
@@ -224,6 +236,6 @@ if __name__ == "__main__":
         print(f"{slide_id} JSON file created successfully")
     
     #Delete content JSON files
-    for json_file in json_files:
-        os.remove(os.path.join(buffer_dir, json_file))
+    # for json_file in json_files:
+    #     os.remove(os.path.join(buffer_dir, json_file))
     

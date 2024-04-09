@@ -31,7 +31,7 @@ class SlideContentJSON(BaseModel):
     slide_number: int = Field(description="The number of the slide in the presentation")
     title: str = Field(description="Title content of the slide")
     description: str = Field(description="Body content represented as a paragraph anywhere around 5 to 30 words long")
-    enumeration: list = Field(description="Body Content represented as a list of points where each point is around 2 to 5 wordws long")
+    enumeration: list = Field(description="Body Content represented as a list of points where each point is a string of around 2 to 5 words long")
     equations: list[EquationObject] = Field(description="Information about equations to explain a mathematical concept")
 
 
@@ -141,6 +141,7 @@ def generate_slide_content(slide_id, arg_topic):
     llm_output = chain.invoke({"input": query["input"], "presentation_ID": slide_id, "topic": arg_topic})
     # print(type(json.loads(llm_output["answer"])))
     # llm_output = ""
+    print(llm_output["answer"])
     return json.loads(llm_output["answer"])
 
    

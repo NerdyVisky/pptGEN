@@ -1,5 +1,6 @@
 code/data/*.csv
 code/data/equations/
+code/buffer/equations/
 code/__pycache__/
 pptgen/
 ppts/*.pptx
@@ -9,3 +10,4 @@ code/data/slide_summary.json
 .env
 code/buffer/*.json
 code/test.py
+code/test2.py

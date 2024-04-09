@@ -15,6 +15,8 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from PIL import Image
 from io import BytesIO 
+import subprocess
+import fitz
 
 
 def generate_dicts(csv_file_path):
@@ -43,6 +45,8 @@ def count_body_elements(data, slide_number):
     ttl_desc = 0
     ttl_enum = 0
     ttl_eq = 0
+    ttl_tb = 0
+    ttl_fig = 0
     for k, v in data["slides"][slide_number - 1].items():
         if k == 'description' and v != "":
             ttl_desc = 1
@@ -50,6 +54,10 @@ def count_body_elements(data, slide_number):
             ttl_enum = 1
         elif k == 'equations':
             ttl_eq = len(v)
+        elif k == 'tables':
+            ttl_tb = len(v)
+        elif k == 'figures':
+            ttl_fig = len(v)
     # print(ttl_desc)
     # print(ttl_enum)
     # print(ttl_eq)
@@ -57,7 +65,7 @@ def count_body_elements(data, slide_number):
 
 def get_eq_img_path(tex_code, slide_number, eq_num):
     plt.rcParams['text.usetex'] = True
-    fig, ax = plt.subplots(figsize = (2,2))
+    fig, ax = plt.subplots(figsize = (1,1))
     ax.text(0.5, 0.5, tex_code, fontsize = 14, ha='center', va='center', transform=ax.transAxes)
     ax.axis('off')
     # plt.show()
@@ -70,6 +78,47 @@ def get_eq_img_path(tex_code, slide_number, eq_num):
         img_file.write(buffer.getvalue())
     
     return img_path
+
+
+def get_tab_img_path(tex_code, slide_number, tab_num):
+    plt.rcParams['text.usetex'] = True
+    fig, ax = plt.subplots(figsize = (1,1))
+    ax.text(0.5, 0.5, tex_code, fontsize = 14, ha='center', va='center', transform=ax.transAxes)
+    ax.axis('off')
+    # plt.show()
+    buffer = BytesIO()
+    plt.savefig(buffer, dpi=300, format='png', bbox_inches='tight', pad_inches=0)
+    plt.close(fig)
+    buffer.seek(0)
+    img_path = f'code\\data\\tables\\tab_{slide_number}_{tab_num + 1}.png'
+    with open(img_path, 'wb') as img_file:
+        img_file.write(buffer.getvalue())
+    
+    return img_path
+
+# def get_eq_img_path(tex_code, slide_number, eq_num):
+#     img_dir = 'code/buffer/equations/'
+#     img_name = f'eq_{slide_number}_{eq_num + 1}.png'
+#     dpi = 600
+#     tex_file = f'tmp_equation.tex'
+#     with open(tex_file, 'w') as latexfile:
+#         latexfile.write('\\documentclass[preview]{standalone}\n')
+#         latexfile.write('\\begin{document}\n')
+#         latexfile.write('%s\n' % tex_code)
+#         latexfile.write('\\end{document}\n')
+#     subprocess.call(['pdflatex', '-interaction=nonstopmode', tex_file], creationflags=subprocess.CREATE_NO_WINDOW)
+#     doc = fitz.open(f'tmp_equation.pdf')
+#     page = doc[0]
+#     content_rect = page.rect
+#     content_width_inches = content_rect.width / 72
+#     content_height_inches = content_rect.height / 72
+#     image_width = int(content_width_inches * dpi)
+#     image_height = int(content_height_inches * dpi)
+#     pix = page.get_pixmap(matrix=fitz.Matrix(dpi / 72, dpi / 72), clip=content_rect)
+#     pix.save(img_name)
+#     img_path = os.path.join(img_dir, img_name)
+#     os.rename(img_name, img_path)
+#     return img_path
 
 def generate_random_slide(slide_number, data, style_obj):
     bg_color, title_font_family, title_font_bold, title_font_attr, desc_font_family, desc_font_attr = style_obj["bg_color"], style_obj["title_font_family"], style_obj["title_font_bold"], style_obj["title_font_attr"], style_obj["desc_font_family"], style_obj["desc_font_attr"]
@@ -185,7 +234,7 @@ def generate_random_slide(slide_number, data, style_obj):
         # Render Equations
         slide['elements']['equations'] = []
         for i in range(n_elements_list[2]):
-            fig_instance = {
+            eq_instance = {
             "label": "equation",
             "xmin": all_dims['body'][element_index]['left'],
             "ymin": all_dims['body'][element_index]['top'],
@@ -194,7 +243,22 @@ def generate_random_slide(slide_number, data, style_obj):
             "desc": data["slides"][slide_number - 1]["equations"][i]["eq_desc"],
             "path": get_eq_img_path(data["slides"][slide_number - 1]["equations"][i]['tex_code'], slide_number, i)
             }
-            slide['elements']['equations'].append(fig_instance)
+            slide['elements']['equations'].append(eq_instance)
+            element_index += 1
+
+        # Render Equations
+        slide['elements']['tables'] = []
+        for i in range(n_elements_list[3]):
+            tab_instance = {
+            "label": "table",
+            "xmin": all_dims['body'][element_index]['left'],
+            "ymin": all_dims['body'][element_index]['top'],
+            "width": all_dims['body'][element_index]['width'],
+            "height": all_dims['body'][element_index]['height'],
+            "desc": data["slides"][slide_number - 1]["tables"][i]["tab_desc"],
+            "path": get_eq_img_path(data["slides"][slide_number - 1]["tables"][i]['tex_code'], slide_number, i)
+            }
+            slide['elements']['tables'].append(tab_instance)
             element_index += 1
 
         # ## Generate figures

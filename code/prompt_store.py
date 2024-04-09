@@ -1,8 +1,8 @@
 few_shot_examples = [
-       {
+  {
            "presentation_ID": 11111,
            "topic": "0/1 Knapsack Problem",
-           "context": """
+           "outline": """
             The 0/1 Knapsack problem is a fundamental conundrum in computer science, tasked with maximizing value while respecting weight constraints. Its premise involves selecting items from a given set, each with an associated weight and value, to fill a knapsack of limited capacity. The challenge lies in determining the optimal combination of items to maximize the total value without surpassing the knapsack's weight limit. This problem is commonly tackled using dynamic programming techniques, where a table is filled iteratively to compute the maximum value achievable for various subproblems. The algorithm progresses by considering each item sequentially and updating the table with the maximum value achievable at each weight capacity. Once the table is fully populated, the solution can be found in its last cell, representing the maximum value attainable with the given constraints. Real-life applications of the 0/1 Knapsack problem span diverse domains. It finds utility in resource allocation for project management, portfolio optimization in finance, packet routing in telecommunications, cargo loading in transportation, and inventory management in retail. These applications leverage the problem's ability to efficiently optimize resource allocation, making it a crucial tool in decision-making processes across various industries.
             """,
            "ppt_content":
@@ -62,67 +62,85 @@ few_shot_examples = [
         }}
            """
        },
-       {    "presentation_ID": 11112,
-            "topic": "Machine Translation",
-            "context":
-            """
-            Machine Translation (MT) in Natural Language Processing (NLP) is a pivotal field dedicated to automatically translating text from one language to another. Its objective is to replicate the human ability to comprehend and generate natural language across different linguistic systems. MT systems typically employ a variety of techniques ranging from statistical models to neural networks. These methods learn patterns and relationships between languages from vast amounts of parallel corpora, which consist of texts in multiple languages aligned at the sentence or phrase level. One common approach is the sequence-to-sequence (Seq2Seq) model, which utilizes recurrent neural networks (RNNs) or transformers to map input sequences in one language to output sequences in another. The training process involves minimizing the difference between the predicted translation and the reference translation using techniques like maximum likelihood estimation or reinforcement learning. Real-world applications of MT are extensive, impacting global communication, commerce, and cultural exchange. It enables seamless translation in international business dealings, facilitates cross-border collaborations, and enhances accessibility to information across linguistic barriers. MT is also integral to platforms like online language learning resources, multilingual customer support systems, and global news dissemination networks. Moreover, MT plays a crucial role in preserving and disseminating cultural heritage by facilitating the translation of literature, historical documents, and multimedia content. As MT systems continue to advance, they hold the promise of fostering greater linguistic inclusivity and connectivity in an increasingly interconnected world.
-            """,
-            "ppt_content": 
-            """
+  {
+    "presentation_ID": 22222,
+    "topic": "Language Modeling, Syntax, Parsing",
+    "context": """
+      Natural Language Processing (NLP) is a vast field concerned with the interaction between computers and human language. A core subfield within NLP is Language Modeling (LM), which deals with statistically analyzing and representing language patterns. LMs learn the probabilities of word sequences, enabling them to predict the next word in a sequence, generate text, translate languages, and perform other tasks involving human language.
+      The interplay between language modeling, syntax, and parsing is crucial for various NLP applications. LMs benefit from syntactic knowledge to generate more coherent and grammatically correct text. Parsing empowers computers to extract meaning from sentences by understanding their structure. Together, these concepts lay the foundation for tasks like machine translation, sentiment analysis, question answering, and text summarization.
+      """,
+    "ppt_content": """
+    {{
+      "presentation_ID": 11404,
+      "topic": "Language Modeling, Syntax, Parsing"
+      "slides": [
         {{
-        "presentation_ID": 11112,
-        "topic": "Machine Translation"
-        "slides": [
-           {{
-              "slide_number": 1,
-              "title": "Machine Translation",
-              "description": "The art of translating between languages by the machines!",
-              "enumeration": [],
-              "equations": []
-           }},
-           {{
-              "slide_number": 2,
-              "title": "Introduction to Machine Translation",
-              "description": "Machine Translation has been defined as the process that utilizes computer software to translate text from one natural language(such as English) to another (such as French).",
-              "enumeration": [
-                "The idea of machine translation may be traced back to the 17th century",
-                "MT on the web starts with Systran offering free translation of small texts (1996)"
-              ],
-              "equations": []
-           }},
-           {{
-              "slide_number": 3,
-              "title": "Techniques in Machine Translation",
-              "description": "",
-              "enumeration": [
-                 "Example-based MT",
-                 "Dictionary-based",
-                 "Rule-based",
-                 "Hybrid MT",
-                 "Neural MT",
-                 "Statistical",
-                 "Interlingual",
-                 "Transfer-based"
-              ],
-              "equations": []
-           }},
-           {{
-              "slide_number": 4,
-              "title": "Rule-based MT",
-              "description": "RBMT involves more information about the linguistics of the source and target languages ,using the syntactic rules and semantic analysis of both languages",
-              "enumeration": [
-                 "Direct Systems",
-                 "Transfer RBMT Systems",
-                 "Interlingual RBMT Systems"
-              ],
-              "equations": []
-           }}
-        ]
-     }}
-     """           
-       }
-   ]
+          "slide_number": 1,
+          "title": "Language Modeling, Syntax, and Parsing",
+          "description": "Cornerstones of Natural Language Processing (NLP)",
+          "enumeration": [],
+          "equations": []
+        }},
+        {{
+          "slide_number": 2,
+          "title": "Language Modeling (LM)",
+          "description": "Statistical analysis and representation of language patterns.",
+          "enumeration": [
+            "Predicting next words in sequences",
+            "Text generation",
+            "Machine translation",
+            "Understanding word relationships"
+          ],
+          "equations": [
+            {{
+              "eq_desc": "LM Probability Distribution",
+              "tex_code": "$P(w_n | w_1, w_2, ..., w_[n-1])$"
+            }}
+          ]
+        }},
+        {{
+          "slide_number": 3,
+          "title": "Syntax",
+          "description": "The grammatical structure of language",
+          "enumeration": [
+            "Rules for combining words into phrases and sentences",
+            "Ensuring grammatically correct structures",
+            "Understanding word order and relationships"
+          ],
+          "equations": [
+            {{
+              "eq_desc": "Example Context-Free Grammar Rule",
+              "tex_code": "VP -> VB NP"
+            }}
+          ]
+        }},
+        {{
+          "slide_number": 4,
+          "title": "Parsing",
+          "description": "Analyzing sentences and their structure",
+          "enumeration": [
+            "Breaking down sentences into constituents (words, phrases)",
+            "Identifying syntactic relationships",
+            "Understanding sentence structure for meaning extraction"
+          ],
+          "equations": []
+        }},
+        {{
+          "slide_number": 5,
+          "title": "Interplay and Applications",
+          "description": "Synergy for NLP tasks",
+          "enumeration": [
+            "LMs leveraging syntax for coherent text generation",
+            "Parsing for semantic understanding",
+            "Foundation for tasks like machine translation, sentiment analysis, question answering, and text summarization"
+          ],
+          "equations": []
+        }}
+      ]
+    }}
+    """
+  }
+]
 
 
 suffix = """
@@ -149,6 +167,7 @@ template = """
        The title should be between 1 to 4 words.\n
        The description textbox should be between 10-50 words.\n
        The enumeration should be rendered as a list where each element is a string is a bullet point of length between 1 to 4 words.
+       Equation is mandatory for each ppt, that means atleast on one slide. Determine whether you require an equation to explain a concept described in the slide and then generate the LaTex format of the equation.
        Consider this an advanced university level course, and prepare the depth of content accordingly.
        \n I am providing you a unique presentation_ID for each presentation which you need to attach as a key in your JSON output: {presentation_ID}
        \n\n
@@ -165,8 +184,8 @@ few_shot_template = """
        2. Each slide should have a title, and two textboxes - one paragraph-style (named description), and one point-wise-style (named enumeration)\n
        3. The title should be between 1 to 4 words.\n
        4. The description textbox should be between 10-50 words.\n
-       5. The enumeration should be rendered as a list where each element is a string is a bullet point of length between 1 to 5 words. 
-       6. The equation is optional for each slide. Hence, for every slide, determine whether you require an equation to explain a concept described in the slide and then generate the LaTex format of the equation and  
+       5. The enumeration should be rendered as a list where each element is a string is a bullet point.
+       6. The equation is mandatory for each ppt, that means atleast on one slide. Determine whether you require an equation to explain a concept described in the slide and then generate the LaTex format of the equation.
        
        Consider this an advanced university level course, and prepare the depth of content accordingly. Keep the content as detailed as possible.\n
        \n I am providing you a unique presentation_ID for each presentation which you need to attach as a key in your JSON output: {presentation_ID}

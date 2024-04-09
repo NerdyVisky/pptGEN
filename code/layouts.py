@@ -8,7 +8,7 @@ class CustomLayouts:
 
             ## Only Title
             case 0:
-                self.dimensions['title'] = [{'left': 0.5, 'top': 2, 'width': 9, 'height': 1.25}]
+                self.dimensions['title'] = {'left': 0.5, 'top': 2, 'width': 9, 'height': 1.25}
             ## Title and One Big Element
             case 1:
                 self.dimensions['body'] = [{'type': 0,  'left': 0.5, 'top': 2, 'width': 9, 'height': 5}] 

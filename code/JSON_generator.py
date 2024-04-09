@@ -50,51 +50,15 @@ def count_body_elements(data, slide_number):
     for k, v in data["slides"][slide_number - 1].items():
         if k == 'description' and v != "":
             ttl_desc = 1
-        elif k == 'enumeration':
+        elif k == 'enumeration' and v:
             ttl_enum = 1
-        elif k == 'equations':
+        elif k == 'equations' and v:
             ttl_eq = len(v)
-        elif k == 'tables':
+        elif k == 'tables' and v:
             ttl_tb = len(v)
-        elif k == 'figures':
+        elif k == 'figures' and v:
             ttl_fig = len(v)
-    # print(ttl_desc)
-    # print(ttl_enum)
-    # print(ttl_eq)
     return [ttl_desc, ttl_enum, ttl_eq, ttl_tb, ttl_fig]
-
-# def get_eq_img_path(tex_code, slide_number, eq_num):
-#     plt.rcParams['text.usetex'] = True
-#     fig, ax = plt.subplots(figsize = (1,1))
-#     ax.text(0.5, 0.5, tex_code, fontsize = 14, ha='center', va='center', transform=ax.transAxes)
-#     ax.axis('off')
-#     # plt.show()
-#     buffer = BytesIO()
-#     plt.savefig(buffer, dpi=300, format='png', bbox_inches='tight', pad_inches=0)
-#     plt.close(fig)
-#     buffer.seek(0)
-#     img_path = f'code\\data\\equations\\eq_{slide_number}_{eq_num + 1}.png'
-#     with open(img_path, 'wb') as img_file:
-#         img_file.write(buffer.getvalue())
-    
-#     return img_path
-
-
-# def get_tab_img_path(tex_code, slide_number, tab_num):
-#     plt.rcParams['text.usetex'] = True
-#     fig, ax = plt.subplots(figsize = (1,1))
-#     ax.text(0.5, 0.5, tex_code, fontsize = 14, ha='center', va='center', transform=ax.transAxes)
-#     ax.axis('off')
-#     # plt.show()
-#     buffer = BytesIO()
-#     plt.savefig(buffer, dpi=300, format='png', bbox_inches='tight', pad_inches=0)
-#     plt.close(fig)
-#     buffer.seek(0)
-#     img_path = f'code\\data\\tables\\tab_{slide_number}_{tab_num + 1}.png'
-#     with open(img_path, 'wb') as img_file:
-#         img_file.write(buffer.getvalue())
-    
-#     return img_path
 
 def get_eq_img_path(tex_code, slide_number, eq_num):
     img_dir = 'code/buffer/equations/'
@@ -119,6 +83,26 @@ def get_eq_img_path(tex_code, slide_number, eq_num):
     img_path = os.path.join(img_dir, img_name)
     os.rename(img_name, img_path)
     return img_path
+
+def resize_image(input_image_path, slide_number, i, output_image_dir, box_width, box_height, dpi=96):
+    box_width_pixels = int(box_width * dpi)
+    box_height_pixels = int(box_height * dpi)
+    with Image.open(input_image_path) as img:
+        img_width, img_height = img.size
+        img_aspect_ratio = img_width / img_height
+        box_aspect_ratio = box_width_pixels / box_height_pixels
+        if img_aspect_ratio > box_aspect_ratio:
+            new_width = box_width_pixels
+            new_height = int(box_width_pixels / img_aspect_ratio)
+        else:
+            new_height = box_height_pixels
+            new_width = int(box_height_pixels * img_aspect_ratio)
+        resized_img = img.resize((new_width, new_height))
+        new_img_path = os.path.join(output_image_dir, f'{slide_number}_{i}.png')
+        resized_img.save(new_img_path)
+        new_width_inches = new_width / dpi
+        new_height_inches = new_height / dpi
+        return new_img_path, new_width_inches, new_height_inches
 
 def get_tab_img_path(tex_code, slide_number, tab_num):
     img_dir = 'code/buffer/tables/'
@@ -263,32 +247,38 @@ def generate_random_slide(slide_number, data, style_obj):
             element_index += 1
         
         # Render Equations
+        resized_path = 'code\\buffer\\equations\\resized'
         slide['elements']['equations'] = []
         for i in range(n_elements_list[2]):
+            img_path = get_tab_img_path(data["slides"][slide_number - 1]["equations"][i]['tex_code'], slide_number, i)
+            resized_img_path, n_w, n_h = resize_image(img_path, slide_number, i, resized_path, all_dims['body'][element_index]['width'], all_dims['body'][element_index]['height'])
             eq_instance = {
             "label": "equation",
             "xmin": all_dims['body'][element_index]['left'],
             "ymin": all_dims['body'][element_index]['top'],
-            "width": all_dims['body'][element_index]['width'],
-            "height": all_dims['body'][element_index]['height'],
+            "width": n_w,
+            "height": n_h,
             "desc": data["slides"][slide_number - 1]["equations"][i]["eq_desc"],
-            "path": get_eq_img_path(data["slides"][slide_number - 1]["equations"][i]['tex_code'], slide_number, i)
+            "path": resized_img_path
             }
             slide['elements']['equations'].append(eq_instance)
             element_index += 1
             remove_tmp_files()
 
         # Render Tables
+        resized_path = 'code\\buffer\\tables\\resized'
         slide['elements']['tables'] = []
         for i in range(n_elements_list[3]):
+            img_path = get_tab_img_path(data["slides"][slide_number - 1]["tables"][i]['tex_code'], slide_number, i)
+            resized_img_path, n_w, n_h = resize_image(img_path, slide_number, i, resized_path, all_dims['body'][element_index]['width'], all_dims['body'][element_index]['height'])
             tab_instance = {
             "label": "table",
             "xmin": all_dims['body'][element_index]['left'],
             "ymin": all_dims['body'][element_index]['top'],
-            "width": all_dims['body'][element_index]['width'],
-            "height": all_dims['body'][element_index]['height'],
+            "width": n_w,
+            "height": n_h,
             "desc": data["slides"][slide_number - 1]["tables"][i]["tab_desc"],
-            "path": get_tab_img_path(data["slides"][slide_number - 1]["tables"][i]['tex_code'], slide_number, i)
+            "path": resized_img_path
             }
             slide['elements']['tables'].append(tab_instance)
             element_index += 1

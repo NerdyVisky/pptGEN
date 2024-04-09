@@ -138,6 +138,16 @@ class Equation(Element):
         # img.height = Inches(original_height * scale_factor / img.image.dpi[1])
         self.image = img 
 
+class Table(Element):
+    def render(self, slide):
+        left, top, width, height = self.bounding_box
+        img = slide.shapes.add_picture(self.content, Inches(left), Inches(top), Inches(width), Inches(height))
+        # original_width, original_height = img.image.size
+        # # Convert dimensions from pixels to inches
+        # img.width = Inches(original_width * scale_factor / img.image.dpi[0])
+        # img.height = Inches(original_height * scale_factor / img.image.dpi[1])
+        self.image = img 
+
 class PresentationGenerator:
     def __init__(self, json_payload, slide_id):
         self.json_payload = json_payload
@@ -180,10 +190,12 @@ class PresentationGenerator:
 
             for element_type, elements in slide_info['elements'].items():
                 for element_info in elements:
-                    if element_type == 'figure':
+                    if element_type == 'figures':
                         element = Figure(element_info['path'], None, (element_info['xmin'], element_info['ymin'], element_info['width'], element_info['height']))
                     elif element_type == 'equations':
                         element = Equation(element_info['path'], None, (element_info['xmin'], element_info['ymin'], element_info['width'], element_info['height']))
+                    elif element_type == 'tables':
+                        element = Table(element_info['path'], None, (element_info['xmin'], element_info['ymin'], element_info['width'], element_info['height']))
                     elif element_type == 'description':
                         if element_info['label'] == "enumeration":
                             element = Enumeration(element_info['value'], element_info['style'], (element_info['xmin'], element_info['ymin'], element_info['width'], element_info['height']))

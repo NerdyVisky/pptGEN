@@ -61,64 +61,95 @@ def count_body_elements(data, slide_number):
     # print(ttl_desc)
     # print(ttl_enum)
     # print(ttl_eq)
-    return [ttl_desc, ttl_enum, ttl_eq]
-
-def get_eq_img_path(tex_code, slide_number, eq_num):
-    plt.rcParams['text.usetex'] = True
-    fig, ax = plt.subplots(figsize = (1,1))
-    ax.text(0.5, 0.5, tex_code, fontsize = 14, ha='center', va='center', transform=ax.transAxes)
-    ax.axis('off')
-    # plt.show()
-    buffer = BytesIO()
-    plt.savefig(buffer, dpi=300, format='png', bbox_inches='tight', pad_inches=0)
-    plt.close(fig)
-    buffer.seek(0)
-    img_path = f'code\\data\\equations\\eq_{slide_number}_{eq_num + 1}.png'
-    with open(img_path, 'wb') as img_file:
-        img_file.write(buffer.getvalue())
-    
-    return img_path
-
-
-def get_tab_img_path(tex_code, slide_number, tab_num):
-    plt.rcParams['text.usetex'] = True
-    fig, ax = plt.subplots(figsize = (1,1))
-    ax.text(0.5, 0.5, tex_code, fontsize = 14, ha='center', va='center', transform=ax.transAxes)
-    ax.axis('off')
-    # plt.show()
-    buffer = BytesIO()
-    plt.savefig(buffer, dpi=300, format='png', bbox_inches='tight', pad_inches=0)
-    plt.close(fig)
-    buffer.seek(0)
-    img_path = f'code\\data\\tables\\tab_{slide_number}_{tab_num + 1}.png'
-    with open(img_path, 'wb') as img_file:
-        img_file.write(buffer.getvalue())
-    
-    return img_path
+    return [ttl_desc, ttl_enum, ttl_eq, ttl_tb, ttl_fig]
 
 # def get_eq_img_path(tex_code, slide_number, eq_num):
-#     img_dir = 'code/buffer/equations/'
-#     img_name = f'eq_{slide_number}_{eq_num + 1}.png'
-#     dpi = 600
-#     tex_file = f'tmp_equation.tex'
-#     with open(tex_file, 'w') as latexfile:
-#         latexfile.write('\\documentclass[preview]{standalone}\n')
-#         latexfile.write('\\begin{document}\n')
-#         latexfile.write('%s\n' % tex_code)
-#         latexfile.write('\\end{document}\n')
-#     subprocess.call(['pdflatex', '-interaction=nonstopmode', tex_file], creationflags=subprocess.CREATE_NO_WINDOW)
-#     doc = fitz.open(f'tmp_equation.pdf')
-#     page = doc[0]
-#     content_rect = page.rect
-#     content_width_inches = content_rect.width / 72
-#     content_height_inches = content_rect.height / 72
-#     image_width = int(content_width_inches * dpi)
-#     image_height = int(content_height_inches * dpi)
-#     pix = page.get_pixmap(matrix=fitz.Matrix(dpi / 72, dpi / 72), clip=content_rect)
-#     pix.save(img_name)
-#     img_path = os.path.join(img_dir, img_name)
-#     os.rename(img_name, img_path)
+#     plt.rcParams['text.usetex'] = True
+#     fig, ax = plt.subplots(figsize = (1,1))
+#     ax.text(0.5, 0.5, tex_code, fontsize = 14, ha='center', va='center', transform=ax.transAxes)
+#     ax.axis('off')
+#     # plt.show()
+#     buffer = BytesIO()
+#     plt.savefig(buffer, dpi=300, format='png', bbox_inches='tight', pad_inches=0)
+#     plt.close(fig)
+#     buffer.seek(0)
+#     img_path = f'code\\data\\equations\\eq_{slide_number}_{eq_num + 1}.png'
+#     with open(img_path, 'wb') as img_file:
+#         img_file.write(buffer.getvalue())
+    
 #     return img_path
+
+
+# def get_tab_img_path(tex_code, slide_number, tab_num):
+#     plt.rcParams['text.usetex'] = True
+#     fig, ax = plt.subplots(figsize = (1,1))
+#     ax.text(0.5, 0.5, tex_code, fontsize = 14, ha='center', va='center', transform=ax.transAxes)
+#     ax.axis('off')
+#     # plt.show()
+#     buffer = BytesIO()
+#     plt.savefig(buffer, dpi=300, format='png', bbox_inches='tight', pad_inches=0)
+#     plt.close(fig)
+#     buffer.seek(0)
+#     img_path = f'code\\data\\tables\\tab_{slide_number}_{tab_num + 1}.png'
+#     with open(img_path, 'wb') as img_file:
+#         img_file.write(buffer.getvalue())
+    
+#     return img_path
+
+def get_eq_img_path(tex_code, slide_number, eq_num):
+    img_dir = 'code/buffer/equations/'
+    img_name = f'eq_{slide_number}_{eq_num + 1}.png'
+    dpi = 600
+    tex_file = f'tmp.tex'
+    with open(tex_file, 'w') as latexfile:
+        latexfile.write('\\documentclass[preview]{standalone}\n')
+        latexfile.write('\\begin{document}\n')
+        latexfile.write('%s\n' % tex_code)
+        latexfile.write('\\end{document}\n')
+    subprocess.call(['pdflatex', '-interaction=nonstopmode', tex_file], creationflags=subprocess.CREATE_NO_WINDOW)
+    doc = fitz.open(f'tmp.pdf')
+    page = doc[0]
+    content_rect = page.rect
+    content_width_inches = content_rect.width / 72
+    content_height_inches = content_rect.height / 72
+    image_width = int(content_width_inches * dpi)
+    image_height = int(content_height_inches * dpi)
+    pix = page.get_pixmap(matrix=fitz.Matrix(dpi / 72, dpi / 72), clip=content_rect)
+    pix.save(img_name)
+    img_path = os.path.join(img_dir, img_name)
+    os.rename(img_name, img_path)
+    return img_path
+
+def get_tab_img_path(tex_code, slide_number, tab_num):
+    img_dir = 'code/buffer/tables/'
+    img_name = f'tab_{slide_number}_{tab_num + 1}.png'
+    dpi = 600
+    tex_file = f'tmp.tex'
+    with open(tex_file, 'w') as latexfile:
+        latexfile.write('\\documentclass[preview]{standalone}\n')
+        latexfile.write('\\begin{document}\n')
+        latexfile.write('%s\n' % tex_code)
+        latexfile.write('\\end{document}\n')
+    subprocess.call(['pdflatex', '-interaction=nonstopmode', tex_file], creationflags=subprocess.CREATE_NO_WINDOW)
+    doc = fitz.open(f'tmp.pdf')
+    page = doc[0]
+    content_rect = page.rect
+    content_width_inches = content_rect.width / 72
+    content_height_inches = content_rect.height / 72
+    image_width = int(content_width_inches * dpi)
+    image_height = int(content_height_inches * dpi)
+    pix = page.get_pixmap(matrix=fitz.Matrix(dpi / 72, dpi / 72), clip=content_rect)
+    pix.save(img_name)
+    img_path = os.path.join(img_dir, img_name)
+    os.rename(img_name, img_path)
+    return img_path
+
+def remove_tmp_files():
+    os.remove(f'tmp.tex')
+    os.remove(f'tmp.aux')
+    os.remove(f'tmp.log')
+    os.remove(f'tmp.pdf')
+
 
 def generate_random_slide(slide_number, data, style_obj):
     bg_color, title_font_family, title_font_bold, title_font_attr, desc_font_family, desc_font_attr = style_obj["bg_color"], style_obj["title_font_family"], style_obj["title_font_bold"], style_obj["title_font_attr"], style_obj["desc_font_family"], style_obj["desc_font_attr"]
@@ -245,8 +276,9 @@ def generate_random_slide(slide_number, data, style_obj):
             }
             slide['elements']['equations'].append(eq_instance)
             element_index += 1
+            remove_tmp_files()
 
-        # Render Equations
+        # Render Tables
         slide['elements']['tables'] = []
         for i in range(n_elements_list[3]):
             tab_instance = {
@@ -256,24 +288,26 @@ def generate_random_slide(slide_number, data, style_obj):
             "width": all_dims['body'][element_index]['width'],
             "height": all_dims['body'][element_index]['height'],
             "desc": data["slides"][slide_number - 1]["tables"][i]["tab_desc"],
-            "path": get_eq_img_path(data["slides"][slide_number - 1]["tables"][i]['tex_code'], slide_number, i)
+            "path": get_tab_img_path(data["slides"][slide_number - 1]["tables"][i]['tex_code'], slide_number, i)
             }
             slide['elements']['tables'].append(tab_instance)
             element_index += 1
+            remove_tmp_files()
 
-        # ## Generate figures
-        # slide['elements']['figure'] = []
-        # for _ in range(n_elements_list[2]):
-        #     fig_instance = {
-        #     "label": "image",
-        #     "xmin": all_dims['body'][element_index]['left'],
-        #     "ymin": all_dims['body'][element_index]['top'],
-        #     "width": all_dims['body'][element_index]['width'],
-        #     "height": all_dims['body'][element_index]['height'],
-        #     "path": 'code\\assets\\frog_img.png'
-        #     }
-        #     slide['elements']['figure'].append(fig_instance)
-        #     element_index += 1
+        ## Render figures
+        slide['elements']['figures'] = []
+        for i in range(n_elements_list[4]):
+            fig_instance = {
+            "label": data["slides"][slide_number - 1]["figures"][i]["label"],
+            "xmin": all_dims['body'][element_index]['left'],
+            "ymin": all_dims['body'][element_index]['top'],
+            "width": all_dims['body'][element_index]['width'],
+            "height": all_dims['body'][element_index]['height'],
+            "desc": data["slides"][slide_number - 1]["figures"][i]["fig_desc"],
+            "path": 'code\\assets\\frog_img.png'
+            }
+            slide['elements']['figures'].append(fig_instance)
+            element_index += 1
     
     return slide
 

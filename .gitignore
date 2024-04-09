@@ -1,6 +1,6 @@
 code/data/*.csv
-code/data/equations/
 code/buffer/equations/
+code/buffer/tables/
 code/__pycache__/
 pptgen/
 ppts/*.pptx

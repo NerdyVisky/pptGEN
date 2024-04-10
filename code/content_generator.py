@@ -1,12 +1,12 @@
 import os
 import json
 from dotenv import find_dotenv, load_dotenv
-from langchain_core.prompts import (ChatPromptTemplate)
+from langchain_core.prompts import (FewShotChatMessagePromptTemplate, ChatPromptTemplate)
 from langchain_openai import ChatOpenAI
 from langchain.output_parsers.openai_functions import JsonOutputFunctionsParser
 from langchain_community.utils.openai_functions import (convert_pydantic_to_openai_function)
 from utils.data_validation import PPTContentJSON
-from utils.prompts import outline_prompt, instruction_prompt, generation_prompt
+from utils.prompts import outline_prompt, instruction_example_prompt, generation_prompt, instruction_example, instruction_prompt
 
 
 def fetch_seed_content(json_file_path):
@@ -30,7 +30,21 @@ def configure_prompt(phase):
     if phase == 'outline':
         prompt = ChatPromptTemplate.from_messages(outline_prompt)
     elif phase == 'instruction':
-        prompt = ChatPromptTemplate.from_messages(instruction_prompt)
+        example_prompt = ChatPromptTemplate.from_messages(
+            instruction_example_prompt
+        )
+        few_shot_prompt = FewShotChatMessagePromptTemplate(
+            examples=instruction_example,
+            example_prompt=example_prompt
+        )
+        prompt = ChatPromptTemplate.from_messages(
+            [
+                ('system', 'You are an capable and expert content creator. You can create multi-modal content such as text, images, code, etc. You also have access to all internet sources at your discretion.'),
+                few_shot_prompt,
+                instruction_prompt
+
+            ]
+        )
     elif phase == 'generation':
         prompt = ChatPromptTemplate.from_messages(generation_prompt)
     return prompt
@@ -41,16 +55,18 @@ def generate_slide_content(slide_id, arg_topic):
     prompt = configure_prompt("outline")
     chain = prompt | model
     output = chain.invoke({"topic": arg_topic, "format": "Nested Dictionary"})
+    print(output.content)
 
     ## Instruction Phase
     instruct_prompt = configure_prompt("instruction")
     instruct_chain = instruct_prompt | model
-    arg_elements = ['chart', 'graph', 'diagram', 'description', 'table', 'equation', 'url']
+    arg_elements = ['chart', 'graph', 'diagram', 'enumeration','description', 'table', 'equation', 'url']
     instruct_output = instruct_chain.invoke({"topic": arg_topic, "elements": arg_elements, "outline": output.content})
+    print(instruct_output.content)
 
     ## Generation Phase
     gen_model = ChatOpenAI(
-       model_name='gpt-3.5-turbo', 
+       model_name='gpt-4-1106-preview', 
        temperature=0,
        )
     gen_prompt = configure_prompt("generation")

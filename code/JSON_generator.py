@@ -19,25 +19,6 @@ import subprocess
 import fitz
 
 
-def generate_dicts(csv_file_path):
-    df = pd.read_csv(csv_file_path)
-    dict = {}
-    for i in range(len(df)):
-        topic = df.loc[i,'Topic']
-        value = df.loc[i,'Value']
-        
-        if topic not in dict.keys():
-            dict[topic] = [value]
-        else:
-            dict[topic].extend([value])
-    return dict
-
-
-TOPICS = ['NLP', 'AI', 'Deep Learning', 'Computer Vision']
-TITLES_DICT = generate_dicts("code\data\\titles.csv")
-DESC_DICT = generate_dicts("code\data\\descriptions.csv")
-ENUM_DICT = generate_dicts("code\data\\enumerations.csv")
-PATH_DICT = generate_dicts("code\data\\figures.csv")
 
 # print(TITLES_DICT['NLP'])
 
@@ -250,7 +231,7 @@ def generate_random_slide(slide_number, data, style_obj):
         resized_path = 'code\\buffer\\equations\\resized'
         slide['elements']['equations'] = []
         for i in range(n_elements_list[2]):
-            img_path = get_tab_img_path(data["slides"][slide_number - 1]["equations"][i]['tex_code'], slide_number, i)
+            img_path = get_eq_img_path(data["slides"][slide_number - 1]["equations"][i]['tex_code'], slide_number, i)
             resized_img_path, n_w, n_h = resize_image(img_path, slide_number, i, resized_path, all_dims['body'][element_index]['width'], all_dims['body'][element_index]['height'])
             eq_instance = {
             "label": "equation",

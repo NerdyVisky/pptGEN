@@ -26,4 +26,5 @@ class SlideContentJSON(BaseModel):
 
 class PPTContentJSON(BaseModel):
     presentation_ID : int = Field(description="Unique ID for each presentation provided in the prompt")
+    topic : str = Field(description="The topic name provided by the user")
     slides: list[SlideContentJSON] = Field(description="A list of slide objects")

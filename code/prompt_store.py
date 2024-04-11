@@ -2,7 +2,7 @@ few_shot_examples = [
   {
            "presentation_ID": 11111,
            "topic": "0/1 Knapsack Problem",
-           "context": """
+           "outline": """
             The 0/1 Knapsack problem is a fundamental conundrum in computer science, tasked with maximizing value while respecting weight constraints. Its premise involves selecting items from a given set, each with an associated weight and value, to fill a knapsack of limited capacity. The challenge lies in determining the optimal combination of items to maximize the total value without surpassing the knapsack's weight limit. This problem is commonly tackled using dynamic programming techniques, where a table is filled iteratively to compute the maximum value achievable for various subproblems. The algorithm progresses by considering each item sequentially and updating the table with the maximum value achievable at each weight capacity. Once the table is fully populated, the solution can be found in its last cell, representing the maximum value attainable with the given constraints. Real-life applications of the 0/1 Knapsack problem span diverse domains. It finds utility in resource allocation for project management, portfolio optimization in finance, packet routing in telecommunications, cargo loading in transportation, and inventory management in retail. These applications leverage the problem's ability to efficiently optimize resource allocation, making it a crucial tool in decision-making processes across various industries.
             """,
            "ppt_content":

@@ -10,4 +10,13 @@ code/buffer/*.json
 code/buffer/full/*.json
 code/buffer/xtra/*.json
 code/buffer/equations/*.png
+code/buffer/figures/*.png
+code/buffer/tables/*.png
+code/buffer/equations/resized/*.png
+code/buffer/figures/resized/*.png
+code/buffer/tables/resized/*.png
+code/buffer/past/*.json
 code/latex.py
+code/test.py
+code/rtsg
+code/utils/__pycache__/

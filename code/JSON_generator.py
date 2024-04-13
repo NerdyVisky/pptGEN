@@ -6,6 +6,7 @@ from random_generator import (generate_random_style_obj,
                               generate_random_font, 
                               generate_random_value, 
                               pick_random, 
+                              generate_footer_obj,
                               generate_random_layout, 
                               generate_n_numbers_with_sum, 
                               generate_contrasting_font_color,
@@ -21,6 +22,16 @@ import fitz
 
 
 # print(TITLES_DICT['NLP'])
+
+def count_footer_elements(date, showFN, showSN):
+    footer_elements = []
+    if date != None:
+        footer_elements.append("date")
+    if showSN == True:
+        footer_elements.append("slideNr")
+    if showFN == True:
+        footer_elements.append("footnote")
+    return footer_elements
 
 def count_body_elements(data, slide_number):
     ttl_desc = 0
@@ -116,13 +127,13 @@ def remove_tmp_files():
     os.remove(f'tmp.pdf')
 
 
-def generate_random_slide(slide_number, data, style_obj):
+def generate_random_slide(slide_number, data, style_obj, footer_obj):
     bg_color, title_font_family, title_font_bold, title_font_attr, desc_font_family, desc_font_attr = style_obj["bg_color"], style_obj["title_font_family"], style_obj["title_font_bold"], style_obj["title_font_attr"], style_obj["desc_font_family"], style_obj["desc_font_attr"]
     # Determining when a slide has BG as White
     THRES = 0.667
     if generate_random_value(float, 0, 1) < THRES:
         bg_color = {"r": 255, "g": 255, "b": 255}
-
+        date = None
     # # Define total number of body elements
     # if slide_number == 1:
     #     total_body_elements = 0
@@ -279,6 +290,40 @@ def generate_random_slide(slide_number, data, style_obj):
             }
             slide['elements']['figures'].append(fig_instance)
             element_index += 1
+        
+
+    ##Footer generation
+    slide['elements']['footer'] = []
+    for i, obj in enumerate(footer_obj):
+        footer_type = ''
+        if 'slideNr' in obj.keys():
+            footer_type = 'slideNr'
+            value = str(slide_number)
+        if 'footnote' in obj.keys():
+            footer_type = 'footnote'
+            value = "This is a footnote"
+        if 'date' in obj.keys():
+            footer_type = 'date'
+            value = generate_random_date()           
+        footer_dim = all_dims['footer'][obj[footer_type]]
+        foot_instance = {
+                "label": footer_type,
+                "location": footer_dim["type"],
+                "value": value,
+                "xmin": footer_dim['left'],
+                "ymin": footer_dim['top'],
+                "width": footer_dim['width'],
+                "height": footer_dim['height'],
+                "style": {
+                    "font_name": desc_font_family,
+                    "font_size": desc_font_attr["font_size"],
+                    "font_color": font_color,
+                    "bold": random.random() > 0.5,
+                    "italics": random.random() > 0.5,
+                    "underlined": False
+                }
+            }
+        slide['elements']['footer'].append(foot_instance)
     
     return slide
 
@@ -291,13 +336,15 @@ if __name__ == "__main__":
 
     for json_file in json_files: 
         style_obj = generate_random_style_obj()
+        footer_obj = generate_footer_obj()
+        print(footer_obj)
         # print(style_obj)
         slide_id, _ = os.path.splitext(json_file)
         file_path = os.path.join(buffer_dir, json_file)
         with open(file_path, 'r') as file:
             data = json.load(file)
         n_slides = len(data["slides"])
-        slides = [generate_random_slide(i+1, data, style_obj) for i in range(n_slides)]
+        slides = [generate_random_slide(i+1, data, style_obj, footer_obj) for i in range(n_slides)]
     
         new_data = {
             "slide_id": slide_id,

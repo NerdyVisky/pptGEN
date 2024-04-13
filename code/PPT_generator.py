@@ -65,6 +65,8 @@ class Element:
         raise NotImplementedError("Subclasses must implement this method")
 
 class Title(Element):
+    def __init__(self, content, style, bounding_box):
+        super().__init__(content, style, bounding_box)
     def render(self, slide):
         title_shape = slide.shapes.title
         title_shape.text = self.content
@@ -76,6 +78,9 @@ class Title(Element):
         pass
 
 class Description(Element):
+    def __init__(self, content, style, bounding_box):
+        super().__init__(content, style, bounding_box)
+
     def render(self, slide):
         left, top, width, height = self.bounding_box
         textbox = slide.shapes.add_textbox(Inches(left), Inches(top), Inches(width), Inches(height))
@@ -87,6 +92,9 @@ class Description(Element):
         self.textbox = textbox
 
 class Enumeration(Description):
+    def __init__(self, content, style, bounding_box):
+        super().__init__(content, style, bounding_box)
+
     def render(self, slide):
         enum_shape = slide.shapes.placeholders[1]
         enum_tf = enum_shape.text_frame
@@ -119,6 +127,9 @@ class Enumeration(Description):
             
 
 class Figure(Element):
+    def __init__(self, content, style, bounding_box):
+        super().__init__(content, style, bounding_box)
+
     def render(self, slide):
         left, top, width, height = self.bounding_box
         img = slide.shapes.add_picture(self.content, Inches(left), Inches(top), Inches(width), Inches(height))
@@ -129,6 +140,9 @@ class Figure(Element):
         self.image = img 
 
 class Equation(Element):
+    def __init__(self, content, style, bounding_box):
+        super().__init__(content, style, bounding_box)
+
     def render(self, slide):
         left, top, width, height = self.bounding_box
         img = slide.shapes.add_picture(self.content, Inches(left), Inches(top), Inches(width), Inches(height))
@@ -139,6 +153,9 @@ class Equation(Element):
         self.image = img 
 
 class Table(Element):
+    def __init__(self, content, style, bounding_box):
+        super().__init__(content, style, bounding_box)
+
     def render(self, slide):
         left, top, width, height = self.bounding_box
         img = slide.shapes.add_picture(self.content, Inches(left), Inches(top), Inches(width), Inches(height))
@@ -147,6 +164,29 @@ class Table(Element):
         # img.width = Inches(original_width * scale_factor / img.image.dpi[0])
         # img.height = Inches(original_height * scale_factor / img.image.dpi[1])
         self.image = img 
+
+
+class Footer(Element):
+    def __init__(self, content, style, bounding_box, location):
+        super().__init__(content, style, bounding_box)
+        self.location = location
+    def render(self, slide):
+        left, top, width, height = self.bounding_box
+        textbox = slide.shapes.add_textbox(Inches(left), Inches(top), Inches(width), Inches(height))
+        textbox.text = self.content
+        self.apply_font_style(textbox)
+        textbox.text_frame.auto_size = True
+        textbox.text_frame.word_wrap = True
+        if self.location == 1:
+            textbox.text_frame.paragraphs[0].alignment = PP_ALIGN.LEFT
+        elif self.location == 3:
+            textbox.text_frame.paragraphs[0].alignment = PP_ALIGN.RIGHT
+        else:
+            textbox.text_frame.paragraphs[0].alignment = PP_ALIGN.CENTER
+
+        self.position_element(textbox)
+        self.textbox = textbox
+
 
 class PresentationGenerator:
     def __init__(self, json_payload, slide_id):
@@ -203,6 +243,8 @@ class PresentationGenerator:
                             element = Description(element_info['value'], element_info['style'], (element_info['xmin'], element_info['ymin'], element_info['width'], element_info['height']))
                     elif element_type == 'title':
                         element = Title(element_info['value'], element_info['style'], (element_info['xmin'], element_info['ymin'], element_info['width'], element_info['height']))
+                    elif element_type == 'footer':
+                        element = Footer(element_info['value'], element_info['style'], (element_info['xmin'], element_info['ymin'], element_info['width'], element_info['height']), element_info['location'])
                     else:
                         raise ValueError(f"Unsupported element type: {element_type}")
 

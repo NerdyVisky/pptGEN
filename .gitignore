@@ -18,5 +18,6 @@ code/buffer/tables/resized/*.png
 code/buffer/past/*.json
 code/latex.py
 code/test.py
+code/code.py
 code/rtsg
 code/utils/__pycache__/

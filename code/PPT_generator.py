@@ -227,6 +227,12 @@ class PresentationGenerator:
 def load_json_payload(file_path):
     with open(file_path, 'r') as file:
         return json.load(file)
+    
+def remove_images(directory):
+    for root, dirs, files in os.walk(directory):
+        for file in files:
+            if file.lower().endswith(('.png')):
+                os.remove(os.path.join(root, file))
 
 def main():
     # Load the JSON payload
@@ -254,6 +260,9 @@ def main():
         os.rename(json_file_path, destination_file_path)
         print(f"Moved {json_file} to {base_topic_folder_path}.")
         print('\n')
+        
+        directory_path = 'code/buffer'
+        remove_images(directory_path)
     
     print("All presentations generated and files moved successfully.")
 

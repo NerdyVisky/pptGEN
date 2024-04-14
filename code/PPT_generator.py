@@ -55,10 +55,10 @@ class Element:
         shape.height = Inches(self.bounding_box[3])
 
         if shape.has_text_frame:
-            shape.text_frame.margin_left = Pt(5)
-            shape.text_frame.margin_right = Pt(5)
-            shape.text_frame.margin_top = Pt(5)
-            shape.text_frame.margin_bottom = Pt(5)
+            shape.text_frame.margin_left = Pt(10)
+            shape.text_frame.margin_right = Pt(10)
+            shape.text_frame.margin_top = Pt(10)
+            shape.text_frame.margin_bottom = Pt(10)
 
 
     def render(self, slide):
@@ -92,10 +92,17 @@ class Description(Element):
         self.textbox = textbox
 
 class Enumeration(Description):
-    def __init__(self, content, style, bounding_box):
+    def __init__(self, content, style, bounding_box, heading):
         super().__init__(content, style, bounding_box)
+        self.heading = heading
 
     def render(self, slide):
+        left, top, width, height = self.heading['xmin'], self.heading['ymin'], self.heading['width'], self.heading['height']
+        enum_heading = slide.shapes.add_textbox(Inches(left), Inches(top), Inches(width), Inches(height))
+        enum_heading.text = self.heading['value']
+        self.apply_font_style(enum_heading)
+        enum_heading.text_frame.auto_size = True
+        enum_heading.text_frame.word_wrap = True
         enum_shape = slide.shapes.placeholders[1]
         enum_tf = enum_shape.text_frame
         if self.content != []:            
@@ -127,12 +134,22 @@ class Enumeration(Description):
             
 
 class Figure(Element):
-    def __init__(self, content, style, bounding_box):
+    def __init__(self, content, style, bounding_box, caption):
         super().__init__(content, style, bounding_box)
-
+        self.caption = caption
+        
     def render(self, slide):
         left, top, width, height = self.bounding_box
         img = slide.shapes.add_picture(self.content, Inches(left), Inches(top), Inches(width), Inches(height))
+        left, top, width, height = self.caption['xmin'], self.caption['ymin'], self.caption['width'], self.caption['height']
+
+        cap_shape = slide.shapes.add_textbox(Inches(left), Inches(top), Inches(width), Inches(height))
+        cap_shape.text = self.caption['value']
+        self.apply_font_style(cap_shape)
+        cap_shape.text_frame.auto_size = True
+        cap_shape.text_frame.word_wrap = True
+        cap_shape.text_frame.paragraphs[0].alignment = PP_ALIGN.CENTER
+
         # original_width, original_height = img.image.size
         # # Convert dimensions from pixels to inches
         # img.width = Inches(original_width * scale_factor / img.image.dpi[0])
@@ -231,14 +248,14 @@ class PresentationGenerator:
             for element_type, elements in slide_info['elements'].items():
                 for element_info in elements:
                     if element_type == 'figures':
-                        element = Figure(element_info['path'], None, (element_info['xmin'], element_info['ymin'], element_info['width'], element_info['height']))
+                        element = Figure(element_info['path'], element_info['caption']['style'], (element_info['xmin'], element_info['ymin'], element_info['width'], element_info['height']), element_info['caption'])
                     elif element_type == 'equations':
                         element = Equation(element_info['path'], None, (element_info['xmin'], element_info['ymin'], element_info['width'], element_info['height']))
                     elif element_type == 'tables':
                         element = Table(element_info['path'], None, (element_info['xmin'], element_info['ymin'], element_info['width'], element_info['height']))
                     elif element_type == 'description':
                         if element_info['label'] == "enumeration":
-                            element = Enumeration(element_info['value'], element_info['style'], (element_info['xmin'], element_info['ymin'], element_info['width'], element_info['height']))
+                            element = Enumeration(element_info['value'], element_info['style'], (element_info['xmin'], element_info['ymin'], element_info['width'], element_info['height']), element_info['heading'])
                         else:
                             element = Description(element_info['value'], element_info['style'], (element_info['xmin'], element_info['ymin'], element_info['width'], element_info['height']))
                     elif element_type == 'title':

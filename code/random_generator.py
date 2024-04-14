@@ -36,7 +36,9 @@ def generate_random_font(element):
     if element == "title":
         font_size = random.randint(18, 27) * 2
     elif element == "description":
-        font_size = random.randint(20, 28)
+        font_size = random.randint(16, 20)
+    elif element == 'enumeration':
+        font_size = random.randint(18, 24)
     return {
         "font_size": font_size,
         "bold": bold,
@@ -99,6 +101,7 @@ def generate_random_style_obj():
     style_obj["title_font_attr"] = generate_random_font("title")
     style_obj["desc_font_family"] = pick_random(FONT_STYLES)
     style_obj["desc_font_attr"] = generate_random_font("description")
+    style_obj["date"] = generate_random_date()
     return style_obj
 
 def pick_random(list_name):

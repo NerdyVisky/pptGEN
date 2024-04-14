@@ -21,8 +21,6 @@ import fitz
 
 
 
-# print(TITLES_DICT['NLP'])
-
 def count_footer_elements(date, showFN, showSN):
     footer_elements = []
     if date != None:
@@ -125,15 +123,26 @@ def remove_tmp_files():
     os.remove(f'tmp.aux')
     os.remove(f'tmp.log')
     os.remove(f'tmp.pdf')
+    tmp_eqs = 'code\\buffer\\equations'
+    for filename in os.listdir(tmp_eqs):
+            file_path = os.path.join(tmp_eqs, filename)
+            if os.path.isfile(file_path):
+                os.remove(file_path)
+                
+    tmp_tabs = 'code\\buffer\\tables'
+    for filename in os.listdir(tmp_tabs):
+            file_path = os.path.join(tmp_tabs, filename)
+            if os.path.isfile(file_path):
+                os.remove(file_path)
 
 
-def generate_random_slide(slide_number, data, style_obj, footer_obj):
+def generate_random_slide(slide_number, data, style_obj, footer_obj, presentation_ID):
     bg_color, title_font_family, title_font_bold, title_font_attr, desc_font_family, desc_font_attr = style_obj["bg_color"], style_obj["title_font_family"], style_obj["title_font_bold"], style_obj["title_font_attr"], style_obj["desc_font_family"], style_obj["desc_font_attr"]
+    date = style_obj["date"]
     # Determining when a slide has BG as White
     THRES = 0.667
     if generate_random_value(float, 0, 1) < THRES:
         bg_color = {"r": 255, "g": 255, "b": 255}
-        date = None
     # # Define total number of body elements
     # if slide_number == 1:
     #     total_body_elements = 0
@@ -217,13 +226,20 @@ def generate_random_slide(slide_number, data, style_obj, footer_obj):
 
         ## Generate Enumerations
         for _ in range(n_elements_list[1]):
-            font_obj = generate_random_font("description")
+            font_obj = generate_random_font("enumeration")
             enum = data["slides"][slide_number - 1]["enumeration"]
             enum_instance = {
             "label": "enumeration",
-            "value": enum,
+            "heading": {
+                "value": enum[0],
+                "xmin": all_dims['body'][element_index]['left'],
+                "ymin": all_dims['body'][element_index]['top'],
+                "width": all_dims['body'][element_index]['width'],
+                "height": 0.5,
+            },
+            "value": enum[1:],
             "xmin": all_dims['body'][element_index]['left'],
-            "ymin": all_dims['body'][element_index]['top'],
+            "ymin": all_dims['body'][element_index]['top'] + 0.5,
             "width": all_dims['body'][element_index]['width'],
             "height": max(all_dims['body'][element_index]['height'], 0.5*len(enum)),
             "style": {
@@ -239,7 +255,10 @@ def generate_random_slide(slide_number, data, style_obj, footer_obj):
             element_index += 1
         
         # Render Equations
-        resized_path = 'code\\buffer\\equations\\resized'
+        resized_path = f'code\\buffer\\equations\\{presentation_ID}'
+        if not os.path.exists(resized_path):
+            os.makedirs(resized_path)
+
         slide['elements']['equations'] = []
         for i in range(n_elements_list[2]):
             img_path = get_eq_img_path(data["slides"][slide_number - 1]["equations"][i]['tex_code'], slide_number, i)
@@ -258,7 +277,10 @@ def generate_random_slide(slide_number, data, style_obj, footer_obj):
             remove_tmp_files()
 
         # Render Tables
-        resized_path = 'code\\buffer\\tables\\resized'
+        resized_path = f'code\\buffer\\tables\\{presentation_ID}'
+        if not os.path.exists(resized_path):
+            os.makedirs(resized_path)
+
         slide['elements']['tables'] = []
         for i in range(n_elements_list[3]):
             img_path = get_tab_img_path(data["slides"][slide_number - 1]["tables"][i]['tex_code'], slide_number, i)
@@ -281,10 +303,25 @@ def generate_random_slide(slide_number, data, style_obj, footer_obj):
         for i in range(n_elements_list[4]):
             fig_instance = {
             "label": data["slides"][slide_number - 1]["figures"][i]["label"],
+            "caption": {
+                "value": data["slides"][slide_number - 1]["figures"][i]["fig_desc"],
+                "xmin": all_dims['body'][element_index]['left'],
+                "ymin": all_dims['body'][element_index]['top'] + (all_dims['body'][element_index]['height'] - 0.25),
+                "width": all_dims['body'][element_index]['width'],
+                "height": 0.5,
+                "style": {
+                    "font_name": desc_font_family,
+                    "font_size": 14,
+                    "font_color": font_color,
+                    "bold": font_obj["bold"],
+                    "italics": True,
+                    "underlined": font_obj["underline"]
+               }
+            },
             "xmin": all_dims['body'][element_index]['left'],
             "ymin": all_dims['body'][element_index]['top'],
             "width": all_dims['body'][element_index]['width'],
-            "height": all_dims['body'][element_index]['height'],
+            "height": all_dims['body'][element_index]['height'] - 0.25,
             "desc": data["slides"][slide_number - 1]["figures"][i]["fig_desc"],
             "path": 'code\\assets\\frog_img.png'
             }
@@ -304,7 +341,7 @@ def generate_random_slide(slide_number, data, style_obj, footer_obj):
             value = "This is a footnote"
         if 'date' in obj.keys():
             footer_type = 'date'
-            value = generate_random_date()           
+            value = date         
         footer_dim = all_dims['footer'][obj[footer_type]]
         foot_instance = {
                 "label": footer_type,
@@ -318,8 +355,8 @@ def generate_random_slide(slide_number, data, style_obj, footer_obj):
                     "font_name": desc_font_family,
                     "font_size": desc_font_attr["font_size"],
                     "font_color": font_color,
-                    "bold": random.random() > 0.5,
-                    "italics": random.random() > 0.5,
+                    "bold": False,
+                    "italics": False,
                     "underlined": False
                 }
             }
@@ -344,7 +381,7 @@ if __name__ == "__main__":
         with open(file_path, 'r') as file:
             data = json.load(file)
         n_slides = len(data["slides"])
-        slides = [generate_random_slide(i+1, data, style_obj, footer_obj) for i in range(n_slides)]
+        slides = [generate_random_slide(i+1, data, style_obj, footer_obj, slide_id) for i in range(n_slides)]
     
         new_data = {
             "slide_id": slide_id,

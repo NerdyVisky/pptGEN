@@ -8,7 +8,7 @@ class EquationObject(BaseModel):
 class FigureObject(BaseModel):
     label: str = Field(description='Type of figure, for example like chart, diagram, graph')
     fig_desc: str = Field(description='Description of the what the figure represents (Element Caption)')
-    path: str = Field(description='Path to the file where the figure is located')
+    fig_code: str = Field(description='LaTeX code for the figure')
 
 class TableObject(BaseModel):
     tab_desc: str = Field(description='The description of what the table represents')

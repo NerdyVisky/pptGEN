@@ -60,7 +60,7 @@ def generate_slide_content(slide_id, arg_topic):
     ## Instruction Phase
     instruct_prompt = configure_prompt("instruction")
     instruct_chain = instruct_prompt | model
-    arg_elements = ['chart', 'graph', 'diagram', 'enumeration','description', 'table', 'equation', 'url']
+    arg_elements = ['flowchart', 'graph', 'diagram', 'enumeration','description', 'table', 'equation', 'url']
     instruct_output = instruct_chain.invoke({"topic": arg_topic, "elements": arg_elements, "outline": output.content})
     print(instruct_output.content)
 

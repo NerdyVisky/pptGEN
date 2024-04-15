@@ -106,7 +106,7 @@ instruction_example_prompt = [
                  Outline :{outline}
                  Each subsection has empty values. I want you to add two keys namely 'element_type' and 'element_caption' for each subsection and determine which types of elements would be most beneficial to understand that subsection.\n
                  The elements can be as follows: {elements}.\n
-                 You can suggest upto 3 elements per subtopic. I want you to generate the results within the outline and only output the revised outline without any conversation.\n
+                 You can generate upto 3 elements per subtopic. I want you to generate the results within the outline and only output the revised outline without any conversation.\n
                  """),
                  ("ai", "{output}")
             ]
@@ -124,10 +124,16 @@ generation_prompt =  [
                  1. Each section in the Table of Contents must be a title slide with no body elements.\n
                  2. Each subsection in the Table of Contents should have the key name as the title with the body elements described by element_type, and element_caption.\n
                  3. Depending on the element_type for each element in a subsection, you have to generate appropriate modality of the content. Consider the following guidelines for specific element_types:\n
-                 \t a. For element_type = 'description' or 'enumeration', you have to generate paragraph style element named description, or point-wise style element named enumeration, respectively.\n
-                 \t b. For element_type = 'equation' or 'table' or 'pseudocode', you have to generate LaTex Code depending on the instruction given in element_caption.\n
-                 \t c. For element_type = 'chart' or 'graph' or 'diagram', you have to generate an image depending on the instruction given in element_caption and provide the link to the image path\n
-
+                 \t a. For element_type = 'description', you have to generate paragraph style element named description which explains or gives brief introduction to the topic.
+                 \t b. For element type = 'enumeration', you have to generate point-wise style element named enumeration. An enumeration can be a single point.\n
+                 \t c. For element_type = 'url', you have to generate a hyperlink to a URL according to element_caption. You can use any link as URL.\n
+                 \t e. For element_type = 'equation', you have to generate LaTex Code depending on the instruction given in element_caption.\n
+                 \t f. For element_type = 'table', you have to generate a table depending on the instruction given in element_caption. Use Latex code.\n
+                 \t g. For element_type = 'flowchart', you have to generate a flowchart depending on the instruction given in element_caption. Use Latex code. Follow the general guidelines for a flowchart, like each node should be a node with shape as per its use, arrows should be directional.\n
+                 \t h. For element_type = 'graph', you have to generate LaTex Code depending on the instruction given in element_caption. Graphs are figures with nodes and vertices. Each element in graph should be labelled if required.\n
+                 \t i. For element_type = 'diagram', you have to generate LaTex Code depending on the instruction given in element_caption. Diagrams can be simple block diagrams representing an entity or Venn Diagrams.\n
+                 4. The first point in an enumeration is the heading of the enumeration.\n
+                 I want you to generate have atleast 3 elements per subtopic.\n
                  The presentation content should be generated in form of a JSON object. The presentation ID is {presentation_ID}
 
                  """)

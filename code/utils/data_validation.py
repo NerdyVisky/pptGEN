@@ -6,7 +6,7 @@ class EquationObject(BaseModel):
     tex_code: str = Field(description='Equation in LaTeX format')
 
 class FigureObject(BaseModel):
-    label: str = Field(description='Type of figure, for example like flowchart, diagram, graph')
+    label: str = Field(description='Type of figure, for example like flowchart, diagram, graph, plot')
     fig_desc: str = Field(description='Description of the what the figure represents (Element Caption)')
     fig_code: str = Field(description='Figure in LaTeX format')
 

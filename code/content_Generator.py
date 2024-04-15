@@ -72,11 +72,12 @@ def generate_slide_content(slide_id, arg_topic):
     gen_prompt = configure_prompt("generation")
     openai_functions = [convert_pydantic_to_openai_function(PPTContentJSON)]
     parser = JsonOutputFunctionsParser()
-    gen_chain = gen_prompt | gen_model.bind(functions=openai_functions)
+    gen_chain = gen_prompt | gen_model.bind(functions=openai_functions) | parser
     gen_output = gen_chain.invoke({'topic': arg_topic, 'outline': instruct_output.content, 'presentation_ID': slide_id})
-    print(gen_output.content)
-    return gen_output.content
-
+    return gen_output
+    
+    
+    
 def main():
     load_dotenv(find_dotenv())
     SEED_PATH = "code\data\\topics.json"

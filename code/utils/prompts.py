@@ -1,6 +1,6 @@
 outline_prompt = [
             ("system", "You are a helpful university professor and you are guiding your PhD student to create an outline for the lecture he will deliver to a class."),
-            ("human", "I would like to get help designing a detailed Table of Contents for an advanced university lecture on {topic}. Please help me create the Table of Content in form of a {format}. Just return the output without the conversation.")
+            ("human", "I would like to get help designing a detailed Table of Contents for an advanced university lecture on {topic}. Please help me create the Table of Content in form of a {format}. It should be less than 20, including all headings and subheadings. Just return the output without the conversation.")
         ]
 instruction_example = [
     {
@@ -44,7 +44,7 @@ instruction_example = [
     "Future Directions": null
   }}
 }}""",
-   "elements": ['flowchart', 'graph', 'diagram', 'description', 'table', 'equation', 'url'],
+   "elements": ['flowchart', 'graph', 'diagram', 'description', 'table', 'equation', 'url', 'plot'],
    "output": """
 {{
   "Introduction": {{
@@ -56,7 +56,7 @@ instruction_example = [
     "Algorithm Design Process": {{
       "Divide": [{{"element_type": "diagram", "element_caption": "diving the problem in the divide phase "}}]
       "Conquer": [{{"element_type": "diagram", "element_caption": "solving subproblems in the conquer phase "}}],
-      "Combine": [{{"element_type": "enumeration", "element_caption": "List "}}]
+      "Combine": [{{"element_type": "enumeration", "element_caption": "List of steps to combine the solutions of subproblems in the combine phase"}}]
     }},
     "Pseudocode Examples": [{{"element_type": "enumeration", "element_caption": "step-by-step implementation in Python for a Divide and Conquer problem"}}, {{"element_type": "url", "element_caption": "The URL of an article on the internet discussing the pseudo code of a Divide and Conquer problem"}}]
   }},
@@ -73,7 +73,7 @@ instruction_example = [
   "Comparative Analysis": {{
     "Divide and Conquer vs. Dynamic Programming": [{{"element_type": "table", "element_caption": "Providing a detailed comparision and differenciation of Divide and Conquer and Dyanamic Programming strategies."}}],
     "Divide and Conquer vs. Greedy Method": [{{"element_type": "table", "element_caption": "Providing a detailed comparision and differenciation of Divide and Conquer and Greedy Approach strategies."}}],
-    "Complexity Analysis": [{{"element_type": "graph", "element_caption": "Comparing the time and space complexity of divide and conquer approach with other approaches."}}]
+    "Complexity Analysis": [{{"element_type": "plot", "element_caption": "Comparing the time and space complexity of divide and conquer approach with other approaches."}}]
   }},
   "Challenges and Limitations": {{
     "Overhead": [{{"element_type": "description", "element_caption": "Describing how recrusive function calls create overhead."}}],
@@ -90,9 +90,9 @@ instruction_prompt = ("human", """Hello. I want you to help me prepare lecture s
                  Outline :{outline}
                  Each subsection has empty values. I want you to add two keys namely 'element_type' and 'element_caption' for each subsection and determine which types of elements would be most beneficial to understand that subsection.\n
                  The elements can be as follows: {elements}.\n
-                 You should provide three elements per subheading.\n
-                 Whenever possible generate atleast one text based element (Description, URL, or Enumeration) and one visual element (Graph, Flowchart, Block Diagram, Equation, Table) per subsection, such that there is diversity in elements.\n
-                 As a rule of thumb, make sure the distribution of elements is nearly same for the entire presentation.\n 
+                 You should provide two to four elements per subheading.\n
+                 Whenever possible generate atleast one text based element (Description, URL, or Enumeration) and one visual element (Graph, Flowchart, Plot, Diagram, Equation, Table) per subsection, such that there is diversity in elements.\n
+                 The distribution of elements can vary from one per subheading to four per subheding. In majority of presentation, it may be same, in some slides, the variance can occur.\n 
                  I want you to generate the results within the outline and only output the revised outline without any conversation.\n
                  """)
 
@@ -103,7 +103,7 @@ instruction_example_prompt = [
                  Outline :{outline}
                  Each subsection has empty values. I want you to add two keys namely 'element_type' and 'element_caption' for each subsection and determine which types of elements would be most beneficial to understand that subsection.\n
                  The elements can be as follows: {elements}.\n
-                 You can suggest upto 3 elements per subtopic. I want you to generate the results within the outline and only output the revised outline without any conversation.\n
+                 You can suggest upto 4 elements per subtopic. I want you to generate the results within the outline and only output the revised outline without any conversation.\n
                  """),
                  ("ai", "{output}")
             ]
@@ -116,16 +116,26 @@ generation_prompt =  [
                  I am providing you the Table of Contents for the same:\n
                  {outline}
                  \n
-                 Within each subsection of the Table of Contents, I have the list of element types I want to render while explaining that particular subsection with element_caption as the instruction to generate the element.\n
+                 Within each subsection of the Table of Contents, I have the list of element types I want to render which are generated according to the corresponding element_caption as the instruction.\n
                  Generate presentation content by keeping the following instructions in mind:\n
-                 1. Each section in the Table of Contents must be a title slide with no body elements.\n
-                 2. Each subsection in the Table of Contents should have the key name as the title with the body elements described by element_type, and element_caption.\n
+                 1. Each section in the Table of Contents must be a title slide with no body elements. The title slide can be of any length.\n
+                 2. Each subsection in the Table of Contents should have the key name as the title with the body elements described by element_type, and element_caption. For each slide with any elements other than title, the title length should be less than 4 words.\n
                  3. Depending on the element_type for each element in a subsection, you have to generate appropriate modality of the content. Consider the following guidelines for specific element_types:\n
-                 \t a. For element_type = 'description' or 'enumeration', you have to generate paragraph style element named description, or point-wise style element named enumeration, respectively. An enumeration can be a single point as URL as well.\n
-                 \t b. For element_type = 'equation' or 'table' or 'pseudocode', you have to generate LaTex Code depending on the instruction given in element_caption.\n
-                 \t c. For element_type = 'flowchart' or 'graph' or 'diagram', you have to generate LaTex Code depending on the instruction given in element_caption. Flowcharts are simple flowcharts with nodes and choices. Graphs can be line, bar or pie charts. Diagrams can be simple block diagrams.\n
-
+                 \t a. For element_type = 'description', you have to generate paragraph style element named description which explains or gives brief introduction to the topic.
+                 \t b. For element type = 'enumeration', you have to generate point-wise style element named enumeration. An enumeration can be a single point.\n
+                 \t c. For element_type = 'url', you have to generate a hyperlink to a URL according to element_caption. You can use any link as URL.\n
+                 \t d. For element_type = 'plot', you have to generate a plot depending on the instruction given in element_caption. The plot can be line, bar or pie chart. Use Matplotlib library to do the same.\n
+                 \t e. For element_type = 'equation', you have to generate LaTex Code depending on the instruction given in element_caption.\n
+                 \t f. For element_type = 'table', you have to generate a table depending on the instruction given in element_caption. Use Latex code.\n
+                 \t g. For element_type = 'flowchart', you have to generate a flowchart depending on the instruction given in element_caption. Use Latex code. Follow the general guidelines for a flowchart, like each node should be a node with shape as per its use, arrows should be directional.\n
+                 \t h. For element_type = 'graph', you have to generate LaTex Code depending on the instruction given in element_caption. Graphs are figures with nodes and vertices. Each element in graph should be labelled if required.\n
+                 \t i. For element_type = 'diagram', you have to generate LaTex Code depending on the instruction given in element_caption. Diagrams can be simple block diagrams representing an entity or Venn Diagrams.\n
                  The presentation content should be generated in form of a JSON object. The presentation ID is {presentation_ID}
 
                  """)
             ]
+
+content = [
+  ( "system", "You are a helpful university professor and you are guiding your PhD student to create an outline for the lecture he will deliver to a class."),
+  ( "human", "Given the list, {courses}, write a textbook index style table of contents for a graduate level Computer Science textbook for each entry in the list. Your response should be in the form of JSON with structure similar to the following: {structure}. Each course can have a variable number of chapters between 10 to 15, but each chapter should have a unique identifier and a title. Your output should be in the form of a JSON object without any markers. Don't leave any entry in the list and make a full table of contents for each course.")
+]

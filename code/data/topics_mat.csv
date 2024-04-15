@@ -1,0 +1,51 @@
+Topic ID, Topic
+1, Introduction to Mathematics
+2, Set Theory
+3, Logic and Proof
+4, Number Systems (Natural, Integers, Rational, Real, Complex)
+5, Algebra (Basic Operations, Polynomials, Equations, Inequalities)
+6, Matrices and Determinants
+7, Linear Algebra (Vector Spaces, Linear Transformations, Eigenvalues and Eigenvectors)
+8, Calculus (Differential Calculus, Integral Calculus, Multivariable Calculus)
+9, Analytic Geometry (Lines, Conics, Coordinate Systems)
+10, Discrete Mathematics (Combinatorics, Graph Theory, Number Theory)
+11, Probability Theory
+12, Statistics (Descriptive Statistics, Inferential Statistics)
+13, Topology (Set-Theoretic Topology, Algebraic Topology)
+14, Differential Equations (Ordinary Differential Equations, Partial Differential Equations)
+15, Numerical Analysis (Interpolation, Approximation, Numerical Integration)
+16, Optimization (Linear Programming, Nonlinear Programming)
+17, Abstract Algebra (Groups, Rings, Fields)
+18, Real Analysis (Metric Spaces, Functions of a Real Variable, Measure Theory)
+19, Complex Analysis (Analytic Functions, Complex Integration, Conformal Mappings)
+20, Functional Analysis (Banach Spaces, Hilbert Spaces, Linear Operators)
+21, Differential Geometry (Curves, Surfaces, Riemannian Geometry)
+22, Algebraic Geometry (Varieties, Schemes, Intersection Theory)
+23, Combinatorics (Counting Techniques, Generating Functions, Graph Algorithms)
+24, Number Theory (Prime Numbers, Modular Arithmetic, Diophantine Equations)
+25, Cryptography (Public Key Cryptography, Symmetric Key Cryptography)
+26, Mathematical Logic (Model Theory, Proof Theory, Set Theory Axiomatics)
+27, Game Theory (Cooperative Games, Non-cooperative Games, Mechanism Design)
+28, Mathematical Physics (Partial Differential Equations in Physics, Hamiltonian Mechanics)
+29, Mathematical Biology (Population Models, Epidemiology, Network Theory)
+30, Financial Mathematics (Black-Scholes Model, Portfolio Theory, Risk Management)
+31, History of Mathematics
+32, Philosophy of Mathematics
+33, Mathematics Education
+34, Open Problems in Mathematics
+35, Fractal Geometry
+36, Wavelet Analysis
+37, Fuzzy Logic
+38, Chaos Theory
+39, Mathematical Modeling
+40, Computational Mathematics
+41, Scientific Computing
+42, High-Performance Computing
+43, Symbolic Computation
+44, Category Theory
+45, Homotopy Theory
+46, K-Theory
+47, Noncommutative Geometry
+48, String Theory
+49, Quantum Topology
+50, Algebraic Topology Applications

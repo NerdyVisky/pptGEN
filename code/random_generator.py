@@ -39,6 +39,8 @@ def generate_random_font(element):
         font_size = random.randint(16, 20)
     elif element == 'enumeration':
         font_size = random.randint(18, 24)
+    elif element == 'url':
+        font_size = random.randint(12, 16)
     return {
         "font_size": font_size,
         "bold": bold,

@@ -11,5 +11,5 @@ code/data/slide_summary.json
 code/buffer/*.json
 code/test.py
 code/test2.py
-code/rtsg
 code/utils/__pycache__/
+code/buffer

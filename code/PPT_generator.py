@@ -235,6 +235,8 @@ class PresentationGenerator:
         date.text_frame.paragraphs[0].font.name = title_font
 
     def generate_presentation(self):
+        self.presentation.slide_width = Inches(13.333)
+        self.presentation.slide_height = Inches(7.5)
         self.insert_title_slide()
         for slide_info in self.json_payload['slides']:
             slide_layout = self.presentation.slide_layouts[1]

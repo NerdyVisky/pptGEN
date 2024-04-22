@@ -255,8 +255,8 @@ def generate_random_slide(slide_number, data, style_obj, footer_obj, presentatio
             resized_img_path, n_w, n_h = resize_image(img_path, slide_number, i, resized_path, all_dims['body'][element_index]['width'], all_dims['body'][element_index]['height'])
             eq_instance = {
             "label": "equation",
-            "xmin": all_dims['body'][element_index]['left'],
-            "ymin": all_dims['body'][element_index]['top'],
+            "xmin": all_dims['body'][element_index]['left'] - (n_w - all_dims['body'][element_index]['width'])/2,
+            "ymin": all_dims['body'][element_index]['top'] - (n_h - all_dims['body'][element_index]['height'])/2,
             "width": n_w,
             "height": n_h,
             "desc": data["slides"][slide_number - 1]["equations"][i]["desc"],
@@ -277,12 +277,12 @@ def generate_random_slide(slide_number, data, style_obj, footer_obj, presentatio
             resized_img_path, n_w, n_h = resize_image(img_path, slide_number, i, resized_path, all_dims['body'][element_index]['width'], all_dims['body'][element_index]['height'])
             tab_instance = {
             "label": "table",
-            "xmin": all_dims['body'][element_index]['left'],
-            "ymin": all_dims['body'][element_index]['top'],
+            "xmin": all_dims['body'][element_index]['left'] - (n_w - all_dims['body'][element_index]['width'])/2,
+            "ymin": all_dims['body'][element_index]['top'] - (n_h - all_dims['body'][element_index]['height'])/2,
             "width": n_w,
             "height": n_h,
             "desc": data["slides"][slide_number - 1]["tables"][i]["desc"],
-            "path": resized_img_path
+            "path": resized_img_path    
             }
             slide['elements']['tables'].append(tab_instance)
             element_index += 1
@@ -312,9 +312,9 @@ def generate_random_slide(slide_number, data, style_obj, footer_obj, presentatio
             "caption": {
                 "value": data["slides"][slide_number - 1]["figures"][i]["desc"],
                 "xmin": all_dims['body'][element_index]['left'],
-                "ymin": all_dims['body'][element_index]['top'] + (all_dims['body'][element_index]['height'] - 0.25),
+                "ymin": all_dims['body'][element_index]['top'] + (n_h - 0.35),
                 "width": all_dims['body'][element_index]['width'],
-                "height": 0.5,
+                "height": 0.35,
                 "style": {
                     "font_name": desc_font_family,
                     "font_size": 14,
@@ -324,8 +324,8 @@ def generate_random_slide(slide_number, data, style_obj, footer_obj, presentatio
                     "underlined": font_obj["underline"]
                }
             },
-            "xmin": all_dims['body'][element_index]['left'],
-            "ymin": all_dims['body'][element_index]['top'],
+            "xmin": all_dims['body'][element_index]['left'] - (n_w - all_dims['body'][element_index]['width'])/2,
+            "ymin": all_dims['body'][element_index]['top'] - (n_h - all_dims['body'][element_index]['height'])/2,
             "width": n_w,
             "height": n_h,
             "desc": data["slides"][slide_number - 1]["figures"][i]["desc"],

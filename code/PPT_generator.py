@@ -72,7 +72,12 @@ class Title(Element):
         title_shape.text = self.content
         self.apply_font_style(title_shape)
         self.position_element(title_shape)
-        title_shape.text_frame.paragraphs[0].alignment = PP_ALIGN.CENTER
+        if self.style['align'] == 'center':
+            title_shape.text_frame.paragraphs[0].alignment = PP_ALIGN.CENTER
+        else:
+            title_shape.text_frame.paragraphs[0].alignment = PP_ALIGN.LEFT
+            
+            
 
     def clean_up(self, slide):
         pass

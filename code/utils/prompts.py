@@ -65,7 +65,6 @@ instruction_example = [
     ],
     "Historical Background": [
         {{"element_type": "description", "element_caption": "Discussion on the origin and development of Gaussian distributions"}},
-        {{"element_type": "timeline", "element_caption": "Timeline of key historical milestones related to Gaussian distributions"}}
     ],
     "The Normal Distribution: Definition": [
         {{"element_type": "description", "element_caption": "Formal definition of the normal distribution"}},
@@ -97,11 +96,9 @@ instruction_example = [
     ],
     "Central Limit Theorem": [
         {{"element_type": "description", "element_caption": "Statement and explanation of the Central Limit Theorem"}},
-        {{"element_type": "graph", "element_caption": "Graphical illustration of the theorem using sample means"}}
     ],
     "Applications of Gaussian Distributions": [
         {{"element_type": "enumeration", "element_caption": "List of various applications in different fields"}},
-        {{"element_type": "flow-chart", "element_caption": "Flowchart showing decision-making based on Gaussian statistics"}}
     ],
     "Estimating Parameters": [
         {{"element_type": "description", "element_caption": "Methods for estimating parameters of Gaussian distributions"}},
@@ -109,7 +106,8 @@ instruction_example = [
     ],
     "Maximum Likelihood Estimation": [
         {{"element_type": "description", "element_caption": "Introduction to maximum likelihood estimation"}},
-        {{"element_type": "equation", "element_caption": "Equation used in the maximum likelihood estimation for Gaussian"}}
+        {{"element_type": "equation", "element_caption": "Equation used in the maximum likelihood estimation for Gaussian"}},
+        {{"element_type": "equation", "element_caption": "An MLE equation used in Deep Learning"}}
     ],
     "Gaussian Distributions in Machine Learning": [
         {{"element_type": "description", "element_caption": "Overview of how Gaussian distributions are used in machine learning"}},
@@ -137,7 +135,6 @@ instruction_example = [
     ],
     "Summary and Conclusions": [
         {{"element_type": "description", "element_caption": "Recap of key points covered in the presentation"}},
-        {{"element_type": "bar-chart", "element_caption": "Bar chart summarizing the usage of Gaussian distributions across different fields"}}
     ]
 }}
 """}
@@ -146,7 +143,7 @@ instruction_prompt = ("human", """Hello. I want you to help me prepare lecture s
                  Outline :{outline}
                  Each element in the object is a slide where the value represent the slide title. I want you to add two keys namely 'element_type' and 'element_caption' for each subsection and determine which types of elements would be most beneficial to understand that subsection.\n
                  The elements can be as follows: {elements}.\n
-                 You should provide three elements per subheading.\n
+                 You should provide two elements per slide.\n
                  Whenever possible generate atleast one text based element (Description, URL, or Enumeration) and one visual element (Rest of the elements) per subsection, such that there is diversity in elements.\n
                  As a rule of thumb, make sure the distribution of elements is nearly same for the entire presentation.\n 
                  I want you to generate the results within the outline and only output the revised outline without any conversation.\n
@@ -160,7 +157,7 @@ instruction_example_prompt = [
                  Outline :{outline}
                  Each element in the object is a slide where the value represent the slide title. I want you to add two keys namely 'element_type' and 'element_caption' for each subsection and determine which types of elements would be most beneficial to understand that subsection.\n
                  The elements can be as follows: {elements}.\n
-                 You should provide three elements per subheading.\n
+                 You should provide one or two elements per slide.\n
                  Whenever possible generate atleast one text based element (Description, URL, or Enumeration) and one visual element (Rest of the elements) per subsection, such that there is diversity in elements.\n
                  As a rule of thumb, make sure the distribution of elements is nearly same for the entire presentation.\n 
                  I want you to generate the results within the outline and only output the revised outline without any conversation.\n
@@ -199,14 +196,29 @@ generation_prompt =  [
 
 text_generation_example = [
     {
-        "titles": """[
-            "Introduction to Trees",
-            "Types of Tree Data Structures",
-            "Binary Trees",
-            "Tree Traversals",
-            "Application of Trees"
-        ]
+        "instructions": """{{
+"Introduction to Trees": [
+        {{"element_type": "description", "element_caption": "Introduction to the three probability axioms"}},
+        {{"element_type": "url", "element_caption": "A link to a resource to learn more about trees"}}
+],
+"Types of Tree Data Structures": [
+        {{"element_type": "enumeration", "element_caption": "A list of common types of tree data structures"}},
+        {{"element_type": "block-diagram", "element_caption": "A link to a resource to learn more about trees"}}
+],
+"Binary Trees": [
+        {{"element_type": "description", "element_caption": "Descriptive explaination of a Binary Tree"}},
+        {{"element_type": "tree", "element_caption": "A visual representation of a binary tree"}}
+],
+"Tree Traversals": [
+        {{"element_type": "enumeration", "element_caption": "A list naming types of tree traversal techniques"}},
+        {{"element_type": "table", "element_caption": "A detailed comparitive table between characteristics of different tree traversals"}}
+],
+"Applications of Trees": [
+        {{"element_type": "enumeration", "element_caption": "A detailed enumeration highlighting areas where trees are applied"}}
+]
+}}
         """,
+        "topic": "Tree Data Structure",
         "presentation_ID": 12451,
         "output": """
 {{
@@ -262,16 +274,86 @@ text_generation_example = [
     }
 ]
 text_generation_ex_prompt = [
-                ("human", """I am providing some instructions which are related to generating text-based content for a presentation on Tree Data Structure with presentation ID: {presentation_ID}.
-1. For the section title 'Introduction to Trees'(Slide Number 1) generate the actual text content of a description element given the element caption: Simple description of what a tree data structure is.
-2. For the section title 'Introduction to Trees'(Slide Number 1) generate the actual text content of a url element given the element caption: URL to a resource on trees (Placeholder: https://www.example.com)
-3. For the section title 'Types of Tree Data Structures'(Slide Number 2) generate the actual text content of a enumeration element given the element caption: Listing the names of common types of tree data structures
-4. For the section title 'Binary Trees'(Slide Number 3) generate the actual text content of a description element given the element caption: Simple description of what a binary tree is.
-5. For the section title 'Tree Traversals'(Slide Number 4) generate the actual text content of a enumeration element given the element caption: Listing the type of tree traversal techniques.
-6. For the section title 'Application of Trees'(Slide Number 5) generate the actual text content of a enumeration element given the element caption: Enumerating various real life applications of trees.
-Generate text content as a Python Dict having the topic, presentation_ID and slides. Slides will be a list of objects whose length will be total number of slides. Here are the slide-wise titles:\n
-{titles}\n
-Each object will have slide_number, title, description, enumeration, and url as keys.
-For title, description, and url content the value is a string while for an enumeration content the value is a python list of strings where each element of that list is a string.\n"""),
+                ("human", """I am providing you with some instructions given to generate content for a presentation on {topic}\n
+The instructions have Slide Title as key and the value is a list of object describing what text/visual elements are required to explain that concept\n
+I want you to focus on generating the actual content for only the text elements, i.e. description, enumeration, and url.\n
+Following are the instructions:\n
+{instructions}\n
+While generating content keep the following in mind:\n
+1. Description should be between 15 to 30 words long and be rendered as a string.\n
+2. Enumeration should have short pithy points related to the slide content. It should be rendered as a list of strings where the first element of the list is the heading of the enumeration.\n
+3. URL should be a weblink to a related resource in the web and it should be rendered as a string\n
+                 
+Do not generate additional text elements other than one mentioned in the instruction. Keep your responses as detailed as possible.\n
+        """),
                  ("ai", "{output}")
             ]
+
+
+
+def construct_generation_prompts(instruct_content, topic):
+    prompts = [f"I am providing some instructions which are related to generating structural content for a presentation like tables and equations on {topic}.\n"
+               , f"I am providing some instructions which are related to generating plots for a presentation on {topic}.\n"
+               , f"I am providing some instructions which are related to generating diagrams and figures for a presentation on {topic}.\n"]
+    # prompts -> ['text', 'structural (LaTeX)', 'plots (Matplotlib)', 'figures (DOT + GraphViz)']
+    positions = [{
+                  "table": {},
+                  "equation": {}   
+                 },
+                 {
+                  "plot": {},
+                  "bar-chart": {},
+                  "line-chart": {},
+                  "pie-chart": {},
+                  "3d-plot": {}
+                 },
+                 {
+                    "tree": {},
+                    "graph": {},
+                    "flow-chart": {},
+                    "block-diagram": {} 
+                 }]
+
+
+    i = 0
+    n_t = 0
+    n_s = 0
+    n_p = 0
+    n_f = 0
+    for slide, elements in instruct_content.items():
+        for element in elements:
+            context_line = f"For the section title '{slide}'(Slide Number {i+1})"
+            element_type = element["element_type"]
+            element_caption = element["element_caption"]
+
+            if element_type in ["table", "equation"]:
+                n_s += 1
+                positions[0][element_type][n_s] = i + 1
+                prompts[0] += (context_line + f" generate LaTeX code for a simple {element_type} given the caption: {element_caption}\n")
+            elif element_type in ["plot", "bar-chart", "line-chart", "pie-chart", "3d-plot"]:
+                n_p += 1
+                positions[1][element_type][n_p] = i + 1
+                prompts[1] += (context_line + f" generate Matplotlib code for a simple {element_type} given the caption: {element_caption}\n")
+            elif element_type in ["tree", "graph", "flow-chart", "block-diagram"]:
+                n_f += 1
+                positions[2][element_type][n_f] = i + 1
+                prompts[2] += (context_line + f" generate DOT language code for a simple {element_type} given the caption: {element_caption}\n")
+        i+=1
+                
+  
+    prompts[0] += """
+    Generate LaTeX code as plain text seperated by ```latex<content>``` and three line breaks.\n
+    Do not add a caption to the table/equation and do not provide any conversation.\n
+    For equations do not generate equation numbers like (1) as these are single equations to be rendered in a presentation.\n
+    Do not generate additional elements unless they are part of the above request. Once generating the all the code snipptes, verify that the total number of snippets generated are the same as total number of requests."""
+    prompts[1] += """
+    Generate python code using Matplotlib as plain text seperated by ```python<content>``` and three line breaks.\n
+    Each generated plot shoule be saved to 'code/buffer/figures/<num>.png' where <num> is numerical order of the code snippet. (First snippet is 1, Second is 2, etc.)\n 
+    Do not generate a title for the plot and do not give any conversation.\n
+    Do not generate additional elements unless they are part of the above request. Once generating the all the code snipptes, verify that the total number of snippets generated are the same as total number of requests."""
+    prompts[2] += """
+    Generate DOT language code as plain text seperated by ```dot<content>``` and three line breaks. Make sure to not make any syntax errors, and hence double check each output code snippet.\n
+    Do not add a caption to the diagram/chart, etc. and do not provide any conversation.\n
+    Do not generate additional elements unless they are part of the above request. Once generating the all the code snipptes, verify that the total number of snippets generated are the same as total number of requests."""
+    # Return the constructed prompts
+    return [prompts, positions]

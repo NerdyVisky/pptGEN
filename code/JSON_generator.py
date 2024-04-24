@@ -69,6 +69,7 @@ def resize_image(input_image_path, slide_number, i, output_image_dir, box_width,
         resized_img = img.resize((new_width, new_height))
         new_img_path = os.path.join(output_image_dir, f'{slide_number}_{i}.png')
         resized_img.save(new_img_path)
+        os.remove(input_image_path)
         new_width_inches = new_width / dpi
         new_height_inches = new_height / dpi
         return new_img_path, new_width_inches, new_height_inches
@@ -78,6 +79,17 @@ def remove_tmp_files():
     for f in tmp_files:
         if os.path.exists(f):
             os.remove(f)
+    directories = ['code/buffer/figures', 'code/buffer/structs', 'code/buffer/plots']
+    for directory in directories:
+        # Walk through all subdirectories
+        for root, dirs, _ in os.walk(directory, topdown=False):
+            for name in dirs:
+                dir_path = os.path.join(root, name)
+                # Check if the directory is empty
+                if not os.listdir(dir_path):
+                    # Remove the empty directory
+                    os.rmdir(dir_path)
+                    print(f"Removed empty directory: {dir_path}")
     # os.remove(f'tmp.tex')
     # os.remove(f'tmp.aux')
     # os.remove(f'tmp.log')
@@ -102,7 +114,7 @@ def remove_tmp_files():
 
 
 def generate_random_slide(slide_number, data, style_obj, footer_obj, presentation_ID):
-    bg_color, title_font_family, title_font_bold, title_font_attr, desc_font_family, desc_font_attr = style_obj["bg_color"], style_obj["title_font_family"], style_obj["title_font_bold"], style_obj["title_font_attr"], style_obj["desc_font_family"], style_obj["desc_font_attr"]
+    bg_color, title_font_family, title_font_bold, title_font_attr, title_align, desc_font_family, desc_font_attr = style_obj["bg_color"], style_obj["title_font_family"], style_obj["title_font_bold"], style_obj["title_font_attr"], style_obj['title_align'], style_obj["desc_font_family"], style_obj["desc_font_attr"]
     date = style_obj["date"]
     # Determining when a slide has BG as White
     THRES = 0.667
@@ -132,11 +144,10 @@ def generate_random_slide(slide_number, data, style_obj, footer_obj, presentatio
         "slide_layout": layout_id,
         "elements": {}
     }
-
+    title_dark, title_light = style_obj['title_font_dark'], style_obj['title_font_light']
     # Title Generation
-    ## Generate Font-level random values for Title
-    font_color = generate_contrasting_font_color(bg_color)
-
+    ## Generate Font-level random values for Title 
+    title_font, font_color = generate_contrasting_font_color(bg_color, title_dark, title_light)
     ## Fetch Random content
     title_content = data["slides"][slide_number - 1]["title"]
     # print(title_content)
@@ -152,10 +163,11 @@ def generate_random_slide(slide_number, data, style_obj, footer_obj, presentatio
             "style": {
                 "font_name": title_font_family,
                 "font_size": title_font_attr["font_size"],
-                "font_color": font_color,
+                "font_color": title_font,
                 "bold": title_font_bold,
                 "italics": False,
-                "underlined": False
+                "underlined": False,
+                "align": title_align
             }
         }]    
        
@@ -206,7 +218,7 @@ def generate_random_slide(slide_number, data, style_obj, footer_obj, presentatio
             "xmin": all_dims['body'][element_index]['left'],
             "ymin": all_dims['body'][element_index]['top'] + 0.5,
             "width": all_dims['body'][element_index]['width'],
-            "height": max(all_dims['body'][element_index]['height'], 0.5*len(enum)),
+            "height": max(all_dims['body'][element_index]['height'], 0.5*len(enum)) - 0.5,
             "style": {
                 "font_name": desc_font_family,
                 "font_size": desc_font_attr["font_size"],
@@ -245,7 +257,7 @@ def generate_random_slide(slide_number, data, style_obj, footer_obj, presentatio
 
 
         # Render Equations
-        resized_path = f'code\\buffer\\structs\\eq\\{presentation_ID}'
+        resized_path = f'code\\buffer\\structs\\equations\\{presentation_ID}'
         if not os.path.exists(resized_path):
             os.makedirs(resized_path)
 
@@ -267,7 +279,7 @@ def generate_random_slide(slide_number, data, style_obj, footer_obj, presentatio
             remove_tmp_files()
 
         # Render Tables
-        resized_path = f'code\\buffer\\structs\\tb\\{presentation_ID}'
+        resized_path = f'code\\buffer\\structs\\tables\\{presentation_ID}'
         if not os.path.exists(resized_path):
             os.makedirs(resized_path)
 
@@ -312,7 +324,7 @@ def generate_random_slide(slide_number, data, style_obj, footer_obj, presentatio
             "caption": {
                 "value": data["slides"][slide_number - 1]["figures"][i]["desc"],
                 "xmin": all_dims['body'][element_index]['left'],
-                "ymin": all_dims['body'][element_index]['top'] + (n_h - 0.35),
+                "ymin": all_dims['body'][element_index]['top'] - (n_h - all_dims['body'][element_index]['height'])/2 + (n_h - 0.35),
                 "width": all_dims['body'][element_index]['width'],
                 "height": 0.35,
                 "style": {
@@ -327,7 +339,7 @@ def generate_random_slide(slide_number, data, style_obj, footer_obj, presentatio
             "xmin": all_dims['body'][element_index]['left'] - (n_w - all_dims['body'][element_index]['width'])/2,
             "ymin": all_dims['body'][element_index]['top'] - (n_h - all_dims['body'][element_index]['height'])/2,
             "width": n_w,
-            "height": n_h,
+            "height": n_h - 0.35,
             "desc": data["slides"][slide_number - 1]["figures"][i]["desc"],
             "path": resized_img_path
             }

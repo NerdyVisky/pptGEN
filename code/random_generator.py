@@ -2,6 +2,32 @@ import random
 from datetime import datetime
 
 FONT_STYLES = ['Arial', 'Times New Roman', 'Georgia', 'Calibiri']
+TITLE_COLORS_DARK = [
+    {"r": 0, "g": 0, "b": 128},    # Navy Blue
+    {"r": 220, "g": 20, "b": 60},   # Crimson
+    {"r": 0, "g": 128, "b": 0},     # Emerald Green
+    {"r": 218, "g": 165, "b": 32},  # Goldenrod
+    {"r": 75, "g": 0, "b": 130},    # Royal Purple
+    {"r": 0, "g": 128, "b": 128},   # Teal
+    {"r": 204, "g": 85, "b": 0},    # Burnt Orange
+    {"r": 128, "g": 0, "b": 32},    # Burgundy
+    {"r": 112, "g": 128, "b": 144}, # Slate Gray
+    {"r": 255, "g": 0, "b": 255}    # Magenta
+]
+TITLE_COLORS_LIGHT = [
+    {"r": 255, "g": 215, "b": 0},     # Gold
+    {"r": 255, "g": 69, "b": 0},       # Orange-Red
+    {"r": 65, "g": 105, "b": 225},     # Royal Blue
+    {"r": 0, "g": 206, "b": 209},      # Turquoise
+    {"r": 255, "g": 165, "b": 0},      # Orange
+    {"r": 255, "g": 140, "b": 0},      # Dark Orange
+    {"r": 255, "g": 20, "b": 147},     # Deep Pink
+    {"r": 128, "g": 0, "b": 128},      # Purple
+    {"r": 255, "g": 69, "b": 0},       # Red-Orange
+    {"r": 255, "g": 192, "b": 203}     # Pink
+]
+
+
 PRESENTERS = [
     "Dr. Marcella Nguyen",
     "Prof. Benjamin Frost",
@@ -36,11 +62,11 @@ def generate_random_font(element):
     if element == "title":
         font_size = random.randint(18, 27) * 2
     elif element == "description":
-        font_size = random.randint(16, 20)
+        font_size = random.randint(20, 24)
     elif element == 'enumeration':
-        font_size = random.randint(18, 24)
+        font_size = random.randint(22, 28)
     elif element == 'url':
-        font_size = random.randint(12, 16)
+        font_size = random.randint(14, 16)
     return {
         "font_size": font_size,
         "bold": bold,
@@ -101,6 +127,9 @@ def generate_random_style_obj():
     style_obj["title_font_family"] = pick_random(FONT_STYLES) 
     style_obj["title_font_bold"] = random.random() > 0.75
     style_obj["title_font_attr"] = generate_random_font("title")
+    style_obj["title_align"] = 'center' if random.random() > 0.33 else 'left'
+    style_obj['title_font_dark'] = pick_random(TITLE_COLORS_DARK)
+    style_obj['title_font_light'] = pick_random(TITLE_COLORS_LIGHT)
     style_obj["desc_font_family"] = pick_random(FONT_STYLES)
     style_obj["desc_font_attr"] = generate_random_font("description")
     style_obj["date"] = generate_random_date()
@@ -142,7 +171,7 @@ def calculate_relative_luminance(color):
     luminance = 0.2126 * r_srgb + 0.7152 * g_srgb + 0.0722 * b_srgb
     return luminance
 
-def generate_contrasting_font_color(bg_color):
+def generate_contrasting_font_color(bg_color, title_dark, title_light):
     """
     Generate a contrasting font color for a given background color.
     Input: bg_color - a dictionary with 'r', 'g', 'b' keys representing RGB values.
@@ -154,9 +183,11 @@ def generate_contrasting_font_color(bg_color):
     if luminance > 0.5:
         # Background is light, use dark font color
         font_color = {"r": 0, "g": 0, "b": 0} # Black
+        title_font = title_dark
     else:
         # Background is dark, use light font color
         font_color = {"r": 255, "g": 255, "b": 255} # White
+        title_font = title_light
         
-    return font_color
+    return title_font, font_color
 

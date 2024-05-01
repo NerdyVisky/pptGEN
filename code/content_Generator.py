@@ -1,12 +1,16 @@
 import os
 import json
+import re
 from dotenv import find_dotenv, load_dotenv
 from langchain_core.prompts import (FewShotChatMessagePromptTemplate, ChatPromptTemplate)
+from langchain_core.output_parsers import StrOutputParser
 from langchain_openai import ChatOpenAI
 from langchain.output_parsers.openai_functions import JsonOutputFunctionsParser
 from langchain_community.utils.openai_functions import (convert_pydantic_to_openai_function)
 from utils.data_validation import PPTContentJSON
-from utils.prompts import outline_prompt, instruction_example_prompt, generation_prompt, instruction_example, instruction_prompt
+from utils.generators_fns import generate_figure_content, generate_plot_content, generate_struct_content, generate_text_content, assemble_elements
+from utils.prompts import outline_prompt, instruction_example_prompt, generation_prompt, instruction_example, instruction_prompt, construct_generation_prompts
+# from test2 import text_content, instruct_content
 
 
 def fetch_seed_content(json_file_path):
@@ -39,7 +43,7 @@ def configure_prompt(phase):
         )
         prompt = ChatPromptTemplate.from_messages(
             [
-                ('system', 'You are an capable and expert content creator. You can create multi-modal content such as text, images, code, etc. You also have access to all internet sources at your discretion.'),
+                ('system', 'You are an experienced assistant. You have access to the internet and expectional teaching acumen and reasoning skills'),
                 few_shot_prompt,
                 instruction_prompt
 
@@ -54,30 +58,46 @@ def generate_slide_content(slide_id, arg_topic):
     model = configure_llm()
     prompt = configure_prompt("outline")
     chain = prompt | model
-    output = chain.invoke({"topic": arg_topic, "format": "Nested Dictionary"})
+    output = chain.invoke({"topic": arg_topic})
     print(output.content)
 
     ## Instruction Phase
     instruct_prompt = configure_prompt("instruction")
     instruct_chain = instruct_prompt | model
-    arg_elements = ['flowchart', 'graph', 'diagram', 'enumeration', 'description', 'table', 'equation', 'url']
+    arg_elements = ['flow-chart', 'graph', 'tree', 'block-diagram', 'enumeration','description', 'url', 'table', 'equation', 'plot', 'bar-chart', 'line-chart', 'pie-chart', '3d-plot']
     instruct_output = instruct_chain.invoke({"topic": arg_topic, "elements": arg_elements, "outline": output.content})
     print(instruct_output.content)
+    instruct_content = json.loads(instruct_output.content)
 
-    ## Generation Phase
-    gen_model = ChatOpenAI(
-       model_name='gpt-4-1106-preview', 
+    # prompts, positions = construct_generation_prompts(json.loads(instruct_content), arg_topic)
+    prompts, positions = construct_generation_prompts(instruct_content, arg_topic)
+    # Generation Phase
+    gpt_4_model = ChatOpenAI(
+       model_name='gpt-4-turbo-2024-04-09', 
        temperature=0,
        )
-    gen_prompt = configure_prompt("generation")
-    openai_functions = [convert_pydantic_to_openai_function(PPTContentJSON)]
-    parser = JsonOutputFunctionsParser()
-    gen_chain = gen_prompt | gen_model.bind(functions=openai_functions) | parser
-    gen_output = gen_chain.invoke({'topic': arg_topic, 'outline': instruct_output.content, 'presentation_ID': slide_id})
-    return gen_output
+    # gen_model = ChatOpenAI(
+    #    model_name='gpt-3.5-turbo', 
+    #    temperature=0,
+    #    )
+    # text_content = generate_text_content(prompts[0], model, output, slide_id)
+    text_content = generate_text_content(gpt_4_model, arg_topic, instruct_content, slide_id)
+    struct_imgs = generate_struct_content(prompts[0], gpt_4_model, slide_id)
+    plot_imgs = generate_plot_content(prompts[1], gpt_4_model, slide_id)
+    figure_imgs = generate_figure_content(prompts[2], gpt_4_model, slide_id)
+    # struct_imgs = ['code/buffer/structs/eq\\10_11254.png', 'code/buffer/structs/eq\\11_11254.png', 'code/buffer/structs/eq\\12_11254.png', 'code/buffer/structs/eq\\13_11254.png', 'code/buffer/structs/eq\\1_11254.png', 'code/buffer/structs/eq\\3_11254.png', 'code/buffer/structs/eq\\5_11254.png', 'code/buffer/structs/eq\\6_11254.png', 'code/buffer/structs/eq\\7_11254.png', 'code/buffer/structs/eq\\9_11254.png', 'code/buffer/structs/tb\\2_11254.png', 'code/buffer/structs/tb\\4_11254.png', 'code/buffer/structs/tb\\8_11254.png']
+    # figure_imgs = ['code/buffer/figures/bd\\3_11254.png', 'code/buffer/figures/bd\\7_11254.png', 'code/buffer/figures/fc\\2_11254.png', 'code/buffer/figures/gr\\1_11254.png', 'code/buffer/figures/gr\\4_11254.png', 'code/buffer/figures/gr\\6_11254.png', 'code/buffer/figures/gr\\8_11254.png', 'code/buffer/figures/tr\\5_11254.png']
+    # plot_imgs = ['code/buffer/plots/bc\\3_11254.png', 'code/buffer/plots/lc\\4_11254.png', 'code/buffer/plots/pt\\1_11254.png', 'code/buffer/plots/pt\\2_11254.png', 'code/buffer/plots/pt\\5_11254.png']
     
     
+   
+    final_content = assemble_elements(text_content, struct_imgs, plot_imgs, figure_imgs, positions, prompts)
+    print(final_content)
+
+    return final_content
     
+
+
 def main():
     load_dotenv(find_dotenv())
     SEED_PATH = "code\data\\topics.json"

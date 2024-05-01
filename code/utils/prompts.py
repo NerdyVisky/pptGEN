@@ -1,99 +1,153 @@
+
+
+
 outline_prompt = [
             ("system", "You are a helpful university professor and you are guiding your PhD student to create an outline for the lecture he will deliver to a class."),
-            ("human", "I would like to get help designing a detailed Table of Contents for an advanced university lecture on {topic}. Please help me create the Table of Content in form of a {format}. It should be less than 20, including all headings and subheadings. Just return the output without the conversation.")
+            ("human", """I would like to get help designing a detailed Table of Contents for an advanced university presentation lecture on {topic}. Please help me create the Table of Content in form of a Python dict.\n
+Example:\n
+Input Topic : Tree Data Structures
+Expected Output:\n
+[
+    "Introduction : Definition & Characteristics",
+    "Introduction : Example of a Tree",
+    "Types of Trees",
+    "Binary Trees : What are they?",
+    "Binary Trees : Searching an element",
+    "Tree Traversal",
+    "Pre-order Traversal",
+    "In-order Traversal",
+    "Post-order Traversal",
+    "Comparing traversal methods",
+    "Binary Search Trees: Introduction",
+    "Binary Search Trees: Time Complexity",
+    "BST v/s Binary Trees",
+    "Applications of Trees",
+    "Huffman Algorithm : History",
+    "Huffman Algorithm : Pseudocode",
+    "Summary of Trees"
+]
+             \n
+             I want you to provide the output in form of a python list of strings having slide titles of each slide. The length of the list will be the total number of slides in the presentation. Do not generate more than 15 slide titles.           
+             Just return the output without the conversation.""")
         ]
 instruction_example = [
     {
         "topic": "Divide and Conquer Approach",
-        "outline": """
-        {{
-  "Introduction": {{
-    "Overview of Divide and Conquer Approach": null,
-    "Applications in Real-life": null
-  }},
-  "The Divide and Conquer Strategy": {{
-    "Characteristics": null,
-    "Algorithm Design Process": {{
-      "Divide": null,
-      "Conquer": null,
-      "Combine": null
-    }},
-    "Pseudocode Examples": null
-  }},
-  "Analysis of Divide and Conquer Algorithms": {{
-    "Recurrence Relations": null,
-    "Master Theorem": null,
-    "Examples": null
-  }},
-  "Advanced Topics": {{
-    "Parallel Divide and Conquer": null,
-    "Strassen's Algorithm for Matrix Multiplication": null,
-    "Implementation Tips": null
-  }},
-  "Comparative Analysis": {{
-    "Divide and Conquer vs. Dynamic Programming": null,
-    "Divide and Conquer vs. Greedy Method": null,
-    "Complexity Analysis": null
-  }},
-  "Challenges and Limitations": {{
-    "Overhead": null,
-    "Subproblem Overlapping": null
-  }},
-  "Conclusion": {{
-    "Summary": null,
-    "Future Directions": null
-  }}
-}}""",
-   "elements": ['flowchart', 'graph', 'diagram', 'description', 'table', 'equation', 'url', 'plot'],
+        "outline": """[
+    "Introduction to Gaussian Distributions",
+    "Historical Background",
+    "The Normal Distribution: Definition",
+    "Properties of Gaussian Distributions",
+    "Probability Density Function",
+    "Cumulative Distribution Function",
+    "Parameters of Gaussian Distribution: Mean and Variance",
+    "Standard Normal Distribution",
+    "Z-Scores and Normalization",
+    "Central Limit Theorem",
+    "Applications of Gaussian Distributions",
+    "Estimating Parameters",
+    "Maximum Likelihood Estimation",
+    "Gaussian Distributions in Machine Learning",
+    "Multivariate Gaussian Distribution",
+    "Covariance and Correlation Matrices",
+    "Sampling from a Multivariate Gaussian",
+    "Gaussian Processes",
+    "Challenges and Limitations of Gaussian Models",
+    "Summary and Conclusions"
+]
+""",
+   "elements": ['flow-chart', 'graph', 'tree', 'block-diagram', 'enumeration','description', 'url', 'table', 'equation', 'plot', 'bar-chart', 'line-chart', 'pie-chart', '3d-plot'],
    "output": """
-{{
-  "Introduction": {{
-    "Overview of Divide and Conquer Approach": [{{"element_type: "description", "element_caption": "Define Divide and Conquer Approach" }}, {{"element_type: "enumeration", "element_caption": "Short key points describing properties of Divide and Conquer."}}],
-    "Applications in Real-life": [{{"element_type": "enumeration", "element_caption": "Listing major applications of Divide of Conquer apprach."}}, {{"element_type": "url", "element_caption": "The URL of an article on the internet discussing applications of divide and conquer"}}]
-  }},
-  "The Divide and Conquer Strategy": {{
-    "Characteristics": null,
-    "Algorithm Design Process": {{
-      "Divide": [{{"element_type": "diagram", "element_caption": "diving the problem in the divide phase "}}]
-      "Conquer": [{{"element_type": "diagram", "element_caption": "solving subproblems in the conquer phase "}}],
-      "Combine": [{{"element_type": "enumeration", "element_caption": "List of steps to combine the solutions of subproblems in the combine phase"}}]
-    }},
-    "Pseudocode Examples": [{{"element_type": "enumeration", "element_caption": "step-by-step implementation in Python for a Divide and Conquer problem"}}, {{"element_type": "url", "element_caption": "The URL of an article on the internet discussing the pseudo code of a Divide and Conquer problem"}}]
-  }},
-  "Analysis of Divide and Conquer Algorithms": {{
-    "Recurrence Relations": [{{"element_type": "graph", "element_caption": "the recurrence relation visualized as a graph"}}, {{"element_type": "equation", "element_caption": "The mathematical expression of a recurrence relation."}}],
-    "Master Theorem": [{{"element_type": "description", "element_caption": "Definition of Master's theorem"}}, {{"element_type": "equation", "element_caption": "The mathematical expression of Master's Theorem"}}],
-    "Examples": [{{"element_type": "enumeration", "element_caption": "Listing algorithms that use divide and conquer strategy"}}, {{"element_type": "table", "element_caption": "Comparing the common divide and conquer algorithms by their characteritics, implementation details, and use-cases."}}]
-  }},
-  "Advanced Topics": {{
-    "Parallel Divide and Conquer": [{{"element_type": "description", "element_caption": "explaining what how parallel divide and conquer works."}}, {{"element_type": "url", "element_caption": "The URL of a research paper explaining parallel divide and conquer"}}],
-    "Strassen's Algorithm for Matrix Multiplication": [{{"element_type": "enumeration", "element_caption": "Information about history, concepts, and usage of the algorithm in short bullet points"}}, {{"element_type": "equation", "element_caption": "A mathematical expression showing the multiplication of two 2x2 matrices for Strassen's algorithm"}}],
-    "Implementation Tips": [{{"element_type": "enumeration", "element_caption": "Implementation tips for Strassen's algorithm in short bullet points"}}]
-  }},
-  "Comparative Analysis": {{
-    "Divide and Conquer vs. Dynamic Programming": [{{"element_type": "table", "element_caption": "Providing a detailed comparision and differenciation of Divide and Conquer and Dyanamic Programming strategies."}}],
-    "Divide and Conquer vs. Greedy Method": [{{"element_type": "table", "element_caption": "Providing a detailed comparision and differenciation of Divide and Conquer and Greedy Approach strategies."}}],
-    "Complexity Analysis": [{{"element_type": "plot", "element_caption": "Comparing the time and space complexity of divide and conquer approach with other approaches."}}]
-  }},
-  "Challenges and Limitations": {{
-    "Overhead": [{{"element_type": "description", "element_caption": "Describing how recrusive function calls create overhead."}}],
-    "Subproblem Overlapping": [{{"element_type": "description", "element_caption": "Describe a the subproblem overlapping problem"}}]
-  }},
-  "Conclusion": {{
-    "Summary": [{{"element_type": "enumeration", "element_caption": "Key takeaways from the presentation in short bullet points"}}],
-    "Future Directions": [{{"element_type": "diagram", "element_caption": "Showing the areas of research where divide and conquer can possibly be used."}}, {{"element_type": "url", "element_caption": "Link to article having a novel application of the Divide and Conquer algorithm"}}]
-  }}
-}}
+{
+    "Introduction to Gaussian Distributions": [
+        {"element_type": "description", "element_caption": "Overview of Gaussian distributions and their importance in statistics"},
+        {"element_type": "graph", "element_caption": "Visual introduction to the bell curve shape of Gaussian distributions"}
+    ],
+    "Historical Background": [
+        {"element_type": "description", "element_caption": "Discussion on the origin and development of Gaussian distributions"},
+    ],
+    "The Normal Distribution: Definition": [
+        {"element_type": "description", "element_caption": "Formal definition of the normal distribution"},
+        {"element_type": "equation", "element_caption": "Mathematical equation of the normal distribution"}
+    ],
+    "Properties of Gaussian Distributions": [
+        {"element_type": "block-diagram", "element_caption": "Diagram showing key properties such as symmetry and bell shape"},
+        {"element_type": "enumeration", "element_caption": "List of statistical properties like mean, variance, etc."}
+    ],
+    "Probability Density Function": [
+        {"element_type": "equation", "element_caption": "Equation of the probability density function for a Gaussian distribution"},
+        {"element_type": "plot", "element_caption": "Plot showing the probability density function across different values"}
+    ],
+    "Cumulative Distribution Function": [
+        {"element_type": "description", "element_caption": "Defining cumulative distribution function"},
+        {"element_type": "plot", "element_caption": "Graphical representation of CDF for Gaussian distribution"}
+    ],
+    "Parameters of Gaussian Distribution: Mean and Variance": [
+        {"element_type": "description", "element_caption": "Explanation of mean and variance in Gaussian distributions"},
+        {"element_type": "table", "element_caption": "Table showing effects of different means and variances on the distribution shape"}
+    ],
+    "Standard Normal Distribution": [
+        {"element_type": "description", "element_caption": "Characteristics of the standard normal distribution"},
+        {"element_type": "equation", "element_caption": "Equation defining the standard normal distribution"}
+    ],
+    "Z-Scores and Normalization": [
+        {"element_type": "description", "element_caption": "Explanation of Z-scores and their use in normalization"},
+        {"element_type": "graph", "element_caption": "Graph showing transformation of data into Z-scores"}
+    ],
+    "Central Limit Theorem": [
+        {"element_type": "description", "element_caption": "Statement and explanation of the Central Limit Theorem"},
+    ],
+    "Applications of Gaussian Distributions": [
+        {"element_type": "enumeration", "element_caption": "List of various applications in different fields"},
+    ],
+    "Estimating Parameters": [
+        {"element_type": "description", "element_caption": "Methods for estimating parameters of Gaussian distributions"},
+        {"element_type": "block-diagram", "element_caption": "Diagram illustrating parameter estimation techniques"}
+    ],
+    "Maximum Likelihood Estimation": [
+        {"element_type": "description", "element_caption": "Introduction to maximum likelihood estimation"},
+        {"element_type": "equation", "element_caption": "Equation used in the maximum likelihood estimation for Gaussian"},
+        {"element_type": "equation", "element_caption": "An MLE equation used in Deep Learning"}
+    ],
+    "Gaussian Distributions in Machine Learning": [
+        {"element_type": "description", "element_caption": "Overview of how Gaussian distributions are used in machine learning"},
+        {"element_type": "flow-chart", "element_caption": "Flowchart showing steps in a machine learning model using Gaussian assumptions"}
+    ],
+    "Multivariate Gaussian Distribution": [
+        {"element_type": "description", "element_caption": "Explanation of multivariate Gaussian distributions"},
+        {"element_type": "3d-plot", "element_caption": "3D plot of a multivariate Gaussian distribution"}
+    ],
+    "Covariance and Correlation Matrices": [
+        {"element_type": "description", "element_caption": "Defining covariance and correlation in the context of Gaussian distributions"},
+        {"element_type": "table", "element_caption": "Table showing example covariance and correlation matrices"}
+    ],
+    "Sampling from a Multivariate Gaussian": [
+        {"element_type": "description", "element_caption": "Techniques for sampling from a multivariate Gaussian distribution"},
+        {"element_type": "plot", "element_caption": "Plot showing samples drawn from a multivariate Gaussian"}
+    ],
+    "Gaussian Processes": [
+        {"element_type": "description", "element_caption": "Introduction to Gaussian processes"},
+        {"element_type": "graph", "element_caption": "Graph illustrating a simple Gaussian process"}
+    ],
+    "Challenges and Limitations of Gaussian Models": [
+        {"element_type": "description", "element_caption": "Discussion on the limitations and challenges of using Gaussian models"},
+        {"element_type": "enumeration", "element_caption": "List of common issues and scenarios where Gaussian models may fail"}
+    ],
+    "Summary and Conclusions": [
+        {"element_type": "description", "element_caption": "Recap of key points covered in the presentation"},
+    ]
+}
 """}
 ]
 instruction_prompt = ("human", """Hello. I want you to help me prepare lecture slides on {topic}. I am providing you with the outline of the lecture in form of a nested dictionary.\n
                  Outline :{outline}
-                 Each subsection has empty values. I want you to add two keys namely 'element_type' and 'element_caption' for each subsection and determine which types of elements would be most beneficial to understand that subsection.\n
+                 Each element in the object is a slide where the value represent the slide title. I want you to add two keys namely 'element_type' and 'element_caption' for each subsection and determine which types of elements would be most beneficial to understand that subsection.\n
                  The elements can be as follows: {elements}.\n
-                 You should provide two to four elements per subheading.\n
-                 Whenever possible generate atleast one text based element (Description, URL, or Enumeration) and one visual element (Graph, Flowchart, Plot, Diagram, Equation, Table) per subsection, such that there is diversity in elements.\n
-                 The distribution of elements can vary from one per subheading to four per subheding. In majority of presentation, it may be same, in some slides, the variance can occur.\n 
+                 You should provide two elements per slide.\n
+                 Whenever possible generate atleast one text based element (Description, URL, or Enumeration) and one visual element (Rest of the elements) per subsection, such that there is diversity in elements.\n
+                 As a rule of thumb, make sure the distribution of elements is nearly same for the entire presentation.\n 
                  I want you to generate the results within the outline and only output the revised outline without any conversation.\n
+                 Do not generate the slide numbers in the output, they are just for your reference.
                  """)
 
 
@@ -101,9 +155,12 @@ instruction_prompt = ("human", """Hello. I want you to help me prepare lecture s
 instruction_example_prompt = [
                 ("human", """Hello. I want you to help me prepare lecture slides on {topic}. I am providing you with the outline of the lecture in form of a nested dictionary.\n
                  Outline :{outline}
-                 Each subsection has empty values. I want you to add two keys namely 'element_type' and 'element_caption' for each subsection and determine which types of elements would be most beneficial to understand that subsection.\n
+                 Each element in the object is a slide where the value represent the slide title. I want you to add two keys namely 'element_type' and 'element_caption' for each subsection and determine which types of elements would be most beneficial to understand that subsection.\n
                  The elements can be as follows: {elements}.\n
-                 You can suggest upto 4 elements per subtopic. I want you to generate the results within the outline and only output the revised outline without any conversation.\n
+                 You should provide one or two elements per slide.\n
+                 Whenever possible generate atleast one text based element (Description, URL, or Enumeration) and one visual element (Rest of the elements) per subsection, such that there is diversity in elements.\n
+                 As a rule of thumb, make sure the distribution of elements is nearly same for the entire presentation.\n 
+                 I want you to generate the results within the outline and only output the revised outline without any conversation.\n
                  """),
                  ("ai", "{output}")
             ]
@@ -116,26 +173,187 @@ generation_prompt =  [
                  I am providing you the Table of Contents for the same:\n
                  {outline}
                  \n
-                 Within each subsection of the Table of Contents, I have the list of element types I want to render which are generated according to the corresponding element_caption as the instruction.\n
+                 Within each subsection of the Table of Contents, I have the list of element types I want to render while explaining that particular subsection with element_caption as the instruction to generate the element.\n
                  Generate presentation content by keeping the following instructions in mind:\n
-                 1. Each section in the Table of Contents must be a title slide with no body elements. The title slide can be of any length.\n
-                 2. Each subsection in the Table of Contents should have the key name as the title with the body elements described by element_type, and element_caption. For each slide with any elements other than title, the title length should be less than 4 words.\n
+                 1. Each section in the Table of Contents must be a title slide with no body elements.\n
+                 2. Each subsection in the Table of Contents should have the key name as the title with the body elements described by element_type, and element_caption.\n
                  3. Depending on the element_type for each element in a subsection, you have to generate appropriate modality of the content. Consider the following guidelines for specific element_types:\n
                  \t a. For element_type = 'description', you have to generate paragraph style element named description which explains or gives brief introduction to the topic.
                  \t b. For element type = 'enumeration', you have to generate point-wise style element named enumeration. An enumeration can be a single point.\n
                  \t c. For element_type = 'url', you have to generate a hyperlink to a URL according to element_caption. You can use any link as URL.\n
-                 \t d. For element_type = 'plot', you have to generate a plot depending on the instruction given in element_caption. The plot can be line, bar or pie chart. Use Matplotlib library to do the same.\n
                  \t e. For element_type = 'equation', you have to generate LaTex Code depending on the instruction given in element_caption.\n
                  \t f. For element_type = 'table', you have to generate a table depending on the instruction given in element_caption. Use Latex code.\n
                  \t g. For element_type = 'flowchart', you have to generate a flowchart depending on the instruction given in element_caption. Use Latex code. Follow the general guidelines for a flowchart, like each node should be a node with shape as per its use, arrows should be directional.\n
                  \t h. For element_type = 'graph', you have to generate LaTex Code depending on the instruction given in element_caption. Graphs are figures with nodes and vertices. Each element in graph should be labelled if required.\n
                  \t i. For element_type = 'diagram', you have to generate LaTex Code depending on the instruction given in element_caption. Diagrams can be simple block diagrams representing an entity or Venn Diagrams.\n
+                 4. The first point in an enumeration is the heading of the enumeration.\n
+                 I want you to generate have atleast 3 elements per subtopic.\n
                  The presentation content should be generated in form of a JSON object. The presentation ID is {presentation_ID}
 
                  """)
             ]
 
-content = [
-  ( "system", "You are a helpful university professor and you are guiding your PhD student to create an outline for the lecture he will deliver to a class."),
-  ( "human", "Given the list, {courses}, write a textbook index style table of contents for a graduate level Computer Science textbook for each entry in the list. Your response should be in the form of JSON with structure similar to the following: {structure}. Each course can have a variable number of chapters between 10 to 15, but each chapter should have a unique identifier and a title. Your output should be in the form of a JSON object without any markers. Don't leave any entry in the list and make a full table of contents for each course.")
+
+text_generation_example = [
+    {
+        "instructions": """{
+"Introduction to Trees": [
+        {"element_type": "description", "element_caption": "Introduction to the three probability axioms"},
+        {"element_type": "url", "element_caption": "A link to a resource to learn more about trees"}
+],
+"Types of Tree Data Structures": [
+        {"element_type": "enumeration", "element_caption": "A list of common types of tree data structures"},
+        {"element_type": "block-diagram", "element_caption": "A link to a resource to learn more about trees"}
+],
+"Binary Trees": [
+        {"element_type": "description", "element_caption": "Descriptive explaination of a Binary Tree"},
+        {"element_type": "tree", "element_caption": "A visual representation of a binary tree"}
+],
+"Tree Traversals": [
+        {"element_type": "enumeration", "element_caption": "A list naming types of tree traversal techniques"},
+        {"element_type": "table", "element_caption": "A detailed comparitive table between characteristics of different tree traversals"}
+],
+"Applications of Trees": [
+        {"element_type": "enumeration", "element_caption": "A detailed enumeration highlighting areas where trees are applied"}
 ]
+}
+        """,
+        "topic": "Tree Data Structure",
+        "presentation_ID": 12451,
+        "output": """
+{
+"presentation_ID": 12451,
+"topic": Tree Data Structure,
+"slides":[
+      {
+         "slide_number": 1,
+         "title": "Introduction to Trees",
+         "description": "Trees are hierarchical data structures consisting of nodes connected by edges. They contain a root node, branches, and leaves. Each node can have zero or more children, forming a tree-like structure. Trees are widely used in computer science for organizing and managing data efficiently.",
+         "enumeration": [],
+         "url": "https://www.w3schools.com/dsa/dsa_theory_trees.php"
+      },
+      {
+         "slide_number": 2,
+         "title": "Types of Tree Data Structures",
+         "description": "",
+         "enumeration": ["Types of Trees", 
+                        "Binary Tree",
+                        "Binary Search Tree (BST)",
+                        "AVL Tree",
+                        "Red-Black Tree",
+                        "B-tree",
+                        "Trie",
+                        "Heap"
+                        ],
+        "url": ""
+      },
+      {
+         "slide_number": 3,
+         "title": "Binary Trees",
+         "description": "Binary trees: Data structures composed of nodes where each node has at most two children, commonly referred to as the left child and the right child.",
+         "enumeration": [],
+         "url": ""
+      },
+      {
+         "slide_number": 4,
+         "title": "Tree Traversals",
+         "description": "",
+         "enumeration": ["Three types of Traversals", "Inorder", "Preorder", "Postorder"]
+      },
+      {
+         "slide_number": 5,
+         "title": "Application of Trees",
+         "description": "",
+         "enumeration": ["Various applications", "File Systems: Representing the structure of directories and files in operating systems.",
+           "Network Routing: Used in routing algorithms such as OSPF and BGP",
+           "Syntax Tree: Representing the structure of program code in compilers and interpreters for parsing and analysis."]
+      }
+      ]
+}
+        """
+    }
+]
+text_generation_ex_prompt = [
+                ("human", """I am providing you with some instructions given to generate content for a presentation on {topic}\n
+The instructions have Slide Title as key and the value is a list of object describing what text/visual elements are required to explain that concept\n
+I want you to focus on generating the actual content for only the text elements, i.e. description, enumeration, and url.\n
+Following are the instructions:\n
+{instructions}\n
+While generating content keep the following in mind:\n
+1. Description should be between 15 to 30 words long and be rendered as a string.\n
+2. Enumeration should have short pithy points related to the slide content. It should be rendered as a list of strings where the first element of the list is the heading of the enumeration.\n
+3. URL should be a weblink to a related resource in the web and it should be rendered as a string\n
+                 
+Do not generate additional text elements other than one mentioned in the instruction. Keep your responses as detailed as possible.\n
+        """),
+                 ("ai", "{output}")
+            ]
+
+
+
+def construct_generation_prompts(instruct_content, topic):
+    prompts = [f"I am providing some instructions which are related to generating structural content for a presentation like tables and equations on {topic}.\n"
+               , f"I am providing some instructions which are related to generating plots for a presentation on {topic}.\n"
+               , f"I am providing some instructions which are related to generating diagrams and figures for a presentation on {topic}.\n"]
+    # prompts -> ['text', 'structural (LaTeX)', 'plots (Matplotlib)', 'figures (DOT + GraphViz)']
+    positions = [{
+                  "table": {},
+                  "equation": {}   
+                 },
+                 {
+                  "plot": {},
+                  "bar-chart": {},
+                  "line-chart": {},
+                  "pie-chart": {},
+                  "3d-plot": {}
+                 },
+                 {
+                    "tree": {},
+                    "graph": {},
+                    "flow-chart": {},
+                    "block-diagram": {} 
+                 }]
+
+
+    i = 0
+    n_t = 0
+    n_s = 0
+    n_p = 0
+    n_f = 0
+    for slide, elements in instruct_content.items():
+        for element in elements:
+            context_line = f"For the section title '{slide}'(Slide Number {i+1})"
+            element_type = element["element_type"]
+            element_caption = element["element_caption"]
+
+            if element_type in ["table", "equation"]:
+                n_s += 1
+                positions[0][element_type][n_s] = i + 1
+                prompts[0] += (context_line + f" generate LaTeX code for a simple {element_type} given the caption: {element_caption}\n")
+            elif element_type in ["plot", "bar-chart", "line-chart", "pie-chart", "3d-plot"]:
+                n_p += 1
+                positions[1][element_type][n_p] = i + 1
+                prompts[1] += (context_line + f" generate Matplotlib code for a simple {element_type} given the caption: {element_caption}\n")
+            elif element_type in ["tree", "graph", "flow-chart", "block-diagram"]:
+                n_f += 1
+                positions[2][element_type][n_f] = i + 1
+                prompts[2] += (context_line + f" generate DOT language code for a simple {element_type} given the caption: {element_caption}\n")
+        i+=1
+                
+  
+    prompts[0] += """
+    Generate LaTeX code as plain text seperated by ```latex<content>``` and three line breaks.\n
+    Do not add a caption to the table/equation and do not provide any conversation.\n
+    For equations do not generate equation numbers like (1) as these are single equations to be rendered in a presentation.\n
+    Do not generate additional elements unless they are part of the above request. Once generating the all the code snipptes, verify that the total number of snippets generated are the same as total number of requests."""
+    prompts[1] += """
+    Generate python code using Matplotlib as plain text seperated by ```python<content>``` and three line breaks.\n
+    Each generated plot shoule be saved to 'code/buffer/figures/<num>.png' where <num> is numerical order of the code snippet. (First snippet is 1, Second is 2, etc.)\n 
+    Do not generate a title for the plot and do not give any conversation.\n
+    Do not generate additional elements unless they are part of the above request. Once generating the all the code snipptes, verify that the total number of snippets generated are the same as total number of requests."""
+    prompts[2] += """
+    Generate DOT language code as plain text seperated by ```dot<content>``` and three line breaks. Make sure to not make any syntax errors, and hence double check each output code snippet.\n
+    Do not add a caption to the diagram/chart, etc. and do not provide any conversation.\n
+    Do not generate additional elements unless they are part of the above request. Once generating the all the code snipptes, verify that the total number of snippets generated are the same as total number of requests."""
+    # Return the constructed prompts
+    return [prompts, positions]

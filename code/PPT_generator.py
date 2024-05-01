@@ -72,7 +72,12 @@ class Title(Element):
         title_shape.text = self.content
         self.apply_font_style(title_shape)
         self.position_element(title_shape)
-        title_shape.text_frame.paragraphs[0].alignment = PP_ALIGN.CENTER
+        if self.style['align'] == 'center':
+            title_shape.text_frame.paragraphs[0].alignment = PP_ALIGN.CENTER
+        else:
+            title_shape.text_frame.paragraphs[0].alignment = PP_ALIGN.LEFT
+            
+            
 
     def clean_up(self, slide):
         pass
@@ -235,6 +240,8 @@ class PresentationGenerator:
         date.text_frame.paragraphs[0].font.name = title_font
 
     def generate_presentation(self):
+        self.presentation.slide_width = Inches(13.333)
+        self.presentation.slide_height = Inches(7.5)
         self.insert_title_slide()
         for slide_info in self.json_payload['slides']:
             slide_layout = self.presentation.slide_layouts[1]
@@ -253,6 +260,8 @@ class PresentationGenerator:
                         element = Equation(element_info['path'], None, (element_info['xmin'], element_info['ymin'], element_info['width'], element_info['height']))
                     elif element_type == 'tables':
                         element = Table(element_info['path'], None, (element_info['xmin'], element_info['ymin'], element_info['width'], element_info['height']))
+                    elif element_type == 'url':
+                        element = Description(element_info['value'], element_info['style'], (element_info['xmin'], element_info['ymin'], element_info['width'], element_info['height']))
                     elif element_type == 'description':
                         if element_info['label'] == "enumeration":
                             element = Enumeration(element_info['value'], element_info['style'], (element_info['xmin'], element_info['ymin'], element_info['width'], element_info['height']), element_info['heading'])

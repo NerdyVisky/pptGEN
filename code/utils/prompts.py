@@ -58,85 +58,85 @@ instruction_example = [
 """,
    "elements": ['flow-chart', 'graph', 'tree', 'block-diagram', 'enumeration','description', 'url', 'table', 'equation', 'plot', 'bar-chart', 'line-chart', 'pie-chart', '3d-plot'],
    "output": """
-{{
+{
     "Introduction to Gaussian Distributions": [
-        {{"element_type": "description", "element_caption": "Overview of Gaussian distributions and their importance in statistics"}},
-        {{"element_type": "graph", "element_caption": "Visual introduction to the bell curve shape of Gaussian distributions"}}
+        {"element_type": "description", "element_caption": "Overview of Gaussian distributions and their importance in statistics"},
+        {"element_type": "graph", "element_caption": "Visual introduction to the bell curve shape of Gaussian distributions"}
     ],
     "Historical Background": [
-        {{"element_type": "description", "element_caption": "Discussion on the origin and development of Gaussian distributions"}},
+        {"element_type": "description", "element_caption": "Discussion on the origin and development of Gaussian distributions"},
     ],
     "The Normal Distribution: Definition": [
-        {{"element_type": "description", "element_caption": "Formal definition of the normal distribution"}},
-        {{"element_type": "equation", "element_caption": "Mathematical equation of the normal distribution"}}
+        {"element_type": "description", "element_caption": "Formal definition of the normal distribution"},
+        {"element_type": "equation", "element_caption": "Mathematical equation of the normal distribution"}
     ],
     "Properties of Gaussian Distributions": [
-        {{"element_type": "block-diagram", "element_caption": "Diagram showing key properties such as symmetry and bell shape"}},
-        {{"element_type": "enumeration", "element_caption": "List of statistical properties like mean, variance, etc."}}
+        {"element_type": "block-diagram", "element_caption": "Diagram showing key properties such as symmetry and bell shape"},
+        {"element_type": "enumeration", "element_caption": "List of statistical properties like mean, variance, etc."}
     ],
     "Probability Density Function": [
-        {{"element_type": "equation", "element_caption": "Equation of the probability density function for a Gaussian distribution"}},
-        {{"element_type": "plot", "element_caption": "Plot showing the probability density function across different values"}}
+        {"element_type": "equation", "element_caption": "Equation of the probability density function for a Gaussian distribution"},
+        {"element_type": "plot", "element_caption": "Plot showing the probability density function across different values"}
     ],
     "Cumulative Distribution Function": [
-        {{"element_type": "description", "element_caption": "Defining cumulative distribution function"}},
-        {{"element_type": "plot", "element_caption": "Graphical representation of CDF for Gaussian distribution"}}
+        {"element_type": "description", "element_caption": "Defining cumulative distribution function"},
+        {"element_type": "plot", "element_caption": "Graphical representation of CDF for Gaussian distribution"}
     ],
     "Parameters of Gaussian Distribution: Mean and Variance": [
-        {{"element_type": "description", "element_caption": "Explanation of mean and variance in Gaussian distributions"}},
-        {{"element_type": "table", "element_caption": "Table showing effects of different means and variances on the distribution shape"}}
+        {"element_type": "description", "element_caption": "Explanation of mean and variance in Gaussian distributions"},
+        {"element_type": "table", "element_caption": "Table showing effects of different means and variances on the distribution shape"}
     ],
     "Standard Normal Distribution": [
-        {{"element_type": "description", "element_caption": "Characteristics of the standard normal distribution"}},
-        {{"element_type": "equation", "element_caption": "Equation defining the standard normal distribution"}}
+        {"element_type": "description", "element_caption": "Characteristics of the standard normal distribution"},
+        {"element_type": "equation", "element_caption": "Equation defining the standard normal distribution"}
     ],
     "Z-Scores and Normalization": [
-        {{"element_type": "description", "element_caption": "Explanation of Z-scores and their use in normalization"}},
-        {{"element_type": "graph", "element_caption": "Graph showing transformation of data into Z-scores"}}
+        {"element_type": "description", "element_caption": "Explanation of Z-scores and their use in normalization"},
+        {"element_type": "graph", "element_caption": "Graph showing transformation of data into Z-scores"}
     ],
     "Central Limit Theorem": [
-        {{"element_type": "description", "element_caption": "Statement and explanation of the Central Limit Theorem"}},
+        {"element_type": "description", "element_caption": "Statement and explanation of the Central Limit Theorem"},
     ],
     "Applications of Gaussian Distributions": [
-        {{"element_type": "enumeration", "element_caption": "List of various applications in different fields"}},
+        {"element_type": "enumeration", "element_caption": "List of various applications in different fields"},
     ],
     "Estimating Parameters": [
-        {{"element_type": "description", "element_caption": "Methods for estimating parameters of Gaussian distributions"}},
-        {{"element_type": "block-diagram", "element_caption": "Diagram illustrating parameter estimation techniques"}}
+        {"element_type": "description", "element_caption": "Methods for estimating parameters of Gaussian distributions"},
+        {"element_type": "block-diagram", "element_caption": "Diagram illustrating parameter estimation techniques"}
     ],
     "Maximum Likelihood Estimation": [
-        {{"element_type": "description", "element_caption": "Introduction to maximum likelihood estimation"}},
-        {{"element_type": "equation", "element_caption": "Equation used in the maximum likelihood estimation for Gaussian"}},
-        {{"element_type": "equation", "element_caption": "An MLE equation used in Deep Learning"}}
+        {"element_type": "description", "element_caption": "Introduction to maximum likelihood estimation"},
+        {"element_type": "equation", "element_caption": "Equation used in the maximum likelihood estimation for Gaussian"},
+        {"element_type": "equation", "element_caption": "An MLE equation used in Deep Learning"}
     ],
     "Gaussian Distributions in Machine Learning": [
-        {{"element_type": "description", "element_caption": "Overview of how Gaussian distributions are used in machine learning"}},
-        {{"element_type": "flow-chart", "element_caption": "Flowchart showing steps in a machine learning model using Gaussian assumptions"}}
+        {"element_type": "description", "element_caption": "Overview of how Gaussian distributions are used in machine learning"},
+        {"element_type": "flow-chart", "element_caption": "Flowchart showing steps in a machine learning model using Gaussian assumptions"}
     ],
     "Multivariate Gaussian Distribution": [
-        {{"element_type": "description", "element_caption": "Explanation of multivariate Gaussian distributions"}},
-        {{"element_type": "3d-plot", "element_caption": "3D plot of a multivariate Gaussian distribution"}}
+        {"element_type": "description", "element_caption": "Explanation of multivariate Gaussian distributions"},
+        {"element_type": "3d-plot", "element_caption": "3D plot of a multivariate Gaussian distribution"}
     ],
     "Covariance and Correlation Matrices": [
-        {{"element_type": "description", "element_caption": "Defining covariance and correlation in the context of Gaussian distributions"}},
-        {{"element_type": "table", "element_caption": "Table showing example covariance and correlation matrices"}}
+        {"element_type": "description", "element_caption": "Defining covariance and correlation in the context of Gaussian distributions"},
+        {"element_type": "table", "element_caption": "Table showing example covariance and correlation matrices"}
     ],
     "Sampling from a Multivariate Gaussian": [
-        {{"element_type": "description", "element_caption": "Techniques for sampling from a multivariate Gaussian distribution"}},
-        {{"element_type": "plot", "element_caption": "Plot showing samples drawn from a multivariate Gaussian"}}
+        {"element_type": "description", "element_caption": "Techniques for sampling from a multivariate Gaussian distribution"},
+        {"element_type": "plot", "element_caption": "Plot showing samples drawn from a multivariate Gaussian"}
     ],
     "Gaussian Processes": [
-        {{"element_type": "description", "element_caption": "Introduction to Gaussian processes"}},
-        {{"element_type": "graph", "element_caption": "Graph illustrating a simple Gaussian process"}}
+        {"element_type": "description", "element_caption": "Introduction to Gaussian processes"},
+        {"element_type": "graph", "element_caption": "Graph illustrating a simple Gaussian process"}
     ],
     "Challenges and Limitations of Gaussian Models": [
-        {{"element_type": "description", "element_caption": "Discussion on the limitations and challenges of using Gaussian models"}},
-        {{"element_type": "enumeration", "element_caption": "List of common issues and scenarios where Gaussian models may fail"}}
+        {"element_type": "description", "element_caption": "Discussion on the limitations and challenges of using Gaussian models"},
+        {"element_type": "enumeration", "element_caption": "List of common issues and scenarios where Gaussian models may fail"}
     ],
     "Summary and Conclusions": [
-        {{"element_type": "description", "element_caption": "Recap of key points covered in the presentation"}},
+        {"element_type": "description", "element_caption": "Recap of key points covered in the presentation"},
     ]
-}}
+}
 """}
 ]
 instruction_prompt = ("human", """Hello. I want you to help me prepare lecture slides on {topic}. I am providing you with the outline of the lecture in form of a nested dictionary.\n
@@ -196,43 +196,43 @@ generation_prompt =  [
 
 text_generation_example = [
     {
-        "instructions": """{{
+        "instructions": """{
 "Introduction to Trees": [
-        {{"element_type": "description", "element_caption": "Introduction to the three probability axioms"}},
-        {{"element_type": "url", "element_caption": "A link to a resource to learn more about trees"}}
+        {"element_type": "description", "element_caption": "Introduction to the three probability axioms"},
+        {"element_type": "url", "element_caption": "A link to a resource to learn more about trees"}
 ],
 "Types of Tree Data Structures": [
-        {{"element_type": "enumeration", "element_caption": "A list of common types of tree data structures"}},
-        {{"element_type": "block-diagram", "element_caption": "A link to a resource to learn more about trees"}}
+        {"element_type": "enumeration", "element_caption": "A list of common types of tree data structures"},
+        {"element_type": "block-diagram", "element_caption": "A link to a resource to learn more about trees"}
 ],
 "Binary Trees": [
-        {{"element_type": "description", "element_caption": "Descriptive explaination of a Binary Tree"}},
-        {{"element_type": "tree", "element_caption": "A visual representation of a binary tree"}}
+        {"element_type": "description", "element_caption": "Descriptive explaination of a Binary Tree"},
+        {"element_type": "tree", "element_caption": "A visual representation of a binary tree"}
 ],
 "Tree Traversals": [
-        {{"element_type": "enumeration", "element_caption": "A list naming types of tree traversal techniques"}},
-        {{"element_type": "table", "element_caption": "A detailed comparitive table between characteristics of different tree traversals"}}
+        {"element_type": "enumeration", "element_caption": "A list naming types of tree traversal techniques"},
+        {"element_type": "table", "element_caption": "A detailed comparitive table between characteristics of different tree traversals"}
 ],
 "Applications of Trees": [
-        {{"element_type": "enumeration", "element_caption": "A detailed enumeration highlighting areas where trees are applied"}}
+        {"element_type": "enumeration", "element_caption": "A detailed enumeration highlighting areas where trees are applied"}
 ]
-}}
+}
         """,
         "topic": "Tree Data Structure",
         "presentation_ID": 12451,
         "output": """
-{{
+{
 "presentation_ID": 12451,
 "topic": Tree Data Structure,
 "slides":[
-      {{
+      {
          "slide_number": 1,
          "title": "Introduction to Trees",
          "description": "Trees are hierarchical data structures consisting of nodes connected by edges. They contain a root node, branches, and leaves. Each node can have zero or more children, forming a tree-like structure. Trees are widely used in computer science for organizing and managing data efficiently.",
          "enumeration": [],
          "url": "https://www.w3schools.com/dsa/dsa_theory_trees.php"
-      }},
-      {{
+      },
+      {
          "slide_number": 2,
          "title": "Types of Tree Data Structures",
          "description": "",
@@ -246,30 +246,30 @@ text_generation_example = [
                         "Heap"
                         ],
         "url": ""
-      }},
-      {{
+      },
+      {
          "slide_number": 3,
          "title": "Binary Trees",
          "description": "Binary trees: Data structures composed of nodes where each node has at most two children, commonly referred to as the left child and the right child.",
          "enumeration": [],
          "url": ""
-      }},
-      {{
+      },
+      {
          "slide_number": 4,
          "title": "Tree Traversals",
          "description": "",
          "enumeration": ["Three types of Traversals", "Inorder", "Preorder", "Postorder"]
-      }},
-      {{
+      },
+      {
          "slide_number": 5,
          "title": "Application of Trees",
          "description": "",
          "enumeration": ["Various applications", "File Systems: Representing the structure of directories and files in operating systems.",
            "Network Routing: Used in routing algorithms such as OSPF and BGP",
            "Syntax Tree: Representing the structure of program code in compilers and interpreters for parsing and analysis."]
-      }}
+      }
       ]
-}}
+}
         """
     }
 ]

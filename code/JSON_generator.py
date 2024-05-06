@@ -75,10 +75,10 @@ def resize_image(input_image_path, slide_number, i, output_image_dir, box_width,
         return new_img_path, new_width_inches, new_height_inches
 
 def remove_tmp_files():
-    tmp_files = ['tmp.tex', 'tmp.aux', 'tmp.log', 'tmp.pdf']
-    for f in tmp_files:
-        if os.path.exists(f):
-            os.remove(f)
+    # tmp_files = ['tmp.tex', 'tmp.aux', 'tmp.log', 'tmp.pdf']
+    # for f in tmp_files:
+    #     if os.path.exists(f):
+    #         os.remove(f)
     directories = ['code/buffer/figures', 'code/buffer/structs', 'code/buffer/plots']
     for directory in directories:
         # Walk through all subdirectories
@@ -387,33 +387,39 @@ def generate_random_slide(slide_number, data, style_obj, footer_obj, presentatio
 
 if __name__ == "__main__":
     # num_files = 3
-    buffer_dir = 'code/buffer'
-    json_files = [f for f in os.listdir(buffer_dir) if f.endswith('.json')]
-
-    for json_file in json_files: 
-        style_obj = generate_random_style_obj()
-        footer_obj = generate_footer_obj()
-        print(footer_obj)
-        # print(style_obj)
-        slide_id, _ = os.path.splitext(json_file)
-        file_path = os.path.join(buffer_dir, json_file)
-        with open(file_path, 'r') as file:
-            data = json.load(file)
-        n_slides = len(data["slides"])
-        slides = [generate_random_slide(i+1, data, style_obj, footer_obj, slide_id) for i in range(n_slides)]
-    
-        new_data = {
-            "slide_id": slide_id,
-            "n_slides": len(slides),
-            "topic" : data["topic"],
-            "presenter": pick_random_presenter(),
-            "date": generate_random_date(),
-            "slides": slides
-        }
-        with open(f"code\\buffer\\full\\{slide_id}.json", 'w') as json_file:
-            json.dump(new_data, json_file, indent=3)
-        print(f"{slide_id} JSON file created successfully")
-    
+    temp_dir = 'code/temp'
+    entries = os.listdir(temp_dir)
+    directories = [entry for entry in entries if os.path.isdir(os.path.join(temp_dir, entry))]
+    DUP_FAC = 3
+    for directory in directories:
+        json_files = [f for f in os.listdir(os.path.join(temp_dir,directory)) if f.endswith('.json')]
+        for json_file in json_files: 
+            presentation_ID, _ = os.path.splitext(json_file)
+            file_path = os.path.join(temp_dir, directory, json_file)
+            with open(file_path, 'r') as file:
+                data = json.load(file)
+            n_slides = len(data["slides"])
+            for ver in range(DUP_FAC):
+                style_obj = generate_random_style_obj()
+                footer_obj = generate_footer_obj()
+                slides = [generate_random_slide(i+1, data, style_obj, footer_obj, presentation_ID) for i in range(n_slides)]
+                new_data = {
+                    "slide_id": presentation_ID,
+                    "n_slides": len(slides),
+                    "topic" : data["topic"],
+                    "presenter": pick_random_presenter(),
+                    "date": generate_random_date(),
+                    "slides": slides
+                }
+                if not os.path.exists(f"code\\buffer\\full\\{directory}\\"):
+                    os.mkdir(f"code\\buffer\\full\\{directory}\\")
+                with open(f"code\\buffer\\full\\{directory}\\{presentation_ID}_{ver + 1}.json", 'w') as json_file:
+                    json.dump(new_data, json_file, indent=3)
+                print(f"{presentation_ID}_{ver + 1} JSON file created successfully")
+                if not os.path.exists(f'code\json\content\{directory}'):
+                    os.mkdir(f'code\json\content\{directory}')
+                os.rename(file_path, f'code\json\content\{directory}\{presentation_ID}.json')
+        
     # #Delete content JSON files
     # for json_file in json_files:
     #     os.remove(os.path.join(buffer_dir, json_file))

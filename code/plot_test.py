@@ -1,10 +1,17 @@
+from mpl_toolkits.mplot3d import Axes3D
 import matplotlib.pyplot as plt
+import numpy as np
 
-# Data for the pie chart
-phases = ['Lexical Analysis', 'Syntax Analysis', 'Semantic Analysis', 'Code Generation']
-time_spent = [20, 30, 25, 25]
+# Data for the 3D plot
+x = np.random.standard_normal(10)
+y = np.random.standard_normal(10)
+z = np.random.standard_normal(10)
 
-plt.figure(figsize=(8, 8))
-plt.pie(time_spent, labels=phases, autopct='%1.1f%%', startangle=90, colors=['red', 'green', 'blue', 'yellow'])
-plt.savefig('code/buffer/figures/2.png')
+fig = plt.figure()
+ax = fig.add_subplot(111, projection='3d')
+ax.scatter(x, y, z)
+ax.set_xlabel('Research Area X')
+ax.set_ylabel('Research Area Y')
+ax.set_zlabel('Impact Factor')
+plt.savefig('code/buffer/figures/5.png')
 plt.close()

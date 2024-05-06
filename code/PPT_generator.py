@@ -299,14 +299,21 @@ def load_json_payload(file_path):
 def main():
     # Load the JSON payload
     buffer_folder_path = "./code/buffer/full"
+    entries = os.listdir(buffer_folder_path)
+    # Filter out directories
+    directories = [entry for entry in entries if os.path.isdir(os.path.join(buffer_folder_path, entry))]
+    print(directories)
+    json_file_paths = []
+    for directory in directories:
+        json_files = [f for f in os.listdir(os.path.join(buffer_folder_path, directory)) if f.endswith('.json')]
+        json_file_paths.append(os.path.join(buffer_folder_path, directory, json_files[-1]))
     base_topic_folder_path = "./code/json"
 
-    json_files = [f for f in os.listdir(buffer_folder_path) if f.endswith('.json')]
 
-    for json_file in json_files:
+    for i, json_file in enumerate(json_files):
         #Load JSON file from buffer
         slide_id , _ = os.path.splitext(json_file)
-        json_file_path = os.path.join(buffer_folder_path, json_file)
+        json_file_path = json_file_paths[i]
         json_payload = load_json_payload(json_file_path)
 
         #Generate Presentation from JSON file and save it

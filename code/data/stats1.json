@@ -4,21 +4,21 @@
     "title": 496,
     "text": 393,
     "enumeration": 85,
-    "chart": 6,
-    "diagram": 17,
+    
     "equations": 42,
     "tables": 43,
+
     "graph": 75,
-    "flow-chart": 36,
-    "slideNr": 367,
+    "flow-chart": 42,
     "block-diagram": 36,
     "tree": 13,
     "bar-chart": 18,
     "pie-chart": 12,
-    "flowchart": 7,
-    "date": 161,
-    "footnote": 80,
     "line-chart": 13,
     "plot": 26,
-    "3d-plot": 2
+    "3d-plot": 2,
+
+    "date": 161,
+    "footnote": 80,
+    "slideNr": 367
 }

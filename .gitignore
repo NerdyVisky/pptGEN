@@ -5,10 +5,11 @@ pptENV/
 
 ppts/
 !ppts/sample.txt
-pdfs/
-!pdfs/sample.txt
-images/
-!images/sample.txt
+
+dataset/
+!dataset/json/sample.txt
+!dataset/ppts/sample.txt
+
 
 code/json/
 !code/json/sample.txt

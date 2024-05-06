@@ -2,7 +2,7 @@ import json
 import os
 from collections import Counter
 
-json_path = 'code/json/'
+json_path = 'dataset/json/'
 
 def fetch_seed_content(json_file_path):
     with open(json_file_path, 'r') as file:

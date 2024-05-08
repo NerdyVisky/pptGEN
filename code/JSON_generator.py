@@ -53,43 +53,11 @@ def count_body_elements(data, slide_number):
             ttl_fig = len(v)
     return [ttl_desc, ttl_enum, ttl_url, ttl_eq, ttl_tb, ttl_fig]
 
-def resize_image(input_image_path, slide_number, i, output_image_dir, box_width, box_height, dpi=96):
-    box_width_pixels = int(box_width * dpi)
-    box_height_pixels = int(box_height * dpi)
-    with Image.open(input_image_path) as img:
-        img_width, img_height = img.size
-        img_aspect_ratio = img_width / img_height
-        box_aspect_ratio = box_width_pixels / box_height_pixels
-        if img_aspect_ratio > box_aspect_ratio:
-            new_width = box_width_pixels
-            new_height = int(box_width_pixels / img_aspect_ratio)
-        else:
-            new_height = box_height_pixels
-            new_width = int(box_height_pixels * img_aspect_ratio)
-        resized_img = img.resize((new_width, new_height))
-        new_img_path = os.path.join(output_image_dir, f'{slide_number}_{i}.png')
-        resized_img.save(new_img_path)
-        os.remove(input_image_path)
-        new_width_inches = new_width / dpi
-        new_height_inches = new_height / dpi
-        return new_img_path, new_width_inches, new_height_inches
-
 def remove_tmp_files():
-    # tmp_files = ['tmp.tex', 'tmp.aux', 'tmp.log', 'tmp.pdf']
-    # for f in tmp_files:
-    #     if os.path.exists(f):
-    #         os.remove(f)
-    directories = ['code/buffer/figures', 'code/buffer/structs', 'code/buffer/plots']
-    for directory in directories:
-        # Walk through all subdirectories
-        for root, dirs, _ in os.walk(directory, topdown=False):
-            for name in dirs:
-                dir_path = os.path.join(root, name)
-                # Check if the directory is empty
-                if not os.listdir(dir_path):
-                    # Remove the empty directory
-                    os.rmdir(dir_path)
-                    print(f"Removed empty directory: {dir_path}")
+    tmp_files = ['tmp.tex', 'tmp.aux', 'tmp.log', 'tmp.pdf']
+    for f in tmp_files:
+        if os.path.exists(f):
+            os.remove(f)
     # os.remove(f'tmp.tex')
     # os.remove(f'tmp.aux')
     # os.remove(f'tmp.log')
@@ -116,20 +84,8 @@ def remove_tmp_files():
 def generate_random_slide(slide_number, data, style_obj, footer_obj, presentation_ID):
     bg_color, title_font_family, title_font_bold, title_font_attr, title_align, desc_font_family, desc_font_attr = style_obj["bg_color"], style_obj["title_font_family"], style_obj["title_font_bold"], style_obj["title_font_attr"], style_obj['title_align'], style_obj["desc_font_family"], style_obj["desc_font_attr"]
     date = style_obj["date"]
-    # Determining when a slide has BG as White
-    THRES = 0.667
-    if generate_random_value(float, 0, 1) < THRES:
-        bg_color = {"r": 255, "g": 255, "b": 255}
-    # # Define total number of body elements
-    # if slide_number == 1:
-    #     total_body_elements = 0
-    # else:
-    #     total_body_elements = generate_random_value(int, 1, 3)
     n_elements_list = count_body_elements(data, slide_number)
     total_body_elements = sum(n_elements_list)
-    # n_elements_list = [descriptions, enumerations, figures]
-    # n_elements_list = generate_n_numbers_with_sum(total_body_elements, 3)
-    # Distribute the total count among the three categories
 
 
     # Generate random slide layout
@@ -254,47 +210,38 @@ def generate_random_slide(slide_number, data, style_obj, footer_obj, presentatio
             } 
             slide['elements']['url'].append(desc_instance)
             element_index += 1
-
-
-        # Render Equations
-        resized_path = f'code\\buffer\\structs\\equations\\{presentation_ID}'
-        if not os.path.exists(resized_path):
-            os.makedirs(resized_path)
+       
+        # Render Equations    
 
         slide['elements']['equations'] = []
         for i in range(n_elements_list[3]):
             img_path = data["slides"][slide_number - 1]["equations"][i]["path"]
-            resized_img_path, n_w, n_h = resize_image(img_path, slide_number, i, resized_path, all_dims['body'][element_index]['width'], all_dims['body'][element_index]['height'])
             eq_instance = {
             "label": "equation",
-            "xmin": all_dims['body'][element_index]['left'] - (n_w - all_dims['body'][element_index]['width'])/2,
-            "ymin": all_dims['body'][element_index]['top'] - (n_h - all_dims['body'][element_index]['height'])/2,
-            "width": n_w,
-            "height": n_h,
+            "xmin": all_dims['body'][element_index]['left'],
+            "ymin": all_dims['body'][element_index]['top'],
+            "width": all_dims['body'][element_index]['width'],
+            "height": all_dims['body'][element_index]['height'],
             "desc": data["slides"][slide_number - 1]["equations"][i]["desc"],
-            "path": resized_img_path
+            "path": img_path
             }
             slide['elements']['equations'].append(eq_instance)
             element_index += 1
             remove_tmp_files()
 
         # Render Tables
-        resized_path = f'code\\buffer\\structs\\tables\\{presentation_ID}'
-        if not os.path.exists(resized_path):
-            os.makedirs(resized_path)
 
         slide['elements']['tables'] = []
         for i in range(n_elements_list[4]):
             img_path = data["slides"][slide_number - 1]["tables"][i]['path']
-            resized_img_path, n_w, n_h = resize_image(img_path, slide_number, i, resized_path, all_dims['body'][element_index]['width'], all_dims['body'][element_index]['height'])
             tab_instance = {
             "label": "table",
-            "xmin": all_dims['body'][element_index]['left'] - (n_w - all_dims['body'][element_index]['width'])/2,
-            "ymin": all_dims['body'][element_index]['top'] - (n_h - all_dims['body'][element_index]['height'])/2,
-            "width": n_w,
-            "height": n_h,
+            "xmin": all_dims['body'][element_index]['left'],
+            "ymin": all_dims['body'][element_index]['top'],
+            "width": all_dims['body'][element_index]['width'],
+            "height": all_dims['body'][element_index]['height'],
             "desc": data["slides"][slide_number - 1]["tables"][i]["desc"],
-            "path": resized_img_path    
+            "path": img_path    
             }
             slide['elements']['tables'].append(tab_instance)
             element_index += 1
@@ -311,20 +258,12 @@ def generate_random_slide(slide_number, data, style_obj, footer_obj, presentatio
             # else:
             img_path = data["slides"][slide_number - 1]["figures"][i]['path']
             label = data["slides"][slide_number - 1]["figures"][i]['label'] 
-            if label == 'tree' or label == 'chart' or label == 'flow-chart' or label == 'block-diagram':
-                resized_path = f'code\\buffer\\figures\\{label}\\{presentation_ID}'
-            else:
-                resized_path = f'code\\buffer\\plots\\{label}\\{presentation_ID}'
-
-            if not os.path.exists(resized_path):
-                os.makedirs(resized_path)
-            resized_img_path, n_w, n_h = resize_image(img_path, slide_number, i, resized_path, all_dims['body'][element_index]['width'], all_dims['body'][element_index]['height'])
             fig_instance = {
             "label": label,
             "caption": {
                 "value": data["slides"][slide_number - 1]["figures"][i]["desc"],
                 "xmin": all_dims['body'][element_index]['left'],
-                "ymin": all_dims['body'][element_index]['top'] - (n_h - all_dims['body'][element_index]['height'])/2 + (n_h - 0.35),
+                "ymin": all_dims['body'][element_index]['top'] + all_dims['body'][element_index]['height'] - 0.35,
                 "width": all_dims['body'][element_index]['width'],
                 "height": 0.35,
                 "style": {
@@ -336,12 +275,12 @@ def generate_random_slide(slide_number, data, style_obj, footer_obj, presentatio
                     "underlined": font_obj["underline"]
                }
             },
-            "xmin": all_dims['body'][element_index]['left'] - (n_w - all_dims['body'][element_index]['width'])/2,
-            "ymin": all_dims['body'][element_index]['top'] - (n_h - all_dims['body'][element_index]['height'])/2,
-            "width": n_w,
-            "height": n_h - 0.35,
+            "xmin": all_dims['body'][element_index]['left'],
+            "ymin": all_dims['body'][element_index]['top'],
+            "width": all_dims['body'][element_index]['width'],
+            "height": all_dims['body'][element_index]['height'] - 0.35,
             "desc": data["slides"][slide_number - 1]["figures"][i]["desc"],
-            "path": resized_img_path
+            "path": img_path
             }
             slide['elements']['figures'].append(fig_instance)
             element_index += 1
@@ -411,15 +350,22 @@ if __name__ == "__main__":
                     "date": generate_random_date(),
                     "slides": slides
                 }
-                if not os.path.exists(f"code\\buffer\\full\\{directory}\\"):
-                    os.mkdir(f"code\\buffer\\full\\{directory}\\")
-                with open(f"code\\buffer\\full\\{directory}\\{presentation_ID}_{ver + 1}.json", 'w') as json_file:
+                if not os.path.exists(f"code\\buffer\\full\\{directory}"):
+                    os.mkdir(f"code\\buffer\\full\\{directory}")
+                if not os.path.exists(f"code\\buffer\\full\\{directory}\\{presentation_ID}"):
+                    os.mkdir(f"code\\buffer\\full\\{directory}\\{presentation_ID}")
+
+                with open(f"code\\buffer\\full\\{directory}\\{presentation_ID}\\{ver + 1}.json", 'w') as json_file:
                     json.dump(new_data, json_file, indent=3)
                 print(f"{presentation_ID}_{ver + 1} JSON file created successfully")
-                if not os.path.exists(f'code\json\content\{directory}'):
-                    os.mkdir(f'code\json\content\{directory}')
-                os.rename(file_path, f'code\json\content\{directory}\{presentation_ID}.json')
-        
+                # try:
+                #     if not os.path.exists(f'code\\json\content\\{directory}'):
+                #         os.mkdir(f'code\json\content\{directory}')
+                #         os.rename(file_path, f'code\\json\content\\{directory}\\{presentation_ID}.json')
+                # except:
+                #     pass
+
+
     # #Delete content JSON files
     # for json_file in json_files:
     #     os.remove(os.path.join(buffer_dir, json_file))

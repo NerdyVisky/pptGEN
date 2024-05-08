@@ -52,8 +52,11 @@ PRESENTERS = [
 ]
 
 
-def generate_random_color():
-    return {"r": random.randint(0, 255), "g": random.randint(0, 255), "b": random.randint(0, 255)}
+def generate_random_color(PROB=0.6):
+    if random.random() > PROB:
+        return {"r": random.randint(0, 255), "g": random.randint(0, 255), "b": random.randint(0, 255)}
+    else:
+        return {"r": 255, "g": 255, "b": 255}   
 
 def generate_random_font(element):
     bold = False
@@ -123,7 +126,7 @@ def generate_footer_obj():
     
 def generate_random_style_obj():
     style_obj = {}
-    style_obj["bg_color"] = generate_random_color()
+    style_obj["bg_color"] = generate_random_color(0.6)
     style_obj["title_font_family"] = pick_random(FONT_STYLES) 
     style_obj["title_font_bold"] = random.random() > 0.75
     style_obj["title_font_attr"] = generate_random_font("title")

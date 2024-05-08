@@ -297,8 +297,8 @@ def construct_generation_prompts(instruct_content, topic):
                , f"I am providing some instructions which are related to generating diagrams and figures for a presentation on {topic}.\n"]
     # prompts -> ['text', 'structural (LaTeX)', 'plots (Matplotlib)', 'figures (DOT + GraphViz)']
     positions = [{
-                  "table": {},
-                  "equation": {}   
+                  "tables": {},
+                  "equations": {}   
                  },
                  {
                   "plot": {},
@@ -328,6 +328,7 @@ def construct_generation_prompts(instruct_content, topic):
 
             if element_type in ["table", "equation"]:
                 n_s += 1
+                element_type += 's'
                 positions[0][element_type][n_s] = i + 1
                 prompts[0] += (context_line + f" generate LaTeX code for a simple {element_type} given the caption: {element_caption}\n")
             elif element_type in ["plot", "bar-chart", "line-chart", "pie-chart", "3d-plot"]:

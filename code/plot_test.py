@@ -1,17 +1,15 @@
-from mpl_toolkits.mplot3d import Axes3D
 import matplotlib.pyplot as plt
-import numpy as np
 
-# Data for the 3D plot
-x = np.random.standard_normal(10)
-y = np.random.standard_normal(10)
-z = np.random.standard_normal(10)
+# Data for the line chart
+years = [2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022]
+efficiency = [0.75, 0.78, 0.80, 0.83, 0.85, 0.87, 0.90, 0.92]
 
-fig = plt.figure()
-ax = fig.add_subplot(111, projection='3d')
-ax.scatter(x, y, z)
-ax.set_xlabel('Research Area X')
-ax.set_ylabel('Research Area Y')
-ax.set_zlabel('Impact Factor')
-plt.savefig('code/buffer/figures/5.png')
+fig, ax = plt.subplots()
+ax.plot(years, efficiency, marker='o')
+
+ax.set_xlabel('Year')
+ax.set_ylabel('Efficiency')
+ax.set_title('Line chart summarizing the efficiency of A* algorithm')
+
+plt.savefig('code/buffer/figures/3.png')
 plt.close()

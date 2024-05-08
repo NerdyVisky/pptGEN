@@ -4,6 +4,7 @@ code/buffer/tables/
 code/__pycache__/
 pptgen/
 ppts/*.pptx
+ppts/*/*.pptx
 code/json/*/*.json
 code/json/*.json
 code/data/slide_summary.json

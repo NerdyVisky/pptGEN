@@ -222,7 +222,7 @@ def generate_plot_content(prompt, model, presentation_ID):
     return plot_img_paths
 
 
-def assemble_elements(text_json, struct_imgs, plot_imgs, figure_imgs, positions, prompts):
+def assemble_elements(text_json, struct_imgs, plot_imgs, figure_imgs, positions, prompts, captions):
     # text_json = json.loads(text_json)
     vis_eles = [struct_imgs, plot_imgs, figure_imgs]
     for slide in text_json["slides"]:
@@ -240,8 +240,8 @@ def assemble_elements(text_json, struct_imgs, plot_imgs, figure_imgs, positions,
             name = file_name.split('.')[0]
             slide_number = positions[ind][element_name][int(name)]
             # presentation_id = int(parts[1].replace('.png', ''))
-            print(prompt_lines[i+1])
-            caption = prompt_lines[i+1].split(':')[1].strip()
+            # caption = prompt_lines[i+1].split(':')[1].strip()
+            caption = captions[ind][element_name][int(name)]
             obj = {
                 'desc': caption,
                 'path': img_path

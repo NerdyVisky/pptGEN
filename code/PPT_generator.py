@@ -3,6 +3,7 @@ from pptx.util import Inches, Pt
 from pptx.enum.shapes import MSO_SHAPE
 from pptx.enum.shapes import MSO_SHAPE_TYPE
 from pptx.enum.text import PP_ALIGN
+from pptx.enum.text import MSO_ANCHOR
 from pptx.dml.color import RGBColor
 import json
 import os
@@ -28,6 +29,23 @@ class Element:
             run.font.italic = self.style['italics']
         if 'underlined' in self.style:
             run.font.underline = self.style['underlined']
+        if 'h_align' in self.style:
+            if self.style['h_align'] == 'center':
+                run.alignment = PP_ALIGN.CENTER
+            elif self.style['h_align'] == 'left':
+                run.alignment = PP_ALIGN.LEFT
+            elif self.style['h_align'] == 'right':
+                run.alignment = PP_ALIGN.RIGHT
+            else:
+                run.alignment = PP_ALIGN.JUSTIFY
+        
+        if 'v_align' in self.style:
+            if self.style['v_align'] == 'top':
+                run.vertical_anchor = MSO_ANCHOR.TOP
+            elif self.style['v_align'] == 'middle':
+                run.vertical_anchor = MSO_ANCHOR.MIDDLE
+            else:
+                run.vertical_anchor = MSO_ANCHOR.BOTTOM
 
     
     def apply_font_style(self, shape):
@@ -49,6 +67,24 @@ class Element:
             shape.text_frame.paragraphs[0].font.underline = self.style['underlined']
         else:
             shape.text_frame.paragraphs[0].font.underline = False
+        if 'h_align' in self.style:
+            if self.style['h_align'] == 'center':
+                shape.text_frame.paragraphs[0].alignment = PP_ALIGN.CENTER
+            elif self.style['h_align'] == 'left':
+                shape.text_frame.paragraphs[0].alignment = PP_ALIGN.LEFT
+            elif self.style['h_align'] == 'right':
+                shape.text_frame.paragraphs[0].alignment = PP_ALIGN.RIGHT
+            else:
+                shape.text_frame.paragraphs[0].alignment = PP_ALIGN.JUSTIFY
+        
+        if 'v_align' in self.style:
+            if self.style['v_align'] == 'top':
+                shape.text_frame.paragraphs[0].vertical_anchor = MSO_ANCHOR.TOP
+            elif self.style['v_align'] == 'middle':
+                shape.text_frame.paragraphs[0].vertical_anchor = MSO_ANCHOR.MIDDLE
+            else:
+                shape.text_frame.paragraphs[0].vertical_anchor = MSO_ANCHOR.BOTTOM
+
     
     def position_element(self, shape):
         shape.left = Inches(self.bounding_box[0])
@@ -74,12 +110,6 @@ class Title(Element):
         title_shape.text = self.content
         self.apply_font_style(title_shape)
         self.position_element(title_shape)
-        if self.style['align'] == 'center':
-            title_shape.text_frame.paragraphs[0].alignment = PP_ALIGN.CENTER
-        else:
-            title_shape.text_frame.paragraphs[0].alignment = PP_ALIGN.LEFT
-            
-            
 
     def clean_up(self, slide):
         pass
@@ -150,9 +180,9 @@ class Figure(Element):
         left, top, width, height = self.bounding_box
         resized_img_path, n_w, n_h = resize_image(self.content, width, height)
         img = slide.shapes.add_picture(resized_img_path, Inches(left - (n_w - width)/2), Inches(top - (n_h - height)/2), Inches(n_w), Inches(n_h))
-        left, top, width, height = self.caption['xmin'], self.caption['ymin'], self.caption['width'], self.caption['height']
+        left_c, top_c, width_c, height_c = self.caption['xmin'], self.caption['ymin'], self.caption['width'], self.caption['height']
 
-        cap_shape = slide.shapes.add_textbox(Inches(left), Inches(top), Inches(width), Inches(height))
+        cap_shape = slide.shapes.add_textbox(Inches(left_c), Inches(top_c - (height - n_h)/2), Inches(width_c), Inches(height_c))
         cap_shape.text = self.caption['value']
         self.apply_font_style(cap_shape)
         cap_shape.text_frame.auto_size = True

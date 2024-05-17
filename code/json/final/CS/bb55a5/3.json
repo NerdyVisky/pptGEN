@@ -1,0 +1,1759 @@
+{
+   "slide_id": "bb55a5",
+   "n_slides": 15,
+   "topic": "The Role of Algorithms in Computing",
+   "presenter": "Prof. Gregory Jensen",
+   "date": "January 2021",
+   "slides": [
+      {
+         "pg_no": 1,
+         "bg_color": {
+            "r": 194,
+            "g": 151,
+            "b": 182
+         },
+         "slide_layout": 4,
+         "elements": {
+            "title": [
+               {
+                  "label": "text",
+                  "value": "Introduction: Definition & Characteristics",
+                  "xmin": 0.5,
+                  "ymin": 0.3,
+                  "width": 11.997,
+                  "height": 1.25,
+                  "style": {
+                     "font_name": "Times New Roman",
+                     "font_size": 54,
+                     "font_color": {
+                        "r": 128,
+                        "g": 0,
+                        "b": 32
+                     },
+                     "bold": false,
+                     "italics": false,
+                     "underlined": false,
+                     "h_align": "center"
+                  }
+               }
+            ],
+            "description": [
+               {
+                  "label": "text",
+                  "value": "Algorithms are step-by-step procedures for solving problems efficiently. Key characteristics include input, output, definiteness, finiteness, effectiveness, and clarity.",
+                  "xmin": 4.6655,
+                  "ymin": 2,
+                  "width": 3.9989999999999997,
+                  "height": 5,
+                  "style": {
+                     "font_name": "Arial",
+                     "font_size": 27,
+                     "font_color": {
+                        "r": 0,
+                        "g": 0,
+                        "b": 0
+                     },
+                     "bold": false,
+                     "italics": false,
+                     "underlined": false,
+                     "h_align": "left",
+                     "v_align": "top"
+                  }
+               }
+            ],
+            "url": [
+               {
+                  "value": "https://www.geeksforgeeks.org/fundamentals-of-algorithms/",
+                  "xmin": 8.6645,
+                  "ymin": 2,
+                  "width": 3.9989999999999997,
+                  "height": 5,
+                  "style": {
+                     "font_name": "Arial",
+                     "font_size": 27,
+                     "font_color": {
+                        "r": 0,
+                        "g": 0,
+                        "b": 238
+                     },
+                     "bold": false,
+                     "italics": true,
+                     "underlined": true,
+                     "h_align": "left",
+                     "v_align": "center"
+                  }
+               }
+            ],
+            "equations": [],
+            "tables": [],
+            "figures": [
+               {
+                  "label": "graph",
+                  "caption": {
+                     "value": "Graphical representation of an algorithmic process",
+                     "xmin": 0.5,
+                     "ymin": 6.65,
+                     "width": 3.9989999999999997,
+                     "height": 0.35,
+                     "style": {
+                        "font_name": "Arial",
+                        "font_size": 14,
+                        "font_color": {
+                           "r": 0,
+                           "g": 0,
+                           "b": 0
+                        },
+                        "bold": false,
+                        "italics": true,
+                        "underlined": false
+                     }
+                  },
+                  "xmin": 0.5,
+                  "ymin": 2,
+                  "width": 3.9989999999999997,
+                  "height": 4.65,
+                  "desc": "Graphical representation of an algorithmic process",
+                  "path": "code/buffer/figures\\graph\\bb55a5\\1.png"
+               }
+            ],
+            "footer": [
+               {
+                  "label": "slideNr",
+                  "location": 2,
+                  "value": "1",
+                  "xmin": 4.6655,
+                  "ymin": 7,
+                  "width": 3.9989999999999997,
+                  "height": 0.5,
+                  "style": {
+                     "font_name": "Arial",
+                     "font_size": 27,
+                     "font_color": {
+                        "r": 0,
+                        "g": 0,
+                        "b": 0
+                     },
+                     "bold": false,
+                     "italics": false,
+                     "underlined": false
+                  }
+               }
+            ]
+         }
+      },
+      {
+         "pg_no": 2,
+         "bg_color": {
+            "r": 194,
+            "g": 151,
+            "b": 182
+         },
+         "slide_layout": 2,
+         "elements": {
+            "title": [
+               {
+                  "label": "text",
+                  "value": "Introduction: Importance of Algorithms in Computing",
+                  "xmin": 0.5,
+                  "ymin": 0.3,
+                  "width": 11.997,
+                  "height": 1.25,
+                  "style": {
+                     "font_name": "Times New Roman",
+                     "font_size": 54,
+                     "font_color": {
+                        "r": 128,
+                        "g": 0,
+                        "b": 32
+                     },
+                     "bold": false,
+                     "italics": false,
+                     "underlined": false,
+                     "h_align": "center"
+                  }
+               }
+            ],
+            "description": [
+               {
+                  "label": "text",
+                  "value": "Algorithms are the backbone of computing, driving innovation and problem-solving. Efficient algorithms enhance performance and optimize resource utilization.",
+                  "xmin": 0.5,
+                  "ymin": 2,
+                  "width": 5.9985,
+                  "height": 5,
+                  "style": {
+                     "font_name": "Arial",
+                     "font_size": 27,
+                     "font_color": {
+                        "r": 0,
+                        "g": 0,
+                        "b": 0
+                     },
+                     "bold": false,
+                     "italics": false,
+                     "underlined": false,
+                     "h_align": "left",
+                     "v_align": "top"
+                  }
+               }
+            ],
+            "url": [],
+            "equations": [],
+            "tables": [],
+            "figures": [
+               {
+                  "label": "bar-chart",
+                  "caption": {
+                     "value": "Bar chart showing the impact of efficient algorithms on computing performance",
+                     "xmin": 6.665,
+                     "ymin": 6.65,
+                     "width": 5.9985,
+                     "height": 0.35,
+                     "style": {
+                        "font_name": "Arial",
+                        "font_size": 14,
+                        "font_color": {
+                           "r": 0,
+                           "g": 0,
+                           "b": 0
+                        },
+                        "bold": false,
+                        "italics": true,
+                        "underlined": false
+                     }
+                  },
+                  "xmin": 6.665,
+                  "ymin": 2,
+                  "width": 5.9985,
+                  "height": 4.65,
+                  "desc": "Bar chart showing the impact of efficient algorithms on computing performance",
+                  "path": "code/buffer/plots/bar-chart\\bb55a5\\1.png"
+               }
+            ],
+            "footer": [
+               {
+                  "label": "slideNr",
+                  "location": 2,
+                  "value": "2",
+                  "xmin": 4.6655,
+                  "ymin": 7,
+                  "width": 3.9989999999999997,
+                  "height": 0.5,
+                  "style": {
+                     "font_name": "Arial",
+                     "font_size": 27,
+                     "font_color": {
+                        "r": 0,
+                        "g": 0,
+                        "b": 0
+                     },
+                     "bold": false,
+                     "italics": false,
+                     "underlined": false
+                  }
+               }
+            ]
+         }
+      },
+      {
+         "pg_no": 3,
+         "bg_color": {
+            "r": 194,
+            "g": 151,
+            "b": 182
+         },
+         "slide_layout": 3,
+         "elements": {
+            "title": [
+               {
+                  "label": "text",
+                  "value": "Types of Algorithms",
+                  "xmin": 0.5,
+                  "ymin": 0.3,
+                  "width": 11.997,
+                  "height": 1.25,
+                  "style": {
+                     "font_name": "Times New Roman",
+                     "font_size": 54,
+                     "font_color": {
+                        "r": 128,
+                        "g": 0,
+                        "b": 32
+                     },
+                     "bold": false,
+                     "italics": false,
+                     "underlined": false,
+                     "h_align": "center"
+                  }
+               }
+            ],
+            "description": [
+               {
+                  "label": "enumeration",
+                  "heading": {
+                     "value": "Types of Algorithms",
+                     "xmin": 0.5,
+                     "ymin": 2,
+                     "width": 11.997,
+                     "height": 0.5
+                  },
+                  "value": [
+                     "Greedy Algorithms: Make locally optimal choices at each step.",
+                     "Dynamic Programming: Breaks down complex problems into simpler subproblems.",
+                     "Divide and Conquer: Divides problem into smaller subproblems and combines solutions.",
+                     "Randomized Algorithms: Use randomization to solve problems efficiently."
+                  ],
+                  "xmin": 0.5,
+                  "ymin": 2.5,
+                  "width": 11.997,
+                  "height": 2.0,
+                  "style": {
+                     "font_name": "Arial",
+                     "font_size": 27,
+                     "font_color": {
+                        "r": 0,
+                        "g": 0,
+                        "b": 0
+                     },
+                     "bold": false,
+                     "italics": false,
+                     "underlined": false,
+                     "h_align": "justify",
+                     "v_align": "bottom"
+                  }
+               }
+            ],
+            "url": [],
+            "equations": [],
+            "tables": [],
+            "figures": [
+               {
+                  "label": "tree",
+                  "caption": {
+                     "value": "Tree diagram categorizing algorithms based on their characteristics",
+                     "xmin": 0.5,
+                     "ymin": 6.65,
+                     "width": 11.997,
+                     "height": 0.35,
+                     "style": {
+                        "font_name": "Arial",
+                        "font_size": 14,
+                        "font_color": {
+                           "r": 0,
+                           "g": 0,
+                           "b": 0
+                        },
+                        "bold": false,
+                        "italics": true,
+                        "underlined": false
+                     }
+                  },
+                  "xmin": 0.5,
+                  "ymin": 4.5,
+                  "width": 11.997,
+                  "height": 2.15,
+                  "desc": "Tree diagram categorizing algorithms based on their characteristics",
+                  "path": "code/buffer/figures\\tree\\bb55a5\\2.png"
+               }
+            ],
+            "footer": [
+               {
+                  "label": "slideNr",
+                  "location": 2,
+                  "value": "3",
+                  "xmin": 4.6655,
+                  "ymin": 7,
+                  "width": 3.9989999999999997,
+                  "height": 0.5,
+                  "style": {
+                     "font_name": "Arial",
+                     "font_size": 27,
+                     "font_color": {
+                        "r": 0,
+                        "g": 0,
+                        "b": 0
+                     },
+                     "bold": false,
+                     "italics": false,
+                     "underlined": false
+                  }
+               }
+            ]
+         }
+      },
+      {
+         "pg_no": 4,
+         "bg_color": {
+            "r": 194,
+            "g": 151,
+            "b": 182
+         },
+         "slide_layout": 3,
+         "elements": {
+            "title": [
+               {
+                  "label": "text",
+                  "value": "Efficiency of Algorithms",
+                  "xmin": 0.5,
+                  "ymin": 0.3,
+                  "width": 11.997,
+                  "height": 1.25,
+                  "style": {
+                     "font_name": "Times New Roman",
+                     "font_size": 54,
+                     "font_color": {
+                        "r": 128,
+                        "g": 0,
+                        "b": 32
+                     },
+                     "bold": false,
+                     "italics": false,
+                     "underlined": false,
+                     "h_align": "center"
+                  }
+               }
+            ],
+            "description": [
+               {
+                  "label": "text",
+                  "value": "Algorithm efficiency impacts performance and resource utilization in computing. Time complexity analysis helps in evaluating algorithm efficiency.",
+                  "xmin": 0.5,
+                  "ymin": 4.5,
+                  "width": 11.997,
+                  "height": 2.5,
+                  "style": {
+                     "font_name": "Arial",
+                     "font_size": 27,
+                     "font_color": {
+                        "r": 0,
+                        "g": 0,
+                        "b": 0
+                     },
+                     "bold": false,
+                     "italics": false,
+                     "underlined": false,
+                     "h_align": "left",
+                     "v_align": "top"
+                  }
+               }
+            ],
+            "url": [],
+            "equations": [],
+            "tables": [],
+            "figures": [
+               {
+                  "label": "line-chart",
+                  "caption": {
+                     "value": "Line chart comparing time complexity of different algorithms",
+                     "xmin": 0.5,
+                     "ymin": 4.15,
+                     "width": 11.997,
+                     "height": 0.35,
+                     "style": {
+                        "font_name": "Arial",
+                        "font_size": 14,
+                        "font_color": {
+                           "r": 0,
+                           "g": 0,
+                           "b": 0
+                        },
+                        "bold": false,
+                        "italics": true,
+                        "underlined": false
+                     }
+                  },
+                  "xmin": 0.5,
+                  "ymin": 2,
+                  "width": 11.997,
+                  "height": 2.15,
+                  "desc": "Line chart comparing time complexity of different algorithms",
+                  "path": "code/buffer/plots/line-chart\\bb55a5\\2.png"
+               }
+            ],
+            "footer": [
+               {
+                  "label": "slideNr",
+                  "location": 2,
+                  "value": "4",
+                  "xmin": 4.6655,
+                  "ymin": 7,
+                  "width": 3.9989999999999997,
+                  "height": 0.5,
+                  "style": {
+                     "font_name": "Arial",
+                     "font_size": 27,
+                     "font_color": {
+                        "r": 0,
+                        "g": 0,
+                        "b": 0
+                     },
+                     "bold": false,
+                     "italics": false,
+                     "underlined": false
+                  }
+               }
+            ]
+         }
+      },
+      {
+         "pg_no": 5,
+         "bg_color": {
+            "r": 194,
+            "g": 151,
+            "b": 182
+         },
+         "slide_layout": 2,
+         "elements": {
+            "title": [
+               {
+                  "label": "text",
+                  "value": "Analysis of Algorithms",
+                  "xmin": 0.5,
+                  "ymin": 0.3,
+                  "width": 11.997,
+                  "height": 1.25,
+                  "style": {
+                     "font_name": "Times New Roman",
+                     "font_size": 54,
+                     "font_color": {
+                        "r": 128,
+                        "g": 0,
+                        "b": 32
+                     },
+                     "bold": false,
+                     "italics": false,
+                     "underlined": false,
+                     "h_align": "center"
+                  }
+               }
+            ],
+            "description": [
+               {
+                  "label": "enumeration",
+                  "heading": {
+                     "value": "Algorithm Analysis Techniques",
+                     "xmin": 0.5,
+                     "ymin": 2,
+                     "width": 5.9985,
+                     "height": 0.5
+                  },
+                  "value": [
+                     "Asymptotic Analysis: Evaluates algorithm behavior for large inputs.",
+                     "Empirical Analysis: Measures algorithm performance through experiments."
+                  ],
+                  "xmin": 0.5,
+                  "ymin": 2.5,
+                  "width": 5.9985,
+                  "height": 4.5,
+                  "style": {
+                     "font_name": "Arial",
+                     "font_size": 27,
+                     "font_color": {
+                        "r": 0,
+                        "g": 0,
+                        "b": 0
+                     },
+                     "bold": false,
+                     "italics": false,
+                     "underlined": false,
+                     "h_align": "right",
+                     "v_align": "bottom"
+                  }
+               }
+            ],
+            "url": [],
+            "equations": [],
+            "tables": [],
+            "figures": [
+               {
+                  "label": "plot",
+                  "caption": {
+                     "value": "Plot showing growth rates of algorithms in terms of input size",
+                     "xmin": 6.665,
+                     "ymin": 6.65,
+                     "width": 5.9985,
+                     "height": 0.35,
+                     "style": {
+                        "font_name": "Arial",
+                        "font_size": 14,
+                        "font_color": {
+                           "r": 0,
+                           "g": 0,
+                           "b": 0
+                        },
+                        "bold": false,
+                        "italics": true,
+                        "underlined": false
+                     }
+                  },
+                  "xmin": 6.665,
+                  "ymin": 2,
+                  "width": 5.9985,
+                  "height": 4.65,
+                  "desc": "Plot showing growth rates of algorithms in terms of input size",
+                  "path": "code/buffer/plots/plot\\bb55a5\\3.png"
+               }
+            ],
+            "footer": [
+               {
+                  "label": "slideNr",
+                  "location": 2,
+                  "value": "5",
+                  "xmin": 4.6655,
+                  "ymin": 7,
+                  "width": 3.9989999999999997,
+                  "height": 0.5,
+                  "style": {
+                     "font_name": "Arial",
+                     "font_size": 27,
+                     "font_color": {
+                        "r": 0,
+                        "g": 0,
+                        "b": 0
+                     },
+                     "bold": false,
+                     "italics": false,
+                     "underlined": false
+                  }
+               }
+            ]
+         }
+      },
+      {
+         "pg_no": 6,
+         "bg_color": {
+            "r": 194,
+            "g": 151,
+            "b": 182
+         },
+         "slide_layout": 3,
+         "elements": {
+            "title": [
+               {
+                  "label": "text",
+                  "value": "Algorithm Design Techniques",
+                  "xmin": 0.5,
+                  "ymin": 0.3,
+                  "width": 11.997,
+                  "height": 1.25,
+                  "style": {
+                     "font_name": "Times New Roman",
+                     "font_size": 54,
+                     "font_color": {
+                        "r": 128,
+                        "g": 0,
+                        "b": 32
+                     },
+                     "bold": false,
+                     "italics": false,
+                     "underlined": false,
+                     "h_align": "center"
+                  }
+               }
+            ],
+            "description": [
+               {
+                  "label": "enumeration",
+                  "heading": {
+                     "value": "Common Design Strategies",
+                     "xmin": 0.5,
+                     "ymin": 4.5,
+                     "width": 11.997,
+                     "height": 0.5
+                  },
+                  "value": [
+                     "Divide and Conquer: Breaks problem into subproblems and solves them.",
+                     "Greedy Approach: Makes optimal choice at each step.",
+                     "Dynamic Programming: Solves complex problems by breaking them into simpler subproblems."
+                  ],
+                  "xmin": 0.5,
+                  "ymin": 5.0,
+                  "width": 11.997,
+                  "height": 2.0,
+                  "style": {
+                     "font_name": "Arial",
+                     "font_size": 27,
+                     "font_color": {
+                        "r": 0,
+                        "g": 0,
+                        "b": 0
+                     },
+                     "bold": false,
+                     "italics": false,
+                     "underlined": false,
+                     "h_align": "center",
+                     "v_align": "bottom"
+                  }
+               }
+            ],
+            "url": [],
+            "equations": [],
+            "tables": [],
+            "figures": [
+               {
+                  "label": "flow-chart",
+                  "caption": {
+                     "value": "Flowchart illustrating the algorithm design process",
+                     "xmin": 0.5,
+                     "ymin": 4.15,
+                     "width": 11.997,
+                     "height": 0.35,
+                     "style": {
+                        "font_name": "Arial",
+                        "font_size": 14,
+                        "font_color": {
+                           "r": 0,
+                           "g": 0,
+                           "b": 0
+                        },
+                        "bold": false,
+                        "italics": true,
+                        "underlined": false
+                     }
+                  },
+                  "xmin": 0.5,
+                  "ymin": 2,
+                  "width": 11.997,
+                  "height": 2.15,
+                  "desc": "Flowchart illustrating the algorithm design process",
+                  "path": "code/buffer/figures\\flow-chart\\bb55a5\\3.png"
+               }
+            ],
+            "footer": [
+               {
+                  "label": "slideNr",
+                  "location": 2,
+                  "value": "6",
+                  "xmin": 4.6655,
+                  "ymin": 7,
+                  "width": 3.9989999999999997,
+                  "height": 0.5,
+                  "style": {
+                     "font_name": "Arial",
+                     "font_size": 27,
+                     "font_color": {
+                        "r": 0,
+                        "g": 0,
+                        "b": 0
+                     },
+                     "bold": false,
+                     "italics": false,
+                     "underlined": false
+                  }
+               }
+            ]
+         }
+      },
+      {
+         "pg_no": 7,
+         "bg_color": {
+            "r": 194,
+            "g": 151,
+            "b": 182
+         },
+         "slide_layout": 3,
+         "elements": {
+            "title": [
+               {
+                  "label": "text",
+                  "value": "Greedy Algorithms",
+                  "xmin": 0.5,
+                  "ymin": 0.3,
+                  "width": 11.997,
+                  "height": 1.25,
+                  "style": {
+                     "font_name": "Times New Roman",
+                     "font_size": 54,
+                     "font_color": {
+                        "r": 128,
+                        "g": 0,
+                        "b": 32
+                     },
+                     "bold": false,
+                     "italics": false,
+                     "underlined": false,
+                     "h_align": "center"
+                  }
+               }
+            ],
+            "description": [
+               {
+                  "label": "text",
+                  "value": "Greedy algorithms make decisions based on the current best choice without considering future consequences. They aim to find the optimal solution at each step.",
+                  "xmin": 0.5,
+                  "ymin": 2,
+                  "width": 11.997,
+                  "height": 2.5,
+                  "style": {
+                     "font_name": "Arial",
+                     "font_size": 27,
+                     "font_color": {
+                        "r": 0,
+                        "g": 0,
+                        "b": 0
+                     },
+                     "bold": false,
+                     "italics": false,
+                     "underlined": false,
+                     "h_align": "justify",
+                     "v_align": "bottom"
+                  }
+               }
+            ],
+            "url": [],
+            "equations": [],
+            "tables": [],
+            "figures": [
+               {
+                  "label": "block-diagram",
+                  "caption": {
+                     "value": "Block diagram showing how greedy algorithms make decisions",
+                     "xmin": 0.5,
+                     "ymin": 6.65,
+                     "width": 11.997,
+                     "height": 0.35,
+                     "style": {
+                        "font_name": "Arial",
+                        "font_size": 14,
+                        "font_color": {
+                           "r": 0,
+                           "g": 0,
+                           "b": 0
+                        },
+                        "bold": false,
+                        "italics": true,
+                        "underlined": false
+                     }
+                  },
+                  "xmin": 0.5,
+                  "ymin": 4.5,
+                  "width": 11.997,
+                  "height": 2.15,
+                  "desc": "Block diagram showing how greedy algorithms make decisions",
+                  "path": "code/buffer/figures\\block-diagram\\bb55a5\\4.png"
+               }
+            ],
+            "footer": [
+               {
+                  "label": "slideNr",
+                  "location": 2,
+                  "value": "7",
+                  "xmin": 4.6655,
+                  "ymin": 7,
+                  "width": 3.9989999999999997,
+                  "height": 0.5,
+                  "style": {
+                     "font_name": "Arial",
+                     "font_size": 27,
+                     "font_color": {
+                        "r": 0,
+                        "g": 0,
+                        "b": 0
+                     },
+                     "bold": false,
+                     "italics": false,
+                     "underlined": false
+                  }
+               }
+            ]
+         }
+      },
+      {
+         "pg_no": 8,
+         "bg_color": {
+            "r": 194,
+            "g": 151,
+            "b": 182
+         },
+         "slide_layout": 2,
+         "elements": {
+            "title": [
+               {
+                  "label": "text",
+                  "value": "Dynamic Programming",
+                  "xmin": 0.5,
+                  "ymin": 0.3,
+                  "width": 11.997,
+                  "height": 1.25,
+                  "style": {
+                     "font_name": "Times New Roman",
+                     "font_size": 54,
+                     "font_color": {
+                        "r": 128,
+                        "g": 0,
+                        "b": 32
+                     },
+                     "bold": false,
+                     "italics": false,
+                     "underlined": false,
+                     "h_align": "center"
+                  }
+               }
+            ],
+            "description": [
+               {
+                  "label": "text",
+                  "value": "Dynamic programming is a method for solving complex problems by breaking them down into simpler subproblems. It stores solutions to subproblems to avoid redundant calculations.",
+                  "xmin": 0.5,
+                  "ymin": 2,
+                  "width": 5.9985,
+                  "height": 5,
+                  "style": {
+                     "font_name": "Arial",
+                     "font_size": 27,
+                     "font_color": {
+                        "r": 0,
+                        "g": 0,
+                        "b": 0
+                     },
+                     "bold": false,
+                     "italics": false,
+                     "underlined": false,
+                     "h_align": "right",
+                     "v_align": "top"
+                  }
+               }
+            ],
+            "url": [],
+            "equations": [],
+            "tables": [],
+            "figures": [
+               {
+                  "label": "graph",
+                  "caption": {
+                     "value": "Graph demonstrating the overlapping subproblems in dynamic programming",
+                     "xmin": 6.665,
+                     "ymin": 6.65,
+                     "width": 5.9985,
+                     "height": 0.35,
+                     "style": {
+                        "font_name": "Arial",
+                        "font_size": 14,
+                        "font_color": {
+                           "r": 0,
+                           "g": 0,
+                           "b": 0
+                        },
+                        "bold": false,
+                        "italics": true,
+                        "underlined": false
+                     }
+                  },
+                  "xmin": 6.665,
+                  "ymin": 2,
+                  "width": 5.9985,
+                  "height": 4.65,
+                  "desc": "Graph demonstrating the overlapping subproblems in dynamic programming",
+                  "path": "code/buffer/figures\\graph\\bb55a5\\5.png"
+               }
+            ],
+            "footer": [
+               {
+                  "label": "slideNr",
+                  "location": 2,
+                  "value": "8",
+                  "xmin": 4.6655,
+                  "ymin": 7,
+                  "width": 3.9989999999999997,
+                  "height": 0.5,
+                  "style": {
+                     "font_name": "Arial",
+                     "font_size": 27,
+                     "font_color": {
+                        "r": 0,
+                        "g": 0,
+                        "b": 0
+                     },
+                     "bold": false,
+                     "italics": false,
+                     "underlined": false
+                  }
+               }
+            ]
+         }
+      },
+      {
+         "pg_no": 9,
+         "bg_color": {
+            "r": 194,
+            "g": 151,
+            "b": 182
+         },
+         "slide_layout": 3,
+         "elements": {
+            "title": [
+               {
+                  "label": "text",
+                  "value": "Divide and Conquer",
+                  "xmin": 0.5,
+                  "ymin": 0.3,
+                  "width": 11.997,
+                  "height": 1.25,
+                  "style": {
+                     "font_name": "Times New Roman",
+                     "font_size": 54,
+                     "font_color": {
+                        "r": 128,
+                        "g": 0,
+                        "b": 32
+                     },
+                     "bold": false,
+                     "italics": false,
+                     "underlined": false,
+                     "h_align": "center"
+                  }
+               }
+            ],
+            "description": [
+               {
+                  "label": "text",
+                  "value": "Divide and Conquer is an algorithmic paradigm that breaks a problem into smaller subproblems, solves them recursively, and combines the solutions to solve the original problem.",
+                  "xmin": 0.5,
+                  "ymin": 4.5,
+                  "width": 11.997,
+                  "height": 2.5,
+                  "style": {
+                     "font_name": "Arial",
+                     "font_size": 27,
+                     "font_color": {
+                        "r": 0,
+                        "g": 0,
+                        "b": 0
+                     },
+                     "bold": false,
+                     "italics": false,
+                     "underlined": false,
+                     "h_align": "center",
+                     "v_align": "bottom"
+                  }
+               }
+            ],
+            "url": [],
+            "equations": [],
+            "tables": [],
+            "figures": [
+               {
+                  "label": "flow-chart",
+                  "caption": {
+                     "value": "Flowchart depicting the steps involved in divide and conquer",
+                     "xmin": 0.5,
+                     "ymin": 4.15,
+                     "width": 11.997,
+                     "height": 0.35,
+                     "style": {
+                        "font_name": "Arial",
+                        "font_size": 14,
+                        "font_color": {
+                           "r": 0,
+                           "g": 0,
+                           "b": 0
+                        },
+                        "bold": false,
+                        "italics": true,
+                        "underlined": false
+                     }
+                  },
+                  "xmin": 0.5,
+                  "ymin": 2,
+                  "width": 11.997,
+                  "height": 2.15,
+                  "desc": "Flowchart depicting the steps involved in divide and conquer",
+                  "path": "code/buffer/figures\\flow-chart\\bb55a5\\6.png"
+               }
+            ],
+            "footer": [
+               {
+                  "label": "slideNr",
+                  "location": 2,
+                  "value": "9",
+                  "xmin": 4.6655,
+                  "ymin": 7,
+                  "width": 3.9989999999999997,
+                  "height": 0.5,
+                  "style": {
+                     "font_name": "Arial",
+                     "font_size": 27,
+                     "font_color": {
+                        "r": 0,
+                        "g": 0,
+                        "b": 0
+                     },
+                     "bold": false,
+                     "italics": false,
+                     "underlined": false
+                  }
+               }
+            ]
+         }
+      },
+      {
+         "pg_no": 10,
+         "bg_color": {
+            "r": 194,
+            "g": 151,
+            "b": 182
+         },
+         "slide_layout": 3,
+         "elements": {
+            "title": [
+               {
+                  "label": "text",
+                  "value": "Randomized Algorithms",
+                  "xmin": 0.5,
+                  "ymin": 0.3,
+                  "width": 11.997,
+                  "height": 1.25,
+                  "style": {
+                     "font_name": "Times New Roman",
+                     "font_size": 54,
+                     "font_color": {
+                        "r": 128,
+                        "g": 0,
+                        "b": 32
+                     },
+                     "bold": false,
+                     "italics": false,
+                     "underlined": false,
+                     "h_align": "center"
+                  }
+               }
+            ],
+            "description": [
+               {
+                  "label": "text",
+                  "value": "Randomized algorithms use randomness to solve computational problems efficiently. They are useful in situations where deterministic algorithms are less effective.",
+                  "xmin": 0.5,
+                  "ymin": 2,
+                  "width": 11.997,
+                  "height": 2.5,
+                  "style": {
+                     "font_name": "Arial",
+                     "font_size": 27,
+                     "font_color": {
+                        "r": 0,
+                        "g": 0,
+                        "b": 0
+                     },
+                     "bold": false,
+                     "italics": false,
+                     "underlined": false,
+                     "h_align": "right",
+                     "v_align": "top"
+                  }
+               }
+            ],
+            "url": [],
+            "equations": [],
+            "tables": [],
+            "figures": [
+               {
+                  "label": "plot",
+                  "caption": {
+                     "value": "Plot showing the probabilistic nature of randomized algorithms",
+                     "xmin": 0.5,
+                     "ymin": 6.65,
+                     "width": 11.997,
+                     "height": 0.35,
+                     "style": {
+                        "font_name": "Arial",
+                        "font_size": 14,
+                        "font_color": {
+                           "r": 0,
+                           "g": 0,
+                           "b": 0
+                        },
+                        "bold": false,
+                        "italics": true,
+                        "underlined": false
+                     }
+                  },
+                  "xmin": 0.5,
+                  "ymin": 4.5,
+                  "width": 11.997,
+                  "height": 2.15,
+                  "desc": "Plot showing the probabilistic nature of randomized algorithms",
+                  "path": "code/buffer/plots/plot\\bb55a5\\4.png"
+               }
+            ],
+            "footer": [
+               {
+                  "label": "slideNr",
+                  "location": 2,
+                  "value": "10",
+                  "xmin": 4.6655,
+                  "ymin": 7,
+                  "width": 3.9989999999999997,
+                  "height": 0.5,
+                  "style": {
+                     "font_name": "Arial",
+                     "font_size": 27,
+                     "font_color": {
+                        "r": 0,
+                        "g": 0,
+                        "b": 0
+                     },
+                     "bold": false,
+                     "italics": false,
+                     "underlined": false
+                  }
+               }
+            ]
+         }
+      },
+      {
+         "pg_no": 11,
+         "bg_color": {
+            "r": 194,
+            "g": 151,
+            "b": 182
+         },
+         "slide_layout": 3,
+         "elements": {
+            "title": [
+               {
+                  "label": "text",
+                  "value": "Algorithm Complexity Classes",
+                  "xmin": 0.5,
+                  "ymin": 0.3,
+                  "width": 11.997,
+                  "height": 1.25,
+                  "style": {
+                     "font_name": "Times New Roman",
+                     "font_size": 54,
+                     "font_color": {
+                        "r": 128,
+                        "g": 0,
+                        "b": 32
+                     },
+                     "bold": false,
+                     "italics": false,
+                     "underlined": false,
+                     "h_align": "center"
+                  }
+               }
+            ],
+            "description": [
+               {
+                  "label": "text",
+                  "value": "Complexity classes categorize problems based on their computational requirements. Understanding complexity classes helps in analyzing algorithm efficiency.",
+                  "xmin": 0.5,
+                  "ymin": 4.5,
+                  "width": 11.997,
+                  "height": 2.5,
+                  "style": {
+                     "font_name": "Arial",
+                     "font_size": 27,
+                     "font_color": {
+                        "r": 0,
+                        "g": 0,
+                        "b": 0
+                     },
+                     "bold": false,
+                     "italics": false,
+                     "underlined": false,
+                     "h_align": "left",
+                     "v_align": "middle"
+                  }
+               }
+            ],
+            "url": [],
+            "equations": [],
+            "tables": [
+               {
+                  "label": "table",
+                  "xmin": 0.5,
+                  "ymin": 2,
+                  "width": 11.997,
+                  "height": 2.5,
+                  "desc": "Table comparing different complexity classes and their characteristics",
+                  "path": "code/buffer/structs/tables\\bb55a5\\1.png"
+               }
+            ],
+            "figures": [],
+            "footer": [
+               {
+                  "label": "slideNr",
+                  "location": 2,
+                  "value": "11",
+                  "xmin": 4.6655,
+                  "ymin": 7,
+                  "width": 3.9989999999999997,
+                  "height": 0.5,
+                  "style": {
+                     "font_name": "Arial",
+                     "font_size": 27,
+                     "font_color": {
+                        "r": 0,
+                        "g": 0,
+                        "b": 0
+                     },
+                     "bold": false,
+                     "italics": false,
+                     "underlined": false
+                  }
+               }
+            ]
+         }
+      },
+      {
+         "pg_no": 12,
+         "bg_color": {
+            "r": 194,
+            "g": 151,
+            "b": 182
+         },
+         "slide_layout": 3,
+         "elements": {
+            "title": [
+               {
+                  "label": "text",
+                  "value": "P vs NP Problem",
+                  "xmin": 0.5,
+                  "ymin": 0.3,
+                  "width": 11.997,
+                  "height": 1.25,
+                  "style": {
+                     "font_name": "Times New Roman",
+                     "font_size": 54,
+                     "font_color": {
+                        "r": 128,
+                        "g": 0,
+                        "b": 32
+                     },
+                     "bold": false,
+                     "italics": false,
+                     "underlined": false,
+                     "h_align": "center"
+                  }
+               }
+            ],
+            "description": [
+               {
+                  "label": "text",
+                  "value": "The P vs NP problem is a major unsolved question in computer science, exploring the relationship between polynomial time and nondeterministic polynomial time algorithms.",
+                  "xmin": 0.5,
+                  "ymin": 4.5,
+                  "width": 11.997,
+                  "height": 2.5,
+                  "style": {
+                     "font_name": "Arial",
+                     "font_size": 27,
+                     "font_color": {
+                        "r": 0,
+                        "g": 0,
+                        "b": 0
+                     },
+                     "bold": false,
+                     "italics": false,
+                     "underlined": false,
+                     "h_align": "justify",
+                     "v_align": "bottom"
+                  }
+               }
+            ],
+            "url": [],
+            "equations": [],
+            "tables": [],
+            "figures": [
+               {
+                  "label": "graph",
+                  "caption": {
+                     "value": "Graphical representation of the complexity relationship between P and NP",
+                     "xmin": 0.5,
+                     "ymin": 4.15,
+                     "width": 11.997,
+                     "height": 0.35,
+                     "style": {
+                        "font_name": "Arial",
+                        "font_size": 14,
+                        "font_color": {
+                           "r": 0,
+                           "g": 0,
+                           "b": 0
+                        },
+                        "bold": false,
+                        "italics": true,
+                        "underlined": false
+                     }
+                  },
+                  "xmin": 0.5,
+                  "ymin": 2,
+                  "width": 11.997,
+                  "height": 2.15,
+                  "desc": "Graphical representation of the complexity relationship between P and NP",
+                  "path": "code/buffer/figures\\graph\\bb55a5\\7.png"
+               }
+            ],
+            "footer": [
+               {
+                  "label": "slideNr",
+                  "location": 2,
+                  "value": "12",
+                  "xmin": 4.6655,
+                  "ymin": 7,
+                  "width": 3.9989999999999997,
+                  "height": 0.5,
+                  "style": {
+                     "font_name": "Arial",
+                     "font_size": 27,
+                     "font_color": {
+                        "r": 0,
+                        "g": 0,
+                        "b": 0
+                     },
+                     "bold": false,
+                     "italics": false,
+                     "underlined": false
+                  }
+               }
+            ]
+         }
+      },
+      {
+         "pg_no": 13,
+         "bg_color": {
+            "r": 194,
+            "g": 151,
+            "b": 182
+         },
+         "slide_layout": 3,
+         "elements": {
+            "title": [
+               {
+                  "label": "text",
+                  "value": "Applications of Algorithms",
+                  "xmin": 0.5,
+                  "ymin": 0.3,
+                  "width": 11.997,
+                  "height": 1.25,
+                  "style": {
+                     "font_name": "Times New Roman",
+                     "font_size": 54,
+                     "font_color": {
+                        "r": 128,
+                        "g": 0,
+                        "b": 32
+                     },
+                     "bold": false,
+                     "italics": false,
+                     "underlined": false,
+                     "h_align": "center"
+                  }
+               }
+            ],
+            "description": [
+               {
+                  "label": "text",
+                  "value": "Algorithms are applied in various domains like data science, artificial intelligence, cryptography, and more. They play a crucial role in optimizing processes and decision-making.",
+                  "xmin": 0.5,
+                  "ymin": 2,
+                  "width": 11.997,
+                  "height": 2.5,
+                  "style": {
+                     "font_name": "Arial",
+                     "font_size": 27,
+                     "font_color": {
+                        "r": 0,
+                        "g": 0,
+                        "b": 0
+                     },
+                     "bold": false,
+                     "italics": false,
+                     "underlined": false,
+                     "h_align": "center",
+                     "v_align": "top"
+                  }
+               },
+               {
+                  "label": "enumeration",
+                  "heading": {
+                     "value": "Real-World Applications",
+                     "xmin": 0.5,
+                     "ymin": 4.5,
+                     "width": 11.997,
+                     "height": 0.5
+                  },
+                  "value": [
+                     "Data Mining: Extracting valuable insights from large datasets.",
+                     "Machine Learning: Training models to make predictions and decisions.",
+                     "Cybersecurity: Protecting sensitive information from unauthorized access."
+                  ],
+                  "xmin": 0.5,
+                  "ymin": 5.0,
+                  "width": 11.997,
+                  "height": 2.0,
+                  "style": {
+                     "font_name": "Arial",
+                     "font_size": 27,
+                     "font_color": {
+                        "r": 0,
+                        "g": 0,
+                        "b": 0
+                     },
+                     "bold": false,
+                     "italics": false,
+                     "underlined": false,
+                     "h_align": "right",
+                     "v_align": "middle"
+                  }
+               }
+            ],
+            "url": [],
+            "equations": [],
+            "tables": [],
+            "figures": [],
+            "footer": [
+               {
+                  "label": "slideNr",
+                  "location": 2,
+                  "value": "13",
+                  "xmin": 4.6655,
+                  "ymin": 7,
+                  "width": 3.9989999999999997,
+                  "height": 0.5,
+                  "style": {
+                     "font_name": "Arial",
+                     "font_size": 27,
+                     "font_color": {
+                        "r": 0,
+                        "g": 0,
+                        "b": 0
+                     },
+                     "bold": false,
+                     "italics": false,
+                     "underlined": false
+                  }
+               }
+            ]
+         }
+      },
+      {
+         "pg_no": 14,
+         "bg_color": {
+            "r": 194,
+            "g": 151,
+            "b": 182
+         },
+         "slide_layout": 2,
+         "elements": {
+            "title": [
+               {
+                  "label": "text",
+                  "value": "Sorting Algorithms",
+                  "xmin": 0.5,
+                  "ymin": 0.3,
+                  "width": 11.997,
+                  "height": 1.25,
+                  "style": {
+                     "font_name": "Times New Roman",
+                     "font_size": 54,
+                     "font_color": {
+                        "r": 128,
+                        "g": 0,
+                        "b": 32
+                     },
+                     "bold": false,
+                     "italics": false,
+                     "underlined": false,
+                     "h_align": "center"
+                  }
+               }
+            ],
+            "description": [
+               {
+                  "label": "text",
+                  "value": "Sorting algorithms arrange elements in a specific order. Understanding different sorting algorithms helps in choosing the most efficient one for a given scenario.",
+                  "xmin": 6.665,
+                  "ymin": 2,
+                  "width": 5.9985,
+                  "height": 5,
+                  "style": {
+                     "font_name": "Arial",
+                     "font_size": 27,
+                     "font_color": {
+                        "r": 0,
+                        "g": 0,
+                        "b": 0
+                     },
+                     "bold": false,
+                     "italics": false,
+                     "underlined": false,
+                     "h_align": "center",
+                     "v_align": "bottom"
+                  }
+               }
+            ],
+            "url": [],
+            "equations": [],
+            "tables": [],
+            "figures": [
+               {
+                  "label": "bar-chart",
+                  "caption": {
+                     "value": "Bar chart comparing time complexity of different sorting algorithms",
+                     "xmin": 0.5,
+                     "ymin": 6.65,
+                     "width": 5.9985,
+                     "height": 0.35,
+                     "style": {
+                        "font_name": "Arial",
+                        "font_size": 14,
+                        "font_color": {
+                           "r": 0,
+                           "g": 0,
+                           "b": 0
+                        },
+                        "bold": false,
+                        "italics": true,
+                        "underlined": false
+                     }
+                  },
+                  "xmin": 0.5,
+                  "ymin": 2,
+                  "width": 5.9985,
+                  "height": 4.65,
+                  "desc": "Bar chart comparing time complexity of different sorting algorithms",
+                  "path": "code/buffer/plots/bar-chart\\bb55a5\\5.png"
+               }
+            ],
+            "footer": [
+               {
+                  "label": "slideNr",
+                  "location": 2,
+                  "value": "14",
+                  "xmin": 4.6655,
+                  "ymin": 7,
+                  "width": 3.9989999999999997,
+                  "height": 0.5,
+                  "style": {
+                     "font_name": "Arial",
+                     "font_size": 27,
+                     "font_color": {
+                        "r": 0,
+                        "g": 0,
+                        "b": 0
+                     },
+                     "bold": false,
+                     "italics": false,
+                     "underlined": false
+                  }
+               }
+            ]
+         }
+      },
+      {
+         "pg_no": 15,
+         "bg_color": {
+            "r": 194,
+            "g": 151,
+            "b": 182
+         },
+         "slide_layout": 2,
+         "elements": {
+            "title": [
+               {
+                  "label": "text",
+                  "value": "Searching Algorithms",
+                  "xmin": 0.5,
+                  "ymin": 0.3,
+                  "width": 11.997,
+                  "height": 1.25,
+                  "style": {
+                     "font_name": "Times New Roman",
+                     "font_size": 54,
+                     "font_color": {
+                        "r": 128,
+                        "g": 0,
+                        "b": 32
+                     },
+                     "bold": false,
+                     "italics": false,
+                     "underlined": false,
+                     "h_align": "center"
+                  }
+               }
+            ],
+            "description": [
+               {
+                  "label": "text",
+                  "value": "Searching algorithms locate a target value within a collection of data. Efficient search algorithms reduce the time complexity of finding desired elements.",
+                  "xmin": 0.5,
+                  "ymin": 2,
+                  "width": 5.9985,
+                  "height": 5,
+                  "style": {
+                     "font_name": "Arial",
+                     "font_size": 27,
+                     "font_color": {
+                        "r": 0,
+                        "g": 0,
+                        "b": 0
+                     },
+                     "bold": false,
+                     "italics": false,
+                     "underlined": false,
+                     "h_align": "right",
+                     "v_align": "top"
+                  }
+               }
+            ],
+            "url": [],
+            "equations": [],
+            "tables": [],
+            "figures": [
+               {
+                  "label": "plot",
+                  "caption": {
+                     "value": "Plot showing the search process in an algorithm",
+                     "xmin": 6.665,
+                     "ymin": 6.65,
+                     "width": 5.9985,
+                     "height": 0.35,
+                     "style": {
+                        "font_name": "Arial",
+                        "font_size": 14,
+                        "font_color": {
+                           "r": 0,
+                           "g": 0,
+                           "b": 0
+                        },
+                        "bold": false,
+                        "italics": true,
+                        "underlined": false
+                     }
+                  },
+                  "xmin": 6.665,
+                  "ymin": 2,
+                  "width": 5.9985,
+                  "height": 4.65,
+                  "desc": "Plot showing the search process in an algorithm",
+                  "path": "code/buffer/plots/plot\\bb55a5\\6.png"
+               }
+            ],
+            "footer": [
+               {
+                  "label": "slideNr",
+                  "location": 2,
+                  "value": "15",
+                  "xmin": 4.6655,
+                  "ymin": 7,
+                  "width": 3.9989999999999997,
+                  "height": 0.5,
+                  "style": {
+                     "font_name": "Arial",
+                     "font_size": 27,
+                     "font_color": {
+                        "r": 0,
+                        "g": 0,
+                        "b": 0
+                     },
+                     "bold": false,
+                     "italics": false,
+                     "underlined": false
+                  }
+               }
+            ]
+         }
+      }
+   ]
+}

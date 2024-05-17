@@ -123,7 +123,7 @@ def generate_random_slide(slide_number, data, style_obj, footer_obj, presentatio
                 "bold": title_font_bold,
                 "italics": False,
                 "underlined": False,
-                "align": title_align
+                "h_align": title_align
             }
         }]    
        
@@ -132,7 +132,7 @@ def generate_random_slide(slide_number, data, style_obj, footer_obj, presentatio
         ## Randomly shuffle the bounding box dimensions of the body elements
         random.shuffle(all_dims['body'])
         element_index = 0
-
+        h_desc_align, v_desc_align = pick_random("alignments")
         ## Generate Descriptions
         slide['elements']['description'] = []
         for _ in range(n_elements_list[0]):
@@ -151,13 +151,16 @@ def generate_random_slide(slide_number, data, style_obj, footer_obj, presentatio
                 "font_color": font_color,
                 "bold": False,
                 "italics": False,
-                "underlined": False
+                "underlined": False,
+                "h_align": h_desc_align,
+                "v_align": v_desc_align
                }
             } 
             slide['elements']['description'].append(desc_instance)
             element_index += 1
 
         ## Generate Enumerations
+        h_enum_align, v_enum_align = pick_random("alignments")
         for _ in range(n_elements_list[1]):
             font_obj = generate_random_font("enumeration")
             enum = data["slides"][slide_number - 1]["enumeration"]
@@ -181,7 +184,9 @@ def generate_random_slide(slide_number, data, style_obj, footer_obj, presentatio
                 "font_color": font_color,
                 "bold": font_obj["bold"],
                 "italics": font_obj["italics"],
-                "underlined": font_obj["underline"]
+                "underlined": font_obj["underline"],
+                "h_align": h_enum_align,
+                "v_align": v_enum_align
                }
             } 
             slide['elements']['description'].append(enum_instance)
@@ -189,6 +194,7 @@ def generate_random_slide(slide_number, data, style_obj, footer_obj, presentatio
 
 
         #Render URLs
+        h_url_align, v_url_align = ['left', 'center']
         slide['elements']['url'] = []
         for _ in range(n_elements_list[2]):
             font_obj = generate_random_font("url")
@@ -205,7 +211,9 @@ def generate_random_slide(slide_number, data, style_obj, footer_obj, presentatio
                 "font_color": {"r": 0, "g": 0, "b": 238},
                 "bold": False,
                 "italics": True,
-                "underlined": True
+                "underlined": True,
+                "h_align": h_url_align,
+                "v_align": v_url_align
                }
             } 
             slide['elements']['url'].append(desc_instance)

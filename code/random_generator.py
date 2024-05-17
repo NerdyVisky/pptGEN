@@ -1,7 +1,23 @@
 import random
 from datetime import datetime
 
-FONT_STYLES = ['Arial', 'Times New Roman', 'Georgia', 'Calibiri']
+FONT_STYLES = [
+    "Arial",
+    "Calibri",
+    "Times New Roman",
+    "Verdana",
+    "Georgia",
+    "Tahoma",
+    "Garamond",
+    "Trebuchet MS",
+    "Gill Sans MT",
+    "Century Gothic",
+    "Palatino Linotype",
+    "Cambria",
+    "Franklin Gothic Book",
+    "Lucida Sans"
+]
+
 TITLE_COLORS_DARK = [
     {"r": 0, "g": 0, "b": 128},    # Navy Blue
     {"r": 220, "g": 20, "b": 60},   # Crimson
@@ -27,6 +43,18 @@ TITLE_COLORS_LIGHT = [
     {"r": 255, "g": 192, "b": 203}     # Pink
 ]
 
+H_ALIGNMENTS = [
+    'left',
+    'center',
+    'right',
+    'justify'
+]
+
+V_ALIGNMENTS = [
+    'top',
+    'middle',
+    'bottom'
+]
 
 PRESENTERS = [
     "Dr. Marcella Nguyen",
@@ -63,13 +91,13 @@ def generate_random_font(element):
     underline = False
     italics = False
     if element == "title":
-        font_size = random.randint(18, 27) * 2
+        font_size = random.randint(16, 28) * 2
     elif element == "description":
-        font_size = random.randint(20, 24)
+        font_size = random.randint(18, 28)
     elif element == 'enumeration':
-        font_size = random.randint(22, 28)
+        font_size = random.randint(22, 32)
     elif element == 'url':
-        font_size = random.randint(14, 16)
+        font_size = random.randint(12, 18)
     return {
         "font_size": font_size,
         "bold": bold,
@@ -139,7 +167,10 @@ def generate_random_style_obj():
     return style_obj
 
 def pick_random(list_name):
-    return random.choice(list_name)
+    if list_name == 'alignments':
+        return [random.choice(H_ALIGNMENTS), random.choice(V_ALIGNMENTS)]
+    else:
+        return random.choice(list_name)
 
 def generate_random_layout(total_body_elements):
     layout_mapping = {

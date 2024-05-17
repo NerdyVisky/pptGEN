@@ -70,14 +70,14 @@ def generate_slide_content(slide_id, arg_topic):
     instruct_content = json.loads(instruct_output.content)
 
     # prompts, positions = construct_generation_prompts(json.loads(instruct_content), arg_topic)
-    prompts, positions = construct_generation_prompts(instruct_content, arg_topic)
+    prompts, positions, captions = construct_generation_prompts(instruct_content, arg_topic)
     # Generation Phase
     gpt_4_model = configure_llm(TEMPERATURE=0, LLM_MODEL='gpt-4-turbo')
     text_content = generate_text_content(model, arg_topic, instruct_content, slide_id)
     struct_imgs = generate_struct_content(prompts[0], gpt_4_model, slide_id)
     plot_imgs = generate_plot_content(prompts[1], gpt_4_model, slide_id)
     figure_imgs = generate_figure_content(prompts[2], gpt_4_model, slide_id)
-    final_content = assemble_elements(text_content, struct_imgs, plot_imgs, figure_imgs, positions, prompts)
+    final_content = assemble_elements(text_content, struct_imgs, plot_imgs, figure_imgs, positions, prompts, captions)
     print(final_content)
 
     return final_content

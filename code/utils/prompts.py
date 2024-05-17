@@ -297,8 +297,26 @@ def construct_generation_prompts(instruct_content, topic):
                , f"I am providing some instructions which are related to generating diagrams and figures for a presentation on {topic}.\n"]
     # prompts -> ['text', 'structural (LaTeX)', 'plots (Matplotlib)', 'figures (DOT + GraphViz)']
     positions = [{
-                  "table": {},
-                  "equation": {}   
+                  "tables": {},
+                  "equations": {}   
+                 },
+                 {
+                  "plot": {},
+                  "bar-chart": {},
+                  "line-chart": {},
+                  "pie-chart": {},
+                  "3d-plot": {}
+                 },
+                 {
+                    "tree": {},
+                    "graph": {},
+                    "flow-chart": {},
+                    "block-diagram": {} 
+                 }]
+    
+    captions = [{
+                  "tables": {},
+                  "equations": {}   
                  },
                  {
                   "plot": {},
@@ -316,7 +334,6 @@ def construct_generation_prompts(instruct_content, topic):
 
 
     i = 0
-    n_t = 0
     n_s = 0
     n_p = 0
     n_f = 0
@@ -328,15 +345,19 @@ def construct_generation_prompts(instruct_content, topic):
 
             if element_type in ["table", "equation"]:
                 n_s += 1
+                element_type += 's'
                 positions[0][element_type][n_s] = i + 1
+                captions[0][element_type][n_s] = element_caption
                 prompts[0] += (context_line + f" generate LaTeX code for a simple {element_type} given the caption: {element_caption}\n")
             elif element_type in ["plot", "bar-chart", "line-chart", "pie-chart", "3d-plot"]:
                 n_p += 1
                 positions[1][element_type][n_p] = i + 1
+                captions[1][element_type][n_p] = element_caption
                 prompts[1] += (context_line + f" generate Matplotlib code for a simple {element_type} given the caption: {element_caption}\n")
             elif element_type in ["tree", "graph", "flow-chart", "block-diagram"]:
                 n_f += 1
                 positions[2][element_type][n_f] = i + 1
+                captions[2][element_type][n_f] = element_caption
                 prompts[2] += (context_line + f" generate DOT language code for a simple {element_type} given the caption: {element_caption}\n")
         i+=1
                 
@@ -356,4 +377,4 @@ def construct_generation_prompts(instruct_content, topic):
     Do not add a caption to the diagram/chart, etc. and do not provide any conversation.\n
     Do not generate additional elements unless they are part of the above request. Once generating the all the code snipptes, verify that the total number of snippets generated are the same as total number of requests."""
     # Return the constructed prompts
-    return [prompts, positions]
+    return [prompts, positions, captions]

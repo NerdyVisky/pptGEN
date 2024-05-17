@@ -79,30 +79,37 @@ def get_full_element_name(im_par):
     return element_name
 
 def get_element_type(prompt_line):
-    if "table" in prompt_line:
-        element_type = "tb"
-    elif "equation" in prompt_line:
-        element_type = "eq"
-    elif "bar-chart" in prompt_line:
-        element_type = "bc"
-    elif "line-chart" in prompt_line:
-        element_type = "lc"
-    elif "pie-chart" in prompt_line:
-        element_type = "pc"
-    elif "3d-plot" in prompt_line:
-        element_type = "3p"
-    elif "plot" in prompt_line:
-        element_type = "pt"
-    elif "tree" in prompt_line:
-        element_type = "tr"
-    elif "graph" in prompt_line:
-        element_type = "gr"
-    elif "flow-chart" in prompt_line:
-        element_type = "fc"
-    elif "block-diagram" in prompt_line:
-        element_type = "bd"
-    else:
-        element_type = "uk"
+    # if "table" in prompt_line:
+    #     element_type = "tb"
+    # elif "equation" in prompt_line:
+    #     element_type = "eq"
+    # elif "bar-chart" in prompt_line:
+    #     element_type = "bc"
+    # elif "line-chart" in prompt_line:
+    #     element_type = "lc"
+    # elif "pie-chart" in prompt_line:
+    #     element_type = "pc"
+    # elif "3d-plot" in prompt_line:
+    #     element_type = "3p"
+    # elif "plot" in prompt_line:
+    #     element_type = "pt"
+    # elif "tree" in prompt_line:
+    #     element_type = "tr"
+    # elif "graph" in prompt_line:
+    #     element_type = "gr"
+    # elif "flow-chart" in prompt_line:
+    #     element_type = "fc"
+    # elif "block-diagram" in prompt_line:
+    #     element_type = "bd"
+    # else:
+    #     element_type = "uk"
+    elements = ['table', 'equation', 'bar-chart', 'line-chart', 'pie-chart', '3d-plot', 'plot', 'tree', 'graph', 'flow-chart', 'block-diagram']
+    for element in elements:
+        if element in prompt_line:
+            if element == 'table' or element == 'equation':
+                element += 's'
+            element_type = element
+            break
     
     return element_type
     
@@ -159,8 +166,8 @@ def generate_figure_content(prompt, model, presentation_ID):
         print(fig_type)
         try:
             graph = graphviz.Source(dot_code)
-            graph.render(filename=os.path.join(fig_dir, fig_type, f'{i+1}_{presentation_ID}'), format='png', cleanup=True)
-            img_path = os.path.join(fig_dir, fig_type, f'{i+1}_{presentation_ID}') + '.png'
+            graph.render(filename=os.path.join(fig_dir, fig_type, presentation_ID, f'{i+1}'), format='png', cleanup=True)
+            img_path = os.path.join(fig_dir, fig_type, presentation_ID, f'{i+1}') + '.png'
             fig_img_paths.append(img_path)
         except Exception as e:
             print(f"Error rendering figure: {e}. Continuing generation for other images.")
@@ -204,7 +211,9 @@ def generate_plot_content(prompt, model, presentation_ID):
             plt_dir = f"code/buffer/plots/{plt_type}"
             if not os.path.exists(plt_dir):
                 os.mkdir(plt_dir)
-            new_file_path = os.path.join(plt_dir, f"{id_}_{presentation_ID}.png")  
+            if not os.path.exists(os.path.join(plt_dir, presentation_ID)):
+                os.mkdir(os.path.join(plt_dir, presentation_ID))
+            new_file_path = os.path.join(plt_dir, presentation_ID, f"{id_}.png")  
             os.rename(plt_path, new_file_path)
             plot_img_paths.append(new_file_path)
     
@@ -213,7 +222,7 @@ def generate_plot_content(prompt, model, presentation_ID):
     return plot_img_paths
 
 
-def assemble_elements(text_json, struct_imgs, plot_imgs, figure_imgs, positions, prompts):
+def assemble_elements(text_json, struct_imgs, plot_imgs, figure_imgs, positions, prompts, captions):
     # text_json = json.loads(text_json)
     vis_eles = [struct_imgs, plot_imgs, figure_imgs]
     for slide in text_json["slides"]:
@@ -224,14 +233,15 @@ def assemble_elements(text_json, struct_imgs, plot_imgs, figure_imgs, positions,
         prompt_lines = prompts[ind].split('\n')
         for i, img_path in enumerate(imgs):
             dir_name = os.path.dirname(img_path)
-            im_par = os.path.basename(dir_name)
-            element_name = get_full_element_name(im_par)
+            second_parent_dir = os.path.dirname(dir_name)
+            element_name = os.path.basename(second_parent_dir)
+            # element_name = get_full_element_name(im_par)
             file_name = os.path.basename(img_path)
-            parts = file_name.split('_')
-            slide_number = positions[ind][element_name][int(parts[0])]
+            name = file_name.split('.')[0]
+            slide_number = positions[ind][element_name][int(name)]
             # presentation_id = int(parts[1].replace('.png', ''))
-            print(prompt_lines[i+1])
-            caption = prompt_lines[i+1].split(':')[1].strip()
+            # caption = prompt_lines[i+1].split(':')[1].strip()
+            caption = captions[ind][element_name][int(name)]
             obj = {
                 'desc': caption,
                 'path': img_path
@@ -250,10 +260,12 @@ def assemble_elements(text_json, struct_imgs, plot_imgs, figure_imgs, positions,
 
 
 def get_struct_img_path(tex_code, num, presentation_ID, struct_type):
-    img_dir = f'code/buffer/structs/{struct_type}/'
+    img_dir = f'code/buffer/structs/{struct_type}'
     if not os.path.exists(img_dir):
         os.mkdir(img_dir)
-    img_name = f'{num + 1}_{presentation_ID}.png'
+    if not os.path.exists(os.path.join(img_dir, presentation_ID)):
+        os.mkdir(os.path.join(img_dir, presentation_ID))
+    img_name = f'{num + 1}.png'
     dpi = 600
     tex_file = f'tmp.tex'
     with open(tex_file, 'w') as latexfile:
@@ -267,7 +279,7 @@ def get_struct_img_path(tex_code, num, presentation_ID, struct_type):
     doc = fitz.open(f'tmp.pdf')
     pix = doc[0].get_pixmap(matrix=fitz.Matrix(dpi / 72, dpi / 72))
     pix.save(img_name)
-    img_path = os.path.join(img_dir, img_name)
+    img_path = os.path.join(img_dir, presentation_ID, img_name)
     os.rename(img_name, img_path)
     return img_path
 

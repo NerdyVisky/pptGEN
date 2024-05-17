@@ -7,30 +7,40 @@ def main():
     os.makedirs('dataset/images')
   if not os.path.exists('dataset/pdfs'):
     os.makedirs('dataset/pdfs')
-
-  ppt_path = 'dataset/ppts/'
+  if not os.path.exists('dataset/json'):
+    os.makedirs('dataset/json')
+  
+  ppt_path = 'ppts/'
   pdf_path = 'dataset/pdfs/'
   img_path = 'dataset/images/'
 
   # PPTX to PDF
-  for ppt in os.listdir(ppt_path):
-    if ppt.endswith('.pptx'):
-      convert(ppt_path + ppt, pdf_path)
+  for ppts in os.listdir(ppt_path):
+    for ppt in os.listdir(ppt_path + ppts):
+      if ppt.endswith('.pptx'):
+          print(ppt_path + ppts + '/' + ppt)
+          convert(ppt_path + ppts + '/' + ppt, pdf_path + ppts + '/')
       
   # PDF to Image
-  for pdf in os.listdir(pdf_path):
-    if pdf.endswith('.pdf'):
-      images = convert_from_path(pdf_path + pdf)
-      for i, image in enumerate(images):
-        image_path = img_path + pdf[:-4]
-        if not os.path.exists(image_path):
-          os.makedirs(image_path)
-        image_resized = image.resize((1280, 720))
-        image_resized.save(image_path + '/slide' + str(i) + '.png', 'PNG')
+  for pdfs in os.listdir(pdf_path):
+    for pdf in os.listdir(pdf_path + pdfs):
+      if pdf.endswith('.pdf'):
+        print(pdf_path + pdfs + '/' + pdf)
+        images = convert_from_path(pdf_path + pdfs + '/' + pdf)
+        for i, image in enumerate(images):
+          image_path = img_path + pdfs + '/' + pdf[:-4]
+          print(image_path)
+          if not os.path.exists(image_path):
+            os.makedirs(image_path)
+          image_resized = image.resize((1280, 720))
+          image_resized.save(image_path + '/slide' + str(i) + '.png', 'PNG')
         
   # Remove PDFs
-  for pdf in os.listdir(pdf_path):
-    os.remove(pdf_path + pdf)
+  # for pdfs in os.listdir(pdf_path):
+  #   for pdf in os.listdir(pdf_path + pdfs):
+  #     if pdf.endswith('.pdf'):
+  #       os.remove(pdf_path + pdfs + '/' + pdf)
+  
         
 if __name__ == '__main__':
   main()

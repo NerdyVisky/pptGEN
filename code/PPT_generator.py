@@ -3,9 +3,12 @@ from pptx.util import Inches, Pt
 from pptx.enum.shapes import MSO_SHAPE
 from pptx.enum.shapes import MSO_SHAPE_TYPE
 from pptx.enum.text import PP_ALIGN
+from pptx.enum.text import MSO_ANCHOR
 from pptx.dml.color import RGBColor
 import json
 import os
+from utils.os_helpers import resize_image
+import shutil
 
 class Element:
     def __init__(self, content, style, bounding_box):
@@ -26,6 +29,23 @@ class Element:
             run.font.italic = self.style['italics']
         if 'underlined' in self.style:
             run.font.underline = self.style['underlined']
+        if 'h_align' in self.style:
+            if self.style['h_align'] == 'center':
+                run.alignment = PP_ALIGN.CENTER
+            elif self.style['h_align'] == 'left':
+                run.alignment = PP_ALIGN.LEFT
+            elif self.style['h_align'] == 'right':
+                run.alignment = PP_ALIGN.RIGHT
+            else:
+                run.alignment = PP_ALIGN.JUSTIFY
+        
+        if 'v_align' in self.style:
+            if self.style['v_align'] == 'top':
+                run.vertical_anchor = MSO_ANCHOR.TOP
+            elif self.style['v_align'] == 'middle':
+                run.vertical_anchor = MSO_ANCHOR.MIDDLE
+            else:
+                run.vertical_anchor = MSO_ANCHOR.BOTTOM
 
     
     def apply_font_style(self, shape):
@@ -47,6 +67,24 @@ class Element:
             shape.text_frame.paragraphs[0].font.underline = self.style['underlined']
         else:
             shape.text_frame.paragraphs[0].font.underline = False
+        if 'h_align' in self.style:
+            if self.style['h_align'] == 'center':
+                shape.text_frame.paragraphs[0].alignment = PP_ALIGN.CENTER
+            elif self.style['h_align'] == 'left':
+                shape.text_frame.paragraphs[0].alignment = PP_ALIGN.LEFT
+            elif self.style['h_align'] == 'right':
+                shape.text_frame.paragraphs[0].alignment = PP_ALIGN.RIGHT
+            else:
+                shape.text_frame.paragraphs[0].alignment = PP_ALIGN.JUSTIFY
+        
+        if 'v_align' in self.style:
+            if self.style['v_align'] == 'top':
+                shape.text_frame.paragraphs[0].vertical_anchor = MSO_ANCHOR.TOP
+            elif self.style['v_align'] == 'middle':
+                shape.text_frame.paragraphs[0].vertical_anchor = MSO_ANCHOR.MIDDLE
+            else:
+                shape.text_frame.paragraphs[0].vertical_anchor = MSO_ANCHOR.BOTTOM
+
     
     def position_element(self, shape):
         shape.left = Inches(self.bounding_box[0])
@@ -72,12 +110,6 @@ class Title(Element):
         title_shape.text = self.content
         self.apply_font_style(title_shape)
         self.position_element(title_shape)
-        if self.style['align'] == 'center':
-            title_shape.text_frame.paragraphs[0].alignment = PP_ALIGN.CENTER
-        else:
-            title_shape.text_frame.paragraphs[0].alignment = PP_ALIGN.LEFT
-            
-            
 
     def clean_up(self, slide):
         pass
@@ -142,23 +174,20 @@ class Figure(Element):
     def __init__(self, content, style, bounding_box, caption):
         super().__init__(content, style, bounding_box)
         self.caption = caption
+        self.content = content
         
     def render(self, slide):
         left, top, width, height = self.bounding_box
-        img = slide.shapes.add_picture(self.content, Inches(left), Inches(top), Inches(width), Inches(height))
-        left, top, width, height = self.caption['xmin'], self.caption['ymin'], self.caption['width'], self.caption['height']
+        resized_img_path, n_w, n_h = resize_image(self.content, width, height)
+        img = slide.shapes.add_picture(resized_img_path, Inches(left - (n_w - width)/2), Inches(top - (n_h - height)/2), Inches(n_w), Inches(n_h))
+        left_c, top_c, width_c, height_c = self.caption['xmin'], self.caption['ymin'], self.caption['width'], self.caption['height']
 
-        cap_shape = slide.shapes.add_textbox(Inches(left), Inches(top), Inches(width), Inches(height))
+        cap_shape = slide.shapes.add_textbox(Inches(left_c), Inches(top_c - (height - n_h)/2), Inches(width_c), Inches(height_c))
         cap_shape.text = self.caption['value']
         self.apply_font_style(cap_shape)
         cap_shape.text_frame.auto_size = True
         cap_shape.text_frame.word_wrap = True
         cap_shape.text_frame.paragraphs[0].alignment = PP_ALIGN.CENTER
-
-        # original_width, original_height = img.image.size
-        # # Convert dimensions from pixels to inches
-        # img.width = Inches(original_width * scale_factor / img.image.dpi[0])
-        # img.height = Inches(original_height * scale_factor / img.image.dpi[1])
         self.image = img 
 
 class Equation(Element):
@@ -167,12 +196,10 @@ class Equation(Element):
 
     def render(self, slide):
         left, top, width, height = self.bounding_box
-        img = slide.shapes.add_picture(self.content, Inches(left), Inches(top), Inches(width), Inches(height))
-        # original_width, original_height = img.image.size
-        # # Convert dimensions from pixels to inches
-        # img.width = Inches(original_width * scale_factor / img.image.dpi[0])
-        # img.height = Inches(original_height * scale_factor / img.image.dpi[1])
+        resized_img_path, n_w, n_h = resize_image(self.content, width, height)
+        img = slide.shapes.add_picture(resized_img_path, Inches(left - (n_w - width)/2), Inches(top - (n_h - height)/2), Inches(n_w), Inches(n_h))
         self.image = img 
+
 
 class Table(Element):
     def __init__(self, content, style, bounding_box):
@@ -180,14 +207,10 @@ class Table(Element):
 
     def render(self, slide):
         left, top, width, height = self.bounding_box
-        img = slide.shapes.add_picture(self.content, Inches(left), Inches(top), Inches(width), Inches(height))
-        # original_width, original_height = img.image.size
-        # # Convert dimensions from pixels to inches
-        # img.width = Inches(original_width * scale_factor / img.image.dpi[0])
-        # img.height = Inches(original_height * scale_factor / img.image.dpi[1])
+        resized_img_path, n_w, n_h = resize_image(self.content, width, height)
+        img = slide.shapes.add_picture(resized_img_path, Inches(left - (n_w - width)/2), Inches(top - (n_h - height)/2), Inches(n_w), Inches(n_h))
         self.image = img 
-
-
+        
 class Footer(Element):
     def __init__(self, content, style, bounding_box, location):
         super().__init__(content, style, bounding_box)
@@ -211,9 +234,10 @@ class Footer(Element):
 
 
 class PresentationGenerator:
-    def __init__(self, json_payload, slide_id):
+    def __init__(self, json_payload, slide_id, version):
         self.json_payload = json_payload
         self.slide_id = slide_id
+        self.version = version
         self.presentation = Presentation()
     
     def insert_title_slide(self):
@@ -289,8 +313,10 @@ class PresentationGenerator:
         ppts_path = "./ppts/"
         if os.path.isdir(ppts_path) == False:
             os.mkdir(ppts_path)
-
-        self.presentation.save(os.path.join(ppts_path, f'{self.slide_id}.pptx'))
+        
+        if not os.path.exists(os.path.join(ppts_path, self.slide_id)):
+            os.mkdir(os.path.join(ppts_path, self.slide_id))
+        self.presentation.save(os.path.join(ppts_path, self.slide_id, f'{self.version}.pptx'))
 
 def load_json_payload(file_path):
     with open(file_path, 'r') as file:
@@ -299,29 +325,56 @@ def load_json_payload(file_path):
 def main():
     # Load the JSON payload
     buffer_folder_path = "./code/buffer/full"
+    entries = os.listdir(buffer_folder_path)
+    # Filter out directories
+    directories = [entry for entry in entries if os.path.isdir(os.path.join(buffer_folder_path, entry))]
+    json_file_paths = []
+    for directory in directories:
+        subject_dir = os.path.join(buffer_folder_path, directory)
+        for root, dirs, files in os.walk(subject_dir):
+            for file in files:
+                if file.endswith('.json'):
+                    json_file_paths.append(os.path.join(root, file))
+    # print(directories)
+    # for directory in directories:
+    #     ppt_dirs = os.listdir(os.path.join(buffer_folder_path, directory))
+    #     unique_ppt_dirs = [ppt_dir for ppt_dir in ppt_dirs if os.path.isdir(os.path.join(buffer_folder_path, directory, ppt_dir))]
+        
+    # json_file_paths = []
+    # for ppt_dir in unique_ppt_dirs:
+    #     json_files = [f for f in os.listdir(os.path.join(buffer_folder_path, directory)) if f.endswith('.json')]
+    #     json_file_paths.append(os.path.join(buffer_folder_path, directory, json_files[-1]))
+    
+
     base_topic_folder_path = "./code/json"
 
-    json_files = [f for f in os.listdir(buffer_folder_path) if f.endswith('.json')]
 
-    for json_file in json_files:
+    for i, json_file in enumerate(json_file_paths):
         #Load JSON file from buffer
-        slide_id , _ = os.path.splitext(json_file)
-        json_file_path = os.path.join(buffer_folder_path, json_file)
-        json_payload = load_json_payload(json_file_path)
+        slide_id = os.path.basename(os.path.dirname(json_file))
+        version , _ = os.path.splitext(os.path.basename(json_file))
+        json_payload = load_json_payload(json_file)
 
         #Generate Presentation from JSON file and save it
-        presentation_generator = PresentationGenerator(json_payload, slide_id)
+        presentation_generator = PresentationGenerator(json_payload, slide_id, version)
         presentation_generator.generate_presentation()
         print(f"Presentation generated successfully for {slide_id}.")
 
-        #Move JSON file from buffer to respective topic folder
-        if not os.path.exists(base_topic_folder_path):
-            os.makedirs(base_topic_folder_path)
-
-        destination_file_path = os.path.join(base_topic_folder_path, json_file)
-        os.rename(json_file_path, destination_file_path)
-        print(f"Moved {json_file} to {base_topic_folder_path}.")
-        print('\n')
+    final_json_path = 'code\\json\\final'
+    for i, json_file in enumerate(json_file_paths):
+        subject_name = os.path.basename(os.path.dirname(os.path.dirname(json_file)))
+        slide_id = os.path.basename(os.path.dirname(json_file))
+        version , _ = os.path.splitext(os.path.basename(json_file))
+        if not os.path.exists(os.path.join(final_json_path, subject_name)):
+            os.mkdir(os.path.join(final_json_path, subject_name))
+        if not os.path.exists(os.path.join(final_json_path, subject_name, slide_id)):
+            os.mkdir(os.path.join(final_json_path, subject_name, slide_id))
+        final_json_file = os.path.join(final_json_path, subject_name, slide_id, f'{version}.json')
+        
+        if os.path.exists(json_file):
+            os.rename(json_file, final_json_file)
+    
+    shutil.rmtree('code/buffer/temp')
     
     print("All presentations generated and files moved successfully.")
 

@@ -55,7 +55,7 @@ def configure_prompt(phase):
 
 def generate_slide_content(slide_id, arg_topic):
     ## Outline Phase
-    model = configure_llm()
+    model = configure_llm(TEMPERATURE=0, LLM_MODEL='gpt-3.5-turbo')
     prompt = configure_prompt("outline")
     chain = prompt | model
     output = chain.invoke({"topic": arg_topic})
@@ -70,28 +70,14 @@ def generate_slide_content(slide_id, arg_topic):
     instruct_content = json.loads(instruct_output.content)
 
     # prompts, positions = construct_generation_prompts(json.loads(instruct_content), arg_topic)
-    prompts, positions = construct_generation_prompts(instruct_content, arg_topic)
+    prompts, positions, captions = construct_generation_prompts(instruct_content, arg_topic)
     # Generation Phase
-    gpt_4_model = ChatOpenAI(
-       model_name='gpt-4-turbo-2024-04-09', 
-       temperature=0,
-       )
-    # gen_model = ChatOpenAI(
-    #    model_name='gpt-3.5-turbo', 
-    #    temperature=0,
-    #    )
-    # text_content = generate_text_content(prompts[0], model, output, slide_id)
-    text_content = generate_text_content(gpt_4_model, arg_topic, instruct_content, slide_id)
+    gpt_4_model = configure_llm(TEMPERATURE=0, LLM_MODEL='gpt-4-turbo')
+    text_content = generate_text_content(model, arg_topic, instruct_content, slide_id)
     struct_imgs = generate_struct_content(prompts[0], gpt_4_model, slide_id)
     plot_imgs = generate_plot_content(prompts[1], gpt_4_model, slide_id)
     figure_imgs = generate_figure_content(prompts[2], gpt_4_model, slide_id)
-    # struct_imgs = ['code/buffer/structs/eq\\10_11254.png', 'code/buffer/structs/eq\\11_11254.png', 'code/buffer/structs/eq\\12_11254.png', 'code/buffer/structs/eq\\13_11254.png', 'code/buffer/structs/eq\\1_11254.png', 'code/buffer/structs/eq\\3_11254.png', 'code/buffer/structs/eq\\5_11254.png', 'code/buffer/structs/eq\\6_11254.png', 'code/buffer/structs/eq\\7_11254.png', 'code/buffer/structs/eq\\9_11254.png', 'code/buffer/structs/tb\\2_11254.png', 'code/buffer/structs/tb\\4_11254.png', 'code/buffer/structs/tb\\8_11254.png']
-    # figure_imgs = ['code/buffer/figures/bd\\3_11254.png', 'code/buffer/figures/bd\\7_11254.png', 'code/buffer/figures/fc\\2_11254.png', 'code/buffer/figures/gr\\1_11254.png', 'code/buffer/figures/gr\\4_11254.png', 'code/buffer/figures/gr\\6_11254.png', 'code/buffer/figures/gr\\8_11254.png', 'code/buffer/figures/tr\\5_11254.png']
-    # plot_imgs = ['code/buffer/plots/bc\\3_11254.png', 'code/buffer/plots/lc\\4_11254.png', 'code/buffer/plots/pt\\1_11254.png', 'code/buffer/plots/pt\\2_11254.png', 'code/buffer/plots/pt\\5_11254.png']
-    
-    
-   
-    final_content = assemble_elements(text_content, struct_imgs, plot_imgs, figure_imgs, positions, prompts)
+    final_content = assemble_elements(text_content, struct_imgs, plot_imgs, figure_imgs, positions, prompts, captions)
     print(final_content)
 
     return final_content
@@ -102,13 +88,18 @@ def main():
     load_dotenv(find_dotenv())
     SEED_PATH = "code\data\\topics.json"
     slide_seeds = fetch_seed_content(SEED_PATH)
-    for slide_id, seed_items in slide_seeds.items():
-        topic = seed_items["topic"]
-        generated_content = generate_slide_content(slide_id, topic)
-        if isinstance(generated_content, dict):
-            file_path = f"code/buffer/{slide_id}.json"
-            save_slide_content_to_json(generated_content, file_path)
-            print(f"Intermediate JSON file created: {slide_id}.json")
+    for subject, ppts in slide_seeds.items():
+        for ppt in ppts: 
+            topic = ppt["topic"]
+            presentation_ID = ppt["presentation_ID"]
+            generated_content = generate_slide_content(presentation_ID, topic)
+            if isinstance(generated_content, dict):
+                dir_path = f"code/temp/{subject}"
+                if not os.path.exists(dir_path):
+                    os.mkdir(dir_path)
+                file_path = f"code/temp/{subject}/{presentation_ID}.json"
+                save_slide_content_to_json(generated_content, file_path)
+                print(f"Content Generated: {subject}/{presentation_ID}.json")
 
 if __name__ == "__main__":
     main()

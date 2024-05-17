@@ -7,6 +7,10 @@ $env:Path = $py_path + ";" + $env:Path
 
 & $env_path\Scripts\Activate.ps1
 
+python 'D:\AakashYadav\00 IITJ RAI\00_SlideReconstruction\pptGEN\code\topics_generator.py'
 python 'D:\AakashYadav\00 IITJ RAI\00_SlideReconstruction\pptGEN\code\content_generator.py'
 python 'D:\AakashYadav\00 IITJ RAI\00_SlideReconstruction\pptGEN\code\JSON_generator.py'
 python 'D:\AakashYadav\00 IITJ RAI\00_SlideReconstruction\pptGEN\code\PPT_generator.py'
+python 'D:\AakashYadav\00 IITJ RAI\00_SlideReconstruction\pptGEN\code\pptx_to_png.py'
+python 'D:\AakashYadav\00 IITJ RAI\00_SlideReconstruction\pptGEN\code\annotations.py'
+

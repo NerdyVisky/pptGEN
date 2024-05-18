@@ -15,32 +15,36 @@ def main():
   img_path = 'dataset/images/'
 
   # PPTX to PDF
-  for ppts in os.listdir(ppt_path):
-    for ppt in os.listdir(ppt_path + ppts):
-      if ppt.endswith('.pptx'):
-          print(ppt_path + ppts + '/' + ppt)
-          convert(ppt_path + ppts + '/' + ppt, pdf_path + ppts + '/')
+  for subject in os.listdir(ppt_path):
+    for topic in os.listdir(f"{ppt_path}{subject}"):
+      for ppt in os.listdir(f"{ppt_path}{subject}/{topic}"):
+        if ppt.endswith('.pptx'):
+          print(f"{ppt_path}{subject}/{topic}/{ppt}")
+          convert(f"{ppt_path}{subject}/{topic}/{ppt}", f"{pdf_path}{subject}/{topic}/")
       
   # PDF to Image
-  for pdfs in os.listdir(pdf_path):
-    for pdf in os.listdir(pdf_path + pdfs):
-      if pdf.endswith('.pdf'):
-        print(pdf_path + pdfs + '/' + pdf)
-        images = convert_from_path(pdf_path + pdfs + '/' + pdf)
-        for i, image in enumerate(images):
-          image_path = img_path + pdfs + '/' + pdf[:-4]
-          print(image_path)
-          if not os.path.exists(image_path):
-            os.makedirs(image_path)
-          image_resized = image.resize((1280, 720))
-          image_resized.save(image_path + '/slide' + str(i) + '.png', 'PNG')
+  for subject in os.listdir(pdf_path):
+    print(subject)
+    for topic in os.listdir(pdf_path + subject):
+      print(topic)
+      for pdf in os.listdir(pdf_path + subject + '/' + topic):
+        if pdf.endswith('.pdf'):
+          print(pdf_path + subject + '/' + topic + '/' + pdf)
+          images = convert_from_path(pdf_path + subject + '/' + topic + '/' + pdf)
+          for i, image in enumerate(images):
+            image_path = img_path + subject + '/' + topic + '/' + pdf[:-4]
+            print(image_path)
+            if not os.path.exists(image_path):
+              os.makedirs(image_path)
+            image_resized = image.resize((1280, 720))
+            image_resized.save(image_path + '/slide' + str(i) + '.png', 'PNG')
         
   # Remove PDFs
-  # for pdfs in os.listdir(pdf_path):
-  #   for pdf in os.listdir(pdf_path + pdfs):
-  #     if pdf.endswith('.pdf'):
-  #       os.remove(pdf_path + pdfs + '/' + pdf)
-  
+  # for subject in os.listdir(pdf_path):
+  #   for topic in os.listdir(pdf_path + subject):
+  #     for pdf in os.listdir(pdf_path + subject + '/' + topic):
+  #       if pdf.endswith('.pdf'):
+  #         os.remove(pdf_path + subject + '/' + topic + '/' + pdf)
         
 if __name__ == '__main__':
   main()

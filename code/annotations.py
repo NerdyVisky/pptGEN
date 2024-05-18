@@ -16,6 +16,7 @@ def get_element_annotations(element):
     height = element.get("height", 0)
     
     normalized_bbox = {
+        "label": element.get("label"),
         "xmin": int(xmin / slide_width * 1280),
         "ymin": int(ymin / slide_height * 720),
         "width": int(width / slide_width * 1280),
@@ -46,6 +47,7 @@ def correct_element_annotations(annotations, image, bg_color):
         xmax -= 1
 
     new_annotations = {
+        "label": annotations["label"],
         "xmin": xmin,
         "ymin": ymin,
         "width": xmax - xmin,
@@ -63,82 +65,103 @@ def correction():
           folder_name = 'dataset/images/' + subject + '/' + topic + '/' + json_file.split(".")[0]
           with open(f"code/json/final/{subject}/{topic}/{json_file}") as f:
             data = json.load(f)
-      
+
             i = 1
-            for slide in data["slides"][1:]:
+            for slide in data["slides"]:
               print(slide["pg_no"])
               img_path = f"{folder_name}/slide{i}.png"
-              # print(img_path)
               image = cv2.imread(img_path)
+              i += 1
+              print(img_path)
               
-              elements = ['title', 'description' 'url','equations','tables','figures','footer']
+              elements = slide["elements"]
               bg_color = slide["bg_color"]
               
-              for element_type in elements:
-                if element_type in slide["elements"]:
-                  elements = slide["elements"][element_type]
-                  for item in elements:
-                    if element_type == "figures":
-                      annotations = get_element_annotations(item["caption"])
-                      updated_annotations = correct_element_annotations(annotations, image, bg_color)
-                      item["caption"]["xmin"] = updated_annotations["xmin"]
-                      item["caption"]["ymin"] = updated_annotations["ymin"]
-                      item["caption"]["width"] = updated_annotations["width"]
-                      item["caption"]["height"] = updated_annotations["height"]
-                      item["caption"]["label"] = "caption"
-                    annotations = get_element_annotations(item)
-                    updated_annotations = correct_element_annotations(annotations, image, bg_color)
-                    print(annotations)
-                    print(updated_annotations)
-                    item["xmin"] = updated_annotations["xmin"]
-                    item["ymin"] = updated_annotations["ymin"]
-                    item["width"] = updated_annotations["width"]
-                    item["height"] = updated_annotations["height"]
-                    # create a new json file with corrected annotations
-                    if not os.path.exists(f"dataset/json/{subject}/{topic}/"):
-                      os.makedirs(f"dataset/json/{subject}/{topic}/")
-                    with open(f"dataset/json/{subject}/{topic}/{json_file}", "w") as f:
-                      json.dump(data, f, indent=3)
-            i += 1
+              for element_type, element_list in elements.items():
+                for items in element_list:
+                  if element_type == 'title' or element_type == 'equations' or element_type == 'tables' or element_type == 'footer':
+                    annotations = get_element_annotations(items)
+                    new_annotations = correct_element_annotations(annotations, image, bg_color)
+                    items["xmin"] = new_annotations["xmin"]
+                    items["ymin"] = new_annotations["ymin"]
+                    items["width"] = new_annotations["width"]
+                    items["height"] = new_annotations["height"]
+                    items["label"] = new_annotations["label"]
+                  if element_type == 'description':
+                    if items["label"] == 'text':
+                      annotations = get_element_annotations(items)
+                      new_annotations = correct_element_annotations(annotations, image, bg_color)
+                      items["xmin"] = new_annotations["xmin"]
+                      items["ymin"] = new_annotations["ymin"]
+                      items["width"] = new_annotations["width"]
+                      items["height"] = new_annotations["height"]
+                      items["label"] = new_annotations["label"]
+                    else:
+                      annotations["xmin"] = items["heading"]["xmin"]
+                      annotations["ymin"] = items["heading"]["ymin"]
+                      annotations["width"] = items["heading"]["width"]
+                      annotations["height"] = items["heading"]["height"] + items["height"]
+                      annotations["label"] = items["label"]
+                      annotations1 = get_element_annotations(annotations)
+                      new_annotations = correct_element_annotations(annotations1, image, bg_color)
+                      items["xmin"] = new_annotations["xmin"]
+                      items["ymin"] = new_annotations["ymin"]
+                      items["width"] = new_annotations["width"]
+                      items["height"] = new_annotations["height"]
+                      items["label"] = new_annotations["label"]
+                  if element_type == 'url':
+                    annotations = get_element_annotations(items)
+                    new_annotations = correct_element_annotations(annotations, image, bg_color)
+                    items["xmin"] = new_annotations["xmin"]
+                    items["ymin"] = new_annotations["ymin"]
+                    items["width"] = new_annotations["width"]
+                    items["height"] = new_annotations["height"]
+                    items["label"] = "url"
+                  if element_type == 'figures':
+                    annotations = get_element_annotations(items["caption"])
+                    new_annotations = correct_element_annotations(annotations, image, bg_color)
+                    items["caption"]["xmin"] = new_annotations["xmin"]
+                    items["caption"]["ymin"] = new_annotations["ymin"]
+                    items["caption"]["width"] = new_annotations["width"]
+                    items["caption"]["height"] = new_annotations["height"]
+                    items["caption"]["label"] = "caption"
+                    annotations = get_element_annotations(items)
+                    new_annotations = correct_element_annotations(annotations, image, bg_color)
+                    items["xmin"] = new_annotations["xmin"]
+                    items["ymin"] = new_annotations["ymin"]
+                    items["width"] = new_annotations["width"]
+                    items["height"] = new_annotations["height"]
+                    items["label"] = new_annotations["label"]
+                    
+                if not os.path.exists(f"dataset/json/{subject}/{topic}/"):
+                  os.makedirs(f"dataset/json/{subject}/{topic}/")
+                with open(f"dataset/json/{subject}/{topic}/{json_file}", "w") as f:
+                  json.dump(data, f, indent=3)
+              
 
 def show_annotations(filename):
     with open(f"dataset/json/{filename}.json", "r") as f:
-        data = json.load(f)
+      data = json.load(f)
     images = []
     i = 1
-    for slide in data["slides"][1:]:
+    for slide in data["slides"]:
         img_path = f"dataset/images/{filename}/slide{i}.png"
         image = cv2.imread(img_path)
-        bg_color = slide["bg_color"]
         i += 1
         print(slide["pg_no"])
-        print(image.shape)
+        print(img_path)
 
-        for element_type in ['title', 'description', 'url', 'equations','tables','figures','footer']:
-          if element_type == 'description' and "description" in slide["elements"]:
-            desc = slide["elements"][element_type]
-            for item in desc:
-              annotations = get_element_annotations(item)
-              new_annotations = correct_element_annotations(annotations, image, bg_color)          
-              cv2.rectangle(image, (new_annotations["xmin"], new_annotations["ymin"]), (new_annotations["xmin"] + new_annotations["width"], new_annotations["ymin"] + new_annotations["height"]), (0, 255, 0), 2)
-          elif element_type == 'figures' and "figures" in slide["elements"]:
-            figs = slide["elements"][element_type]
-            for item in figs:
-              annotations = get_element_annotations(item) 
-              new_annotations = correct_element_annotations(annotations, image, bg_color)
-              cv2.rectangle(image, (new_annotations["xmin"], new_annotations["ymin"]), (new_annotations["xmin"] + new_annotations["width"], new_annotations["ymin"] + new_annotations["height"]), (255, 0, 0), 2)
-              annotations = get_element_annotations(item["caption"]) 
-              new_annotations = correct_element_annotations(annotations, image, bg_color)
-              cv2.rectangle(image, (new_annotations["xmin"], new_annotations["ymin"]), (new_annotations["xmin"] + new_annotations["width"], new_annotations["ymin"] + new_annotations["height"]), (0, 0, 255), 2)
-          elif element_type in slide["elements"]:
-            elements = slide["elements"][element_type]
-            for item in elements:
-              annotations = get_element_annotations(item) 
-              new_annotations = correct_element_annotations(annotations, image, bg_color)
-              cv2.rectangle(image, (new_annotations["xmin"], new_annotations["ymin"]), (new_annotations["xmin"] + new_annotations["width"], new_annotations["ymin"] + new_annotations["height"]), (0, 0, 0), 2)
+        elements = slide["elements"]
         
-    #     # image.save(f"dataset/images/annotations/{filename}/slide{i - 1}_bbox.png")
+        for element_type, element_list in elements.items():
+          for items in element_list:
+            if element_type == 'figures':
+              cv2.rectangle(image, (items["caption"].get("xmin", 0), items["caption"].get("ymin", 0)), (items["caption"].get("xmin", 0) + items["caption"].get("width", 0), items["caption"].get("ymin", 0) + items["caption"].get("height", 0)), (0, 255, 0), 2)
+              # cv2.rectangle(image, (items["caption"]["xmin"], items["caption"]["ymin"]), (items["caption"]["xmin"] + items["caption"]["width"], items["caption"]["ymin"] + items["caption"]["height"]), (255, 0, 0), 2)
+            cv2.rectangle(image, (items.get("xmin", 0), items.get("ymin", 0)), (items.get("xmin", 0) + items.get("width", 0), items.get("ymin", 0) + items.get("height", 0)), (0, 255, 0), 2)
+            # cv2.rectangle(image, (items["xmin"], items["ymin"]), (items["xmin"] + items["width"], items["ymin"] + items["height"]), (255, 0, 0), 2)
 
+        # image.save(f"dataset/images/annotations/{filename}/slide{i - 1}_bbox.png")
         images.append(image)
     
     num_images = len(images)
@@ -167,14 +190,14 @@ def show_annotations(filename):
 
 def main():
   correction()
-  # for subject in os.listdir("dataset/json"):
-  #   for topic in os.listdir(f"dataset/json/{subject}"):
-  #     for json_file in os.listdir(f"dataset/json/{subject}/{topic}"):
-  #       if json_file.endswith(".json"):
-  #         print(f"{subject}/{topic}/{json_file.split('.')[0]}")
-  #         show_annotations(f"{subject}/{topic}/{json_file.split('.')[0]}")
-  #       break
-  #     break
-          
+  for subject in os.listdir("dataset/json"):
+    for topic in os.listdir(f"dataset/json/{subject}"):
+      for json_file in os.listdir(f"dataset/json/{subject}/{topic}"):
+        if json_file.endswith(".json"):
+          print(f"{subject}/{topic}/{json_file.split('.')[0]}")
+          show_annotations(f"{subject}/{topic}/{json_file.split('.')[0]}")
+        break
+      break
+
 if __name__ == "__main__":
   main()

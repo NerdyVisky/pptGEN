@@ -157,11 +157,10 @@ def show_annotations(filename):
           for items in element_list:
             if element_type == 'figures':
               cv2.rectangle(image, (items["caption"].get("xmin", 0), items["caption"].get("ymin", 0)), (items["caption"].get("xmin", 0) + items["caption"].get("width", 0), items["caption"].get("ymin", 0) + items["caption"].get("height", 0)), (0, 255, 0), 2)
-              # cv2.rectangle(image, (items["caption"]["xmin"], items["caption"]["ymin"]), (items["caption"]["xmin"] + items["caption"]["width"], items["caption"]["ymin"] + items["caption"]["height"]), (255, 0, 0), 2)
             cv2.rectangle(image, (items.get("xmin", 0), items.get("ymin", 0)), (items.get("xmin", 0) + items.get("width", 0), items.get("ymin", 0) + items.get("height", 0)), (0, 255, 0), 2)
-            # cv2.rectangle(image, (items["xmin"], items["ymin"]), (items["xmin"] + items["width"], items["ymin"] + items["height"]), (255, 0, 0), 2)
-
-        # image.save(f"dataset/images/annotations/{filename}/slide{i - 1}_bbox.png")
+        
+        # save the annotated image
+        # image.save(f"dataset/images/{filename}/slide{i}_bbox.png")
         images.append(image)
     
     num_images = len(images)
@@ -189,7 +188,9 @@ def show_annotations(filename):
         plt.show()
 
 def main():
+  # to correct Annotations
   correction()
+  # to show Annotations
   for subject in os.listdir("dataset/json"):
     for topic in os.listdir(f"dataset/json/{subject}"):
       for json_file in os.listdir(f"dataset/json/{subject}/{topic}"):

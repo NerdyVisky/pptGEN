@@ -45,6 +45,9 @@ def main():
   #     for pdf in os.listdir(pdf_path + subject + '/' + topic):
   #       if pdf.endswith('.pdf'):
   #         os.remove(pdf_path + subject + '/' + topic + '/' + pdf)
+  
+  # move topics.json to dataset/
+  os.rename('code/data/topics.json', 'dataset/topics.json')
         
 if __name__ == '__main__':
   main()

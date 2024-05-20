@@ -110,7 +110,7 @@ def generate_random_slide(slide_number, data, style_obj, footer_obj, presentatio
 
     ## Putting it together for the title object
     slide['elements']['title'] = [{
-            "label": "text",
+            "label": "title",
             "value": title_content,
             "xmin": all_dims['title']['left'],
             "ymin": all_dims['title']['top'],
@@ -200,6 +200,7 @@ def generate_random_slide(slide_number, data, style_obj, footer_obj, presentatio
             font_obj = generate_random_font("url")
             desc = data["slides"][slide_number - 1]["url"]
             desc_instance = {
+            "label": "url",
             "value": desc,
             "xmin": all_dims['body'][element_index]['left'],
             "ymin": all_dims['body'][element_index]['top'],

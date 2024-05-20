@@ -79,14 +79,6 @@ def correction():
               
               for element_type, element_list in elements.items():
                 for items in element_list:
-                  if element_type == 'title' or element_type == 'equations' or element_type == 'tables' or element_type == 'footer':
-                    annotations = get_element_annotations(items)
-                    new_annotations = correct_element_annotations(annotations, image, bg_color)
-                    items["xmin"] = new_annotations["xmin"]
-                    items["ymin"] = new_annotations["ymin"]
-                    items["width"] = new_annotations["width"]
-                    items["height"] = new_annotations["height"]
-                    items["label"] = new_annotations["label"]
                   if element_type == 'description':
                     if items["label"] == 'text':
                       annotations = get_element_annotations(items)
@@ -109,15 +101,7 @@ def correction():
                       items["width"] = new_annotations["width"]
                       items["height"] = new_annotations["height"]
                       items["label"] = new_annotations["label"]
-                  if element_type == 'url':
-                    annotations = get_element_annotations(items)
-                    new_annotations = correct_element_annotations(annotations, image, bg_color)
-                    items["xmin"] = new_annotations["xmin"]
-                    items["ymin"] = new_annotations["ymin"]
-                    items["width"] = new_annotations["width"]
-                    items["height"] = new_annotations["height"]
-                    items["label"] = "url"
-                  if element_type == 'figures':
+                  elif element_type == 'figures':
                     annotations = get_element_annotations(items["caption"])
                     new_annotations = correct_element_annotations(annotations, image, bg_color)
                     items["caption"]["xmin"] = new_annotations["xmin"]
@@ -125,6 +109,14 @@ def correction():
                     items["caption"]["width"] = new_annotations["width"]
                     items["caption"]["height"] = new_annotations["height"]
                     items["caption"]["label"] = "caption"
+                    annotations = get_element_annotations(items)
+                    new_annotations = correct_element_annotations(annotations, image, bg_color)
+                    items["xmin"] = new_annotations["xmin"]
+                    items["ymin"] = new_annotations["ymin"]
+                    items["width"] = new_annotations["width"]
+                    items["height"] = new_annotations["height"]
+                    items["label"] = new_annotations["label"]
+                  else:
                     annotations = get_element_annotations(items)
                     new_annotations = correct_element_annotations(annotations, image, bg_color)
                     items["xmin"] = new_annotations["xmin"]
@@ -156,11 +148,12 @@ def show_annotations(filename):
         for element_type, element_list in elements.items():
           for items in element_list:
             if element_type == 'figures':
-              cv2.rectangle(image, (items["caption"].get("xmin", 0), items["caption"].get("ymin", 0)), (items["caption"].get("xmin", 0) + items["caption"].get("width", 0), items["caption"].get("ymin", 0) + items["caption"].get("height", 0)), (0, 255, 0), 2)
-            cv2.rectangle(image, (items.get("xmin", 0), items.get("ymin", 0)), (items.get("xmin", 0) + items.get("width", 0), items.get("ymin", 0) + items.get("height", 0)), (0, 255, 0), 2)
+              cv2.rectangle(image, (items["caption"].get("xmin", 0), items["caption"].get("ymin", 0)), (items["caption"].get("xmin", 0) + items["caption"].get("width", 0), items["caption"].get("ymin", 0) + items["caption"].get("height", 0)), (255, 0, 0), 2)
+            cv2.rectangle(image, (items.get("xmin", 0), items.get("ymin", 0)), (items.get("xmin", 0) + items.get("width", 0), items.get("ymin", 0) + items.get("height", 0)), (255, 0, 0), 2)
         
         # save the annotated image
-        # image.save(f"dataset/images/{filename}/slide{i}_bbox.png")
+        cv2.imwrite(f"dataset/images/{filename}/slide{i-1}_bbox.png", image)
+        
         images.append(image)
     
     num_images = len(images)
@@ -185,11 +178,11 @@ def show_annotations(filename):
             axes.flat[i - start_index].axis('off')
 
         plt.tight_layout()
-        plt.show()
+        # plt.show()
 
 def main():
   # to correct Annotations
-  correction()
+  # correction()
   # to show Annotations
   for subject in os.listdir("dataset/json"):
     for topic in os.listdir(f"dataset/json/{subject}"):

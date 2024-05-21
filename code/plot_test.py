@@ -1,10 +1,10 @@
 import matplotlib.pyplot as plt
 
-# Data for the pie chart
-techniques = ['Segmentation', 'Paging', 'Virtual Memory', 'Hybrid']
-sizes = [25, 25, 30, 20]
+# Data for the efficiency comparison of divide-and-conquer algorithms
+algorithms = ['Merge Sort', 'Quick Sort', 'Binary Search', 'Strassen’s Matrix Multiplication']
+efficiencies = [90, 85, 95, 80]
 
-plt.figure(figsize=(8, 6))
-plt.pie(sizes, labels=techniques, autopct='%1.1f%%', startangle=140, colors=['gold', 'lightblue', 'lightgreen', 'lavender'])
-plt.savefig('code/buffer/figures/3.png')
+fig, ax = plt.subplots()
+ax.bar(algorithms, efficiencies, color='skyblue')
+plt.savefig('code/buffer/figures/2.png')
 plt.close()

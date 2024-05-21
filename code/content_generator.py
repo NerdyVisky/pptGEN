@@ -109,16 +109,19 @@ def main():
             presentation_ID = ppt["presentation_ID"]
             book = ppt["book"]
             print(f"({i+1}/{n_ppts}): generating content for {presentation_ID}")
-            generated_content = generate_slide_content(presentation_ID, topic, subject, book)
-            if isinstance(generated_content, dict):
-                dir_path = f"code/temp/{subject}"
-                if not os.path.exists(dir_path):
-                    os.mkdir(dir_path)
-                file_path = f"code/temp/{subject}/{presentation_ID}.json"
-                save_slide_content_to_json(generated_content, file_path)
-                print(f"\t🟢 (8/8) Content saved for {presentation_ID}")
-                print('\n')
-
+            try:
+                generated_content = generate_slide_content(presentation_ID, topic, subject, book)
+                if isinstance(generated_content, dict):
+                    dir_path = f"code/temp/{subject}"
+                    if not os.path.exists(dir_path):
+                        os.mkdir(dir_path)
+                    file_path = f"code/temp/{subject}/{presentation_ID}.json"
+                    save_slide_content_to_json(generated_content, file_path)
+                    print(f"\t🟢 (8/8) Content saved for {presentation_ID}")
+            except:
+                print(f"\t 🟠 Error in generating content for {presentation_ID}. Skipping topic.")
+    print('\n')
+    
 
 if __name__ == "__main__":
     main()

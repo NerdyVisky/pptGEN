@@ -234,31 +234,32 @@ class Footer(Element):
 
 
 class PresentationGenerator:
-    def __init__(self, json_payload, slide_id, version):
+    def __init__(self, json_payload, subject_name, slide_id, version):
         self.json_payload = json_payload
+        self.subject_name = subject_name
         self.slide_id = slide_id
         self.version = version
         self.presentation = Presentation()
     
-    def insert_title_slide(self):
+    def insert_title_slide(self, MUL_FAC=1):
         title_font = self.json_payload["slides"][0]["elements"]["title"][0]["style"]["font_name"]
         title_slide = self.presentation.slides.add_slide(self.presentation.slide_layouts[0])
         title_shape = title_slide.shapes.title
         title_shape.text = self.json_payload['topic']
         title_shape.left = Inches(0.5)
         title_shape.top = Inches(2)
-        title_shape.width = Inches(9)
+        title_shape.width = Inches(9*MUL_FAC)
         title_shape.height = Inches(1.25)
         title_shape.text_frame.paragraphs[0].font.bold = True
         title_shape.text_frame.paragraphs[0].font.size = Pt(48)
         title_shape.text_frame.paragraphs[0].font.name = title_font
-        presenter = title_slide.shapes.add_textbox(Inches(3.5),Inches(3.25),Inches(3),Inches(0.75))
+        presenter = title_slide.shapes.add_textbox(Inches(3.5),Inches(3.25),Inches(3*MUL_FAC),Inches(0.75))
         presenter.text = self.json_payload["presenter"]
         presenter.text_frame.paragraphs[0].alignment = PP_ALIGN.CENTER
         presenter.text_frame.paragraphs[0].font.italic = True
         presenter.text_frame.paragraphs[0].font.size = Pt(28)
         presenter.text_frame.paragraphs[0].font.name = title_font
-        date = title_slide.shapes.add_textbox(Inches(4),Inches(4),Inches(2),Inches(0.5))
+        date = title_slide.shapes.add_textbox(Inches(4),Inches(4),Inches(2*MUL_FAC),Inches(0.5))
         date.text = self.json_payload["date"]
         date.text_frame.paragraphs[0].alignment = PP_ALIGN.CENTER
         date.text_frame.paragraphs[0].font.name = title_font
@@ -266,7 +267,8 @@ class PresentationGenerator:
     def generate_presentation(self):
         self.presentation.slide_width = Inches(13.333)
         self.presentation.slide_height = Inches(7.5)
-        self.insert_title_slide()
+        MUL_FAC = 1.33
+        self.insert_title_slide(MUL_FAC)
         for slide_info in self.json_payload['slides']:
             slide_layout = self.presentation.slide_layouts[1]
             slide = self.presentation.slides.add_slide(slide_layout)
@@ -313,10 +315,13 @@ class PresentationGenerator:
         ppts_path = "./ppts/"
         if os.path.isdir(ppts_path) == False:
             os.mkdir(ppts_path)
-        
-        if not os.path.exists(os.path.join(ppts_path, self.slide_id)):
-            os.mkdir(os.path.join(ppts_path, self.slide_id))
-        self.presentation.save(os.path.join(ppts_path, self.slide_id, f'{self.version}.pptx'))
+
+        if not os.path.exists(os.path.join(ppts_path, self.subject_name)):
+            os.mkdir(os.path.join(ppts_path, self.subject_name))
+        if not os.path.exists(os.path.join(ppts_path, self.subject_name, self.slide_id)):
+            os.mkdir(os.path.join(ppts_path, self.subject_name, self.slide_id))
+
+        self.presentation.save(os.path.join(ppts_path, self.subject_name, self.slide_id, f'{self.version}.pptx'))
 
 def load_json_payload(file_path):
     with open(file_path, 'r') as file:
@@ -324,6 +329,7 @@ def load_json_payload(file_path):
 
 def main():
     # Load the JSON payload
+    print("Running PPT generator module...")
     buffer_folder_path = "./code/buffer/full"
     entries = os.listdir(buffer_folder_path)
     # Filter out directories
@@ -351,14 +357,15 @@ def main():
 
     for i, json_file in enumerate(json_file_paths):
         #Load JSON file from buffer
+        subject_name = os.path.basename(os.path.dirname(os.path.dirname(json_file)))
         slide_id = os.path.basename(os.path.dirname(json_file))
         version , _ = os.path.splitext(os.path.basename(json_file))
         json_payload = load_json_payload(json_file)
 
         #Generate Presentation from JSON file and save it
-        presentation_generator = PresentationGenerator(json_payload, slide_id, version)
+        presentation_generator = PresentationGenerator(json_payload, subject_name, slide_id, version)
         presentation_generator.generate_presentation()
-        print(f"Presentation generated successfully for {slide_id}.")
+        # print(f"Presentation generated successfully for {slide_id}.")
 
     final_json_path = 'code\\json\\final'
     for i, json_file in enumerate(json_file_paths):
@@ -376,7 +383,7 @@ def main():
     
     shutil.rmtree('code/buffer/temp')
     
-    print("All presentations generated and files moved successfully.")
+    print("🟢 All presentations generated and files moved successfully.\n")
 
 if __name__ == "__main__":
     main()

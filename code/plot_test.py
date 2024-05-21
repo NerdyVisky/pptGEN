@@ -1,11 +1,10 @@
 import matplotlib.pyplot as plt
 
-# Data for pie chart summarizing key concepts
-labels = ['Random Variables', 'Distributions', 'Randomized Algorithms', 'Deterministic Algorithms']
-sizes = [25, 25, 25, 25]
+# Data for the pie chart
+techniques = ['Segmentation', 'Paging', 'Virtual Memory', 'Hybrid']
+sizes = [25, 25, 30, 20]
 
-# Creating pie chart
-plt.figure()
-plt.pie(sizes, labels=labels, autopct='%1.1f%%')
-plt.savefig('code/buffer/figures/5.png')
+plt.figure(figsize=(8, 6))
+plt.pie(sizes, labels=techniques, autopct='%1.1f%%', startangle=140, colors=['gold', 'lightblue', 'lightgreen', 'lavender'])
+plt.savefig('code/buffer/figures/3.png')
 plt.close()

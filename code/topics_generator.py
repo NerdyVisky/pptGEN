@@ -1,12 +1,18 @@
-from langchain_core.prompts import (FewShotChatMessagePromptTemplate, ChatPromptTemplate)
-from langchain_core.output_parsers import StrOutputParser, JsonOutputParser
+from langchain_core.prompts import (ChatPromptTemplate)
+from langchain_core.output_parsers import JsonOutputParser
 from langchain_openai import ChatOpenAI
-from langchain.output_parsers.openai_functions import JsonOutputFunctionsParser
 import random
 import json
 
-LLM_MODEL = 'gpt-3.5-turbo'
+
+print("Running topic generation module...")
+LLM_MODEL = 'gpt-4-turbo'
 TEMPERATURE = 0
+SUBJECT = 'CS'
+BOOK = 'Introduction to Algorithms'
+AUTHOR = 'Thomas Corman'
+
+
 model = ChatOpenAI(
        model_name=LLM_MODEL, 
        temperature=TEMPERATURE,
@@ -16,6 +22,8 @@ prompt = ChatPromptTemplate.from_messages([
     ("system", "You are a helpful assistant to a professor. You have access to all resources on the web."),
     ("human", """I am a {subject}  professor and I want to create lectures slides for various topics in the book : {book} by {author}.\n
 Give me a list of topics from the book I provided in the form of a Python dict.\n
+Also, I will use these topics to make presentations and hence augment the presentation titles if they are generic\n
+For example: for titles like Introduction, Applications convert them to Introduction to Deep Learning, Applications of Deep Learning, respectively.
 Do not provide any converstation.\n
 Here's an example\n
      
@@ -83,20 +91,23 @@ Expected Output:\n
 )
 parser = JsonOutputParser()
 chain = prompt | model | parser
-output = chain.invoke({"subject": "CS", "book": "Introduction to Algorithms", "author": "Thomas Corman"})
+output = chain.invoke({"subject": SUBJECT, "book": BOOK, "author": AUTHOR})
 
 new_output = {}
 
+n_topics = 0
 for key, topics_list in output.items():
     new_output[key] = []
+    n_topics = len(topics_list)
     for item in topics_list:
         topic_obj = {
             "presentation_ID" : str(hex(random.randint(0x100000, 0xFFFFFF))[2:]),
-            "topic": item
+            "topic": item,
+            "book": BOOK
         }
         new_output[key].append(topic_obj)
 
 TOPICS_PATH = 'code\\data\\topics.json'
 with open(TOPICS_PATH, 'w') as json_file:
     json.dump(new_output, json_file, indent=3)
-    print("Topics generated")
+    print(f"🟢 (1/1) {n_topics} presentation topics generated based on the book {BOOK} by author {AUTHOR}\n")

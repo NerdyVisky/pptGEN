@@ -51,10 +51,10 @@ for run in list(root_runs):
 # Save the workbook
 now = datetime.now()
 formatted_now = now.strftime("%H_%M_%d_%m")
-if not os.path.exists('code\logs\\api_traces'):
-    os.mkdir('code\logs\\api_traces')
+if not os.path.exists(f"code/logs/api_traces"):
+    os.mkdir(f"code/logs/api_traces")
 
-wb.save(os.path.join('code\logs\\api_traces', f"{formatted_now}.xlsx"))
+wb.save(f"code/logs/api_traces/{formatted_now}.xlsx")
 print(f"🟢 (5/5) API traces saved as {formatted_now}.xlsx in logs\\api_traces")
 
 client.delete_project(project_name="pptGEN")

@@ -11,3 +11,4 @@ matplotlib
 bs4
 faiss-cpu
 PyMuPDF
+openpyxl

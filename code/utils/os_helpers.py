@@ -19,10 +19,10 @@ def resize_image(input_image_path, box_width, box_height):
             resized_img = img.resize((new_width, new_height))
             # img_name = os.path.basename(input_image_path)
             img_dir = os.path.dirname(input_image_path)
-            new_img_dir = os.path.join('code/buffer', 'temp')
+            new_img_dir = f"code/buffer/temp"
             if not os.path.exists(new_img_dir):
                  os.mkdir(new_img_dir)            
-            new_img_path = os.path.join(new_img_dir, f'{hex(random.randint(0x100000, 0xFFFFFF))[2:]}.png')
+            new_img_path = f"{new_img_dir}/{hex(random.randint(0x100000, 0xFFFFFF))[2:]}.png"
             resized_img.save(new_img_path)
             # os.remove(input_image_path)
             new_width_inches = new_width / dpi

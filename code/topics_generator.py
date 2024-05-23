@@ -8,9 +8,9 @@ import json
 print("Running topic generation module...")
 LLM_MODEL = 'gpt-4-turbo'
 TEMPERATURE = 0
-SUBJECT = 'CS'
-BOOK = 'Distributed Systems: Principles and Paradigms'
-AUTHOR = 'Andrew S. Tanenbaum'
+SUBJECT = 'Physics'
+BOOK = 'Concepts of Physics Vol 1'
+AUTHOR = 'H.C. Verma'
 
 
 model = ChatOpenAI(

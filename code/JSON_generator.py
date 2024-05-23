@@ -361,7 +361,7 @@ def generate_random_slide(slide_number, data, style_obj, footer_obj, presentatio
 if __name__ == "__main__":
     # num_files = 3
     print("Running layout discriminator module...")
-    temp_dir = 'code/temp'
+    temp_dir = f"code/temp"
     entries = os.listdir(temp_dir)
     directories = [entry for entry in entries if os.path.isdir(os.path.join(temp_dir, entry))]
     DUP_FAC = 2
@@ -388,12 +388,12 @@ if __name__ == "__main__":
                     "date": generate_random_date(),
                     "slides": slides
                 }
-                if not os.path.exists(f"code\\buffer\\full\\{directory}"):
-                    os.mkdir(f"code\\buffer\\full\\{directory}")
-                if not os.path.exists(f"code\\buffer\\full\\{directory}\\{presentation_ID}"):
-                    os.mkdir(f"code\\buffer\\full\\{directory}\\{presentation_ID}")
+                if not os.path.exists(f"code/buffer/full/{directory}"):
+                    os.mkdir(f"code/buffer/full/{directory}")
+                if not os.path.exists(f"code/buffer/full/{directory}/{presentation_ID}"):
+                    os.mkdir(f"code/buffer/full/{directory}/{presentation_ID}")
 
-                with open(f"code\\buffer\\full\\{directory}\\{presentation_ID}\\{ver + 1}.json", 'w') as json_file:
+                with open(f"code/buffer/full/{directory}/{presentation_ID}/{ver + 1}.json", 'w') as json_file:
                     json.dump(new_data, json_file, indent=3)
 
             print(f"🟢 ({i+1}/{n_json_files}): generated {DUP_FAC} layouts for {presentation_ID}")

@@ -5,16 +5,16 @@ import datetime
 
 def main():
   print("Running post processing module...")
-  if not os.path.exists('dataset/images'):
-    os.makedirs('dataset/images')
-  if not os.path.exists('dataset/pdfs'):
-    os.makedirs('dataset/pdfs')
-  if not os.path.exists('dataset/json'):
-    os.makedirs('dataset/json')
+  if not os.path.exists(f"dataset/images"):
+    os.makedirs(f"dataset/images")
+  if not os.path.exists(f"dataset/pdfs"):
+    os.makedirs(f"dataset/pdfs")
+  if not os.path.exists(f"dataset/json"):
+    os.makedirs(f"dataset/json")
   
-  ppt_path = 'ppts/'
-  pdf_path = 'dataset/pdfs/'
-  img_path = 'dataset/images/'
+  ppt_path = f"ppts/"
+  pdf_path = f"dataset/pdfs/f"
+  img_path = f"dataset/images/"
 
   # PPTX to PDF
   for subject in os.listdir(ppt_path):
@@ -52,7 +52,7 @@ def main():
   now = datetime.datetime.now()
   formatted_now = now.strftime("%H_%M_%d_%m")
   try:
-    os.rename('code/data/topics.json', f'dataset/topics/{formatted_now}.json')
+    os.rename(f"code/data/topics.json", f"dataset/topics/{formatted_now}.json")
     print(f"🟢 (3/5) New batch of topics saved as dataset/topics/{formatted_now}.json")
   except:
     print(f"🔴 Error in moving topics to {formatted_now}.json")

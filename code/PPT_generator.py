@@ -319,7 +319,7 @@ class PresentationGenerator:
                         sp = slide.shapes._spTree
                         sp.remove(shape._element)
         
-        ppts_path = "./ppts/"
+        ppts_path = f"./ppts/"
         if os.path.isdir(ppts_path) == False:
             os.mkdir(ppts_path)
 
@@ -337,7 +337,7 @@ def load_json_payload(file_path):
 def main():
     # Load the JSON payload
     print("Running PPT generator module...")
-    buffer_folder_path = "./code/buffer/full"
+    buffer_folder_path = f"./code/buffer/full"
     entries = os.listdir(buffer_folder_path)
     # Filter out directories
     directories = [entry for entry in entries if os.path.isdir(os.path.join(buffer_folder_path, entry))]
@@ -359,7 +359,7 @@ def main():
     #     json_file_paths.append(os.path.join(buffer_folder_path, directory, json_files[-1]))
     
 
-    base_topic_folder_path = "./code/json"
+    base_topic_folder_path = f"./code/json"
 
 
     for i, json_file in enumerate(json_file_paths):
@@ -374,7 +374,7 @@ def main():
         presentation_generator.generate_presentation()
         # print(f"Presentation generated successfully for {slide_id}.")
 
-    final_json_path = 'code\\json\\final'
+    final_json_path = f"code/json/final"
     for i, json_file in enumerate(json_file_paths):
         subject_name = os.path.basename(os.path.dirname(os.path.dirname(json_file)))
         slide_id = os.path.basename(os.path.dirname(json_file))
@@ -388,7 +388,7 @@ def main():
         if os.path.exists(json_file):
             os.rename(json_file, final_json_file)
     
-    shutil.rmtree('code/buffer/temp')
+    shutil.rmtree(f"code/buffer/temp")
     
     print("🟢 All presentations generated and files moved successfully.\n")
 

@@ -57,12 +57,12 @@ def correct_element_annotations(annotations, image, bg_color):
     return new_annotations
 
 def correction():
-  json_path = "code/json/final/"
+  json_path = f"code/json/final/"
   for subject in os.listdir(json_path):
     for topic in os.listdir(json_path + subject):
-      for json_file in os.listdir(json_path + subject + '/' + topic):
+      for json_file in os.listdir(f"{json_path}{subject}/{topic}"):
         if json_file.endswith(".json"):
-          folder_name = 'dataset/images/' + subject + '/' + topic + '/' + json_file.split(".")[0]
+          folder_name = f"dataset/images/{subject}/{topic}/{json_file.split(".")[0]}"
           with open(f"code/json/final/{subject}/{topic}/{json_file}") as f:
             data = json.load(f)
 

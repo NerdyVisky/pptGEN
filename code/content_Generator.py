@@ -100,7 +100,7 @@ def generate_slide_content(slide_id, arg_topic, subject, book):
 def main():
     print("Running content generation module...")
     load_dotenv(find_dotenv())
-    SEED_PATH = "code\data\\topics.json"
+    SEED_PATH = f"code/data/topics.json"
     slide_seeds = fetch_seed_content(SEED_PATH)
     for subject, ppts in slide_seeds.items():
         n_ppts = len(ppts)

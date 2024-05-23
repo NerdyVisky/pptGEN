@@ -80,27 +80,14 @@ def correction():
               for element_type, element_list in elements.items():
                 for items in element_list:
                   if element_type == 'description':
-                    if items["label"] == 'text':
-                      annotations = get_element_annotations(items)
+                    if items["label"] == 'enumeration':
+                      annotations = get_element_annotations(items["heading"])
                       new_annotations = correct_element_annotations(annotations, image, bg_color)
-                      items["xmin"] = new_annotations["xmin"]
-                      items["ymin"] = new_annotations["ymin"]
-                      items["width"] = new_annotations["width"]
-                      items["height"] = new_annotations["height"]
-                      items["label"] = new_annotations["label"]
-                    else:
-                      annotations["xmin"] = items["heading"]["xmin"]
-                      annotations["ymin"] = items["heading"]["ymin"]
-                      annotations["width"] = items["heading"]["width"]
-                      annotations["height"] = items["heading"]["height"] + items["height"]
-                      annotations["label"] = items["label"]
-                      annotations1 = get_element_annotations(annotations)
-                      new_annotations = correct_element_annotations(annotations1, image, bg_color)
-                      items["xmin"] = new_annotations["xmin"]
-                      items["ymin"] = new_annotations["ymin"]
-                      items["width"] = new_annotations["width"]
-                      items["height"] = new_annotations["height"]
-                      items["label"] = new_annotations["label"]
+                      items["heading"]["xmin"] = new_annotations["xmin"]
+                      items["heading"]["ymin"] = new_annotations["ymin"]
+                      items["heading"]["width"] = new_annotations["width"]
+                      items["heading"]["height"] = new_annotations["height"]
+                      items["heading"]["label"] = new_annotations["label"]
                   elif element_type == 'figures':
                     annotations = get_element_annotations(items["caption"])
                     new_annotations = correct_element_annotations(annotations, image, bg_color)
@@ -109,28 +96,21 @@ def correction():
                     items["caption"]["width"] = new_annotations["width"]
                     items["caption"]["height"] = new_annotations["height"]
                     items["caption"]["label"] = "caption"
-                    annotations = get_element_annotations(items)
-                    new_annotations = correct_element_annotations(annotations, image, bg_color)
-                    items["xmin"] = new_annotations["xmin"]
-                    items["ymin"] = new_annotations["ymin"]
-                    items["width"] = new_annotations["width"]
-                    items["height"] = new_annotations["height"]
-                    items["label"] = new_annotations["label"]
-                  else:
-                    annotations = get_element_annotations(items)
-                    new_annotations = correct_element_annotations(annotations, image, bg_color)
-                    items["xmin"] = new_annotations["xmin"]
-                    items["ymin"] = new_annotations["ymin"]
-                    items["width"] = new_annotations["width"]
-                    items["height"] = new_annotations["height"]
-                    items["label"] = new_annotations["label"]
+                  elif element_type == 'url':
+                    items["label"] = "url"
+                  annotations = get_element_annotations(items)
+                  new_annotations = correct_element_annotations(annotations, image, bg_color)
+                  items["xmin"] = new_annotations["xmin"]
+                  items["ymin"] = new_annotations["ymin"]
+                  items["width"] = new_annotations["width"]
+                  items["height"] = new_annotations["height"]
+                  items["label"] = new_annotations["label"]
                     
                 if not os.path.exists(f"dataset/json/{subject}/{topic}/"):
                   os.makedirs(f"dataset/json/{subject}/{topic}/")
                 with open(f"dataset/json/{subject}/{topic}/{json_file}", "w") as f:
                   json.dump(data, f, indent=3)
               
-
 def show_annotations(filename):
     with open(f"dataset/json/{filename}.json", "r") as f:
       data = json.load(f)

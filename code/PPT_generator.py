@@ -3,9 +3,12 @@ from pptx.util import Inches, Pt
 from pptx.enum.shapes import MSO_SHAPE
 from pptx.enum.shapes import MSO_SHAPE_TYPE
 from pptx.enum.text import PP_ALIGN
+from pptx.enum.text import MSO_ANCHOR
 from pptx.dml.color import RGBColor
 import json
 import os
+from utils.os_helpers import resize_image
+import shutil
 
 class Element:
     def __init__(self, content, style, bounding_box):
@@ -13,7 +16,7 @@ class Element:
         self.style = style
         self.bounding_box = bounding_box
     
-    def apply_font_style_on_run(self, run):
+    def apply_font_style_on_run(self, run, element=None):
         if 'font_name' in self.style:
             run.font.name = self.style['font_name']
         if 'font_size' in self.style:
@@ -26,6 +29,30 @@ class Element:
             run.font.italic = self.style['italics']
         if 'underlined' in self.style:
             run.font.underline = self.style['underlined']
+        
+        if element == None:
+            print(element)
+            if 'h_align' in self.style:
+                if self.style['h_align'] == 'center':
+                    run.alignment = PP_ALIGN.CENTER
+                elif self.style['h_align'] == 'left':
+                    run.alignment = PP_ALIGN.LEFT
+                elif self.style['h_align'] == 'right':
+                    run.alignment = PP_ALIGN.RIGHT
+                else:
+                    run.alignment = PP_ALIGN.JUSTIFY
+            
+            if 'v_align' in self.style:
+                if self.style['v_align'] == 'top':
+                    run.vertical_anchor = MSO_ANCHOR.TOP
+                elif self.style['v_align'] == 'middle':
+                    run.vertical_anchor = MSO_ANCHOR.MIDDLE
+                else:
+                    run.vertical_anchor = MSO_ANCHOR.BOTTOM
+        else:
+            run.alignment = PP_ALIGN.LEFT
+            run.vertical_anchor = MSO_ANCHOR.TOP
+
 
     
     def apply_font_style(self, shape):
@@ -47,6 +74,24 @@ class Element:
             shape.text_frame.paragraphs[0].font.underline = self.style['underlined']
         else:
             shape.text_frame.paragraphs[0].font.underline = False
+        if 'h_align' in self.style:
+            if self.style['h_align'] == 'center':
+                shape.text_frame.paragraphs[0].alignment = PP_ALIGN.CENTER
+            elif self.style['h_align'] == 'left':
+                shape.text_frame.paragraphs[0].alignment = PP_ALIGN.LEFT
+            elif self.style['h_align'] == 'right':
+                shape.text_frame.paragraphs[0].alignment = PP_ALIGN.RIGHT
+            else:
+                shape.text_frame.paragraphs[0].alignment = PP_ALIGN.JUSTIFY
+        
+        if 'v_align' in self.style:
+            if self.style['v_align'] == 'top':
+                shape.text_frame.paragraphs[0].vertical_anchor = MSO_ANCHOR.TOP
+            elif self.style['v_align'] == 'middle':
+                shape.text_frame.paragraphs[0].vertical_anchor = MSO_ANCHOR.MIDDLE
+            else:
+                shape.text_frame.paragraphs[0].vertical_anchor = MSO_ANCHOR.BOTTOM
+
     
     def position_element(self, shape):
         shape.left = Inches(self.bounding_box[0])
@@ -55,82 +100,184 @@ class Element:
         shape.height = Inches(self.bounding_box[3])
 
         if shape.has_text_frame:
-            shape.text_frame.margin_left = Pt(5)
-            shape.text_frame.margin_right = Pt(5)
-            shape.text_frame.margin_top = Pt(5)
-            shape.text_frame.margin_bottom = Pt(5)
+            shape.text_frame.margin_left = Pt(10)
+            shape.text_frame.margin_right = Pt(10)
+            shape.text_frame.margin_top = Pt(10)
+            shape.text_frame.margin_bottom = Pt(10)
 
 
     def render(self, slide):
         raise NotImplementedError("Subclasses must implement this method")
 
 class Title(Element):
+    def __init__(self, content, style, bounding_box):
+        super().__init__(content, style, bounding_box)
     def render(self, slide):
-        print(slide.shapes.title)
         title_shape = slide.shapes.title
-        # self.position_element(title_shape)
         title_shape.text = self.content
         self.apply_font_style(title_shape)
         self.position_element(title_shape)
-        title_shape.text_frame.paragraphs[0].alignment = PP_ALIGN.CENTER
 
     def clean_up(self, slide):
         pass
 
 class Description(Element):
+    def __init__(self, content, style, bounding_box):
+        super().__init__(content, style, bounding_box)
+
     def render(self, slide):
         left, top, width, height = self.bounding_box
         textbox = slide.shapes.add_textbox(Inches(left), Inches(top), Inches(width), Inches(height))
-        # textbox.text = self.content
-        # self.apply_font_style(textbox)
-        lines = self.content.split('\n')
-        # Add each line as a separate paragraph with its own run
-        for line in lines:
-            paragraph = textbox.text_frame.add_paragraph()
-            run = paragraph.add_run()
-            run.text = line
-            self.apply_font_style_on_run(run)
-        # Store the textbox for later clean-up
+        textbox.text = self.content
+        self.apply_font_style(textbox)
         textbox.text_frame.auto_size = True
         textbox.text_frame.word_wrap = True 
         self.position_element(textbox)
         self.textbox = textbox
 
 class Enumeration(Description):
+    def __init__(self, content, style, bounding_box, heading):
+        super().__init__(content, style, bounding_box)
+        self.heading = heading
+
     def render(self, slide):
-        left, top, width, height = self.bounding_box
-        textbox = slide.shapes.add_textbox(Inches(left), Inches(top), Inches(width), Inches(height))
-        text_frame = textbox.text_frame
-        for i, point_text in enumerate(self.content):
-            p = text_frame.add_paragraph()
-            run = p.add_run()
-            run.text = "• " + point_text
-            self.apply_font_style_on_run(run)
-        textbox.text_frame.auto_size = True
-        textbox.text_frame.word_wrap = True
-        self.position_element(textbox)
-        self.textbox = textbox
+        left, top, width, height = self.heading['xmin'], self.heading['ymin'], self.heading['width'], self.heading['height']
+        enum_heading = slide.shapes.add_textbox(Inches(left), Inches(top), Inches(width), Inches(height))
+        enum_heading.text = self.heading['value']
+        self.apply_font_style(enum_heading)
+        enum_heading.text_frame.auto_size = True
+        enum_heading.text_frame.word_wrap = True
+        enum_shape = slide.shapes.placeholders[1]
+        enum_tf = enum_shape.text_frame
+        if self.content != []:            
+            enum_tf.text = self.content[0]
+            self.apply_font_style(enum_shape)
+            for i, pt_text in enumerate(self.content):
+                if i>0:
+                    if isinstance(pt_text, str):
+                        p = enum_tf.add_paragraph()
+                        run = p.add_run()
+                        run.text = pt_text
+                        self.apply_font_style_on_run(run, 'enumeration')
+
+                    elif isinstance(pt_text, list):
+                        for sub_pt in pt_text:
+                            s_p = enum_tf.add_paragraph()
+                            s_p.level = 1
+                            sub_run = s_p.add_run()
+                            sub_run.text = sub_pt
+                            self.apply_font_style_on_run(run)
+                    else:
+                        raise Exception("Invalid Enumeration format")
+                
+        enum_tf.auto_size = True
+        enum_tf.word_wrap = True
+
+        self.position_element(enum_shape)
+        self.enum_tf = enum_tf
             
 
 class Figure(Element):
+    def __init__(self, content, style, bounding_box, caption):
+        super().__init__(content, style, bounding_box)
+        self.caption = caption
+        self.content = content
+        
     def render(self, slide):
         left, top, width, height = self.bounding_box
-        img = slide.shapes.add_picture(self.content, Inches(left), Inches(top), Inches(width), Inches(height))
-        # original_width, original_height = img.image.size
-        # # Convert dimensions from pixels to inches
-        # img.width = Inches(original_width * scale_factor / img.image.dpi[0])
-        # img.height = Inches(original_height * scale_factor / img.image.dpi[1])
+        resized_img_path, n_w, n_h = resize_image(self.content, width, height)
+        img = slide.shapes.add_picture(resized_img_path, Inches(left - (n_w - width)/2), Inches(top - (n_h - height)/2), Inches(n_w), Inches(n_h))
+        left_c, top_c, width_c, height_c = self.caption['xmin'], self.caption['ymin'], self.caption['width'], self.caption['height']
+
+        cap_shape = slide.shapes.add_textbox(Inches(left_c), Inches(top_c - (height - n_h)/2), Inches(width_c), Inches(height_c))
+        cap_shape.text = self.caption['value']
+        self.apply_font_style(cap_shape)
+        cap_shape.text_frame.auto_size = True
+        cap_shape.text_frame.word_wrap = True
+        cap_shape.text_frame.paragraphs[0].alignment = PP_ALIGN.CENTER
         self.image = img 
 
+class Equation(Element):
+    def __init__(self, content, style, bounding_box):
+        super().__init__(content, style, bounding_box)
+
+    def render(self, slide):
+        left, top, width, height = self.bounding_box
+        resized_img_path, n_w, n_h = resize_image(self.content, width, height)
+        img = slide.shapes.add_picture(resized_img_path, Inches(left - (n_w - width)/2), Inches(top - (n_h - height)/2), Inches(n_w), Inches(n_h))
+        self.image = img 
+
+
+class Table(Element):
+    def __init__(self, content, style, bounding_box):
+        super().__init__(content, style, bounding_box)
+
+    def render(self, slide):
+        left, top, width, height = self.bounding_box
+        resized_img_path, n_w, n_h = resize_image(self.content, width, height)
+        img = slide.shapes.add_picture(resized_img_path, Inches(left - (n_w - width)/2), Inches(top - (n_h - height)/2), Inches(n_w), Inches(n_h))
+        self.image = img 
+        
+class Footer(Element):
+    def __init__(self, content, style, bounding_box, location):
+        super().__init__(content, style, bounding_box)
+        self.location = location
+    def render(self, slide):
+        left, top, width, height = self.bounding_box
+        textbox = slide.shapes.add_textbox(Inches(left), Inches(top), Inches(width), Inches(height))
+        textbox.text = self.content
+        self.apply_font_style(textbox)
+        textbox.text_frame.auto_size = True
+        textbox.text_frame.word_wrap = True
+        if self.location == 1:
+            textbox.text_frame.paragraphs[0].alignment = PP_ALIGN.LEFT
+        elif self.location == 3:
+            textbox.text_frame.paragraphs[0].alignment = PP_ALIGN.RIGHT
+        else:
+            textbox.text_frame.paragraphs[0].alignment = PP_ALIGN.CENTER
+
+        self.position_element(textbox)
+        self.textbox = textbox
+
+
 class PresentationGenerator:
-    def __init__(self, json_payload, name):
+    def __init__(self, json_payload, subject_name, slide_id, version):
         self.json_payload = json_payload
-        self.name = name
+        self.subject_name = subject_name
+        self.slide_id = slide_id
+        self.version = version
         self.presentation = Presentation()
+    
+    def insert_title_slide(self, MUL_FAC=1):
+        title_font = self.json_payload["slides"][0]["elements"]["title"][0]["style"]["font_name"]
+        title_slide = self.presentation.slides.add_slide(self.presentation.slide_layouts[0])
+        title_shape = title_slide.shapes.title
+        title_shape.text = self.json_payload['topic']
+        title_shape.left = Inches(0.5)
+        title_shape.top = Inches(2)
+        title_shape.width = Inches(9*MUL_FAC)
+        title_shape.height = Inches(1.25)
+        title_shape.text_frame.paragraphs[0].font.bold = True
+        title_shape.text_frame.paragraphs[0].font.size = Pt(48)
+        title_shape.text_frame.paragraphs[0].font.name = title_font
+        presenter = title_slide.shapes.add_textbox(Inches(3.5),Inches(3.25),Inches(3*MUL_FAC),Inches(0.75))
+        presenter.text = self.json_payload["presenter"]
+        presenter.text_frame.paragraphs[0].alignment = PP_ALIGN.CENTER
+        presenter.text_frame.paragraphs[0].font.italic = True
+        presenter.text_frame.paragraphs[0].font.size = Pt(28)
+        presenter.text_frame.paragraphs[0].font.name = title_font
+        date = title_slide.shapes.add_textbox(Inches(4),Inches(4),Inches(2*MUL_FAC),Inches(0.5))
+        date.text = self.json_payload["date"]
+        date.text_frame.paragraphs[0].alignment = PP_ALIGN.CENTER
+        date.text_frame.paragraphs[0].font.name = title_font
 
     def generate_presentation(self):
+        self.presentation.slide_width = Inches(13.333)
+        self.presentation.slide_height = Inches(7.5)
+        MUL_FAC = 1.33
+        self.insert_title_slide(MUL_FAC)
         for slide_info in self.json_payload['slides']:
-            slide_layout = self.presentation.slide_layouts[0]
+            slide_layout = self.presentation.slide_layouts[1]
             slide = self.presentation.slides.add_slide(slide_layout)
             slide.background.fill.solid()
             if slide_info['bg_color']:
@@ -140,16 +287,23 @@ class PresentationGenerator:
 
             for element_type, elements in slide_info['elements'].items():
                 for element_info in elements:
-                    if element_type == 'figure':
-                        element = Figure(element_info['path'], None, (element_info['xmin'], element_info['ymin'], element_info['width'], element_info['height']))
+                    if element_type == 'figures':
+                        element = Figure(element_info['path'], element_info['caption']['style'], (element_info['xmin'], element_info['ymin'], element_info['width'], element_info['height']), element_info['caption'])
+                    elif element_type == 'equations':
+                        element = Equation(element_info['path'], None, (element_info['xmin'], element_info['ymin'], element_info['width'], element_info['height']))
+                    elif element_type == 'tables':
+                        element = Table(element_info['path'], None, (element_info['xmin'], element_info['ymin'], element_info['width'], element_info['height']))
+                    elif element_type == 'url':
+                        element = Description(element_info['value'], element_info['style'], (element_info['xmin'], element_info['ymin'], element_info['width'], element_info['height']))
                     elif element_type == 'description':
                         if element_info['label'] == "enumeration":
-                            element = Enumeration(element_info['value'], element_info['style'], (element_info['xmin'], element_info['ymin'], element_info['width'], element_info['height']))
+                            element = Enumeration(element_info['value'], element_info['style'], (element_info['xmin'], element_info['ymin'], element_info['width'], element_info['height']), element_info['heading'])
                         else:
                             element = Description(element_info['value'], element_info['style'], (element_info['xmin'], element_info['ymin'], element_info['width'], element_info['height']))
                     elif element_type == 'title':
-                        print(element_info['value'])
                         element = Title(element_info['value'], element_info['style'], (element_info['xmin'], element_info['ymin'], element_info['width'], element_info['height']))
+                    elif element_type == 'footer':
+                        element = Footer(element_info['value'], element_info['style'], (element_info['xmin'], element_info['ymin'], element_info['width'], element_info['height']), element_info['location'])
                     else:
                         raise ValueError(f"Unsupported element type: {element_type}")
 
@@ -167,10 +321,14 @@ class PresentationGenerator:
         
         ppts_path = "./ppts/"
         if os.path.isdir(ppts_path) == False:
-            print("false")
             os.mkdir(ppts_path)
 
-        self.presentation.save(os.path.join(ppts_path, f'{self.name}.pptx'))
+        if not os.path.exists(os.path.join(ppts_path, self.subject_name)):
+            os.mkdir(os.path.join(ppts_path, self.subject_name))
+        if not os.path.exists(os.path.join(ppts_path, self.subject_name, self.slide_id)):
+            os.mkdir(os.path.join(ppts_path, self.subject_name, self.slide_id))
+
+        self.presentation.save(os.path.join(ppts_path, self.subject_name, self.slide_id, f'{self.version}.pptx'))
 
 def load_json_payload(file_path):
     with open(file_path, 'r') as file:
@@ -178,37 +336,61 @@ def load_json_payload(file_path):
 
 def main():
     # Load the JSON payload
-    buffer_folder_path = "./code/buffer"
+    print("Running PPT generator module...")
+    buffer_folder_path = "./code/buffer/full"
+    entries = os.listdir(buffer_folder_path)
+    # Filter out directories
+    directories = [entry for entry in entries if os.path.isdir(os.path.join(buffer_folder_path, entry))]
+    json_file_paths = []
+    for directory in directories:
+        subject_dir = os.path.join(buffer_folder_path, directory)
+        for root, dirs, files in os.walk(subject_dir):
+            for file in files:
+                if file.endswith('.json'):
+                    json_file_paths.append(os.path.join(root, file))
+    # print(directories)
+    # for directory in directories:
+    #     ppt_dirs = os.listdir(os.path.join(buffer_folder_path, directory))
+    #     unique_ppt_dirs = [ppt_dir for ppt_dir in ppt_dirs if os.path.isdir(os.path.join(buffer_folder_path, directory, ppt_dir))]
+        
+    # json_file_paths = []
+    # for ppt_dir in unique_ppt_dirs:
+    #     json_files = [f for f in os.listdir(os.path.join(buffer_folder_path, directory)) if f.endswith('.json')]
+    #     json_file_paths.append(os.path.join(buffer_folder_path, directory, json_files[-1]))
+    
+
     base_topic_folder_path = "./code/json"
 
-    json_files = [f for f in os.listdir(buffer_folder_path) if f.endswith('.json')]
 
-    for json_file in json_files:
+    for i, json_file in enumerate(json_file_paths):
         #Load JSON file from buffer
-        file_name, _ = os.path.splitext(json_file)
-        topic, id = file_name.split('_')
-        # print(topic)
-        # print(id)
-        name = f"{topic}_{id}"
-        json_file_path = os.path.join(buffer_folder_path, json_file)
-        json_payload = load_json_payload(json_file_path)
+        subject_name = os.path.basename(os.path.dirname(os.path.dirname(json_file)))
+        slide_id = os.path.basename(os.path.dirname(json_file))
+        version , _ = os.path.splitext(os.path.basename(json_file))
+        json_payload = load_json_payload(json_file)
 
         #Generate Presentation from JSON file and save it
-        presentation_generator = PresentationGenerator(json_payload, name)
+        presentation_generator = PresentationGenerator(json_payload, subject_name, slide_id, version)
         presentation_generator.generate_presentation()
-        print(f"Presentation generated successfully for {name}.")
+        # print(f"Presentation generated successfully for {slide_id}.")
 
-        #Move JSON file from buffer to respective topic folder
-        destination_folder_path = os.path.join(base_topic_folder_path, topic)
-        if not os.path.exists(destination_folder_path):
-            os.makedirs(destination_folder_path)
-
-        destination_file_path = os.path.join(destination_folder_path, json_file)
-        os.rename(json_file_path, destination_file_path)
-        print(f"Moved {json_file} to {destination_folder_path}.")
-        print('\n')
+    final_json_path = 'code\\json\\final'
+    for i, json_file in enumerate(json_file_paths):
+        subject_name = os.path.basename(os.path.dirname(os.path.dirname(json_file)))
+        slide_id = os.path.basename(os.path.dirname(json_file))
+        version , _ = os.path.splitext(os.path.basename(json_file))
+        if not os.path.exists(os.path.join(final_json_path, subject_name)):
+            os.mkdir(os.path.join(final_json_path, subject_name))
+        if not os.path.exists(os.path.join(final_json_path, subject_name, slide_id)):
+            os.mkdir(os.path.join(final_json_path, subject_name, slide_id))
+        final_json_file = os.path.join(final_json_path, subject_name, slide_id, f'{version}.json')
+        
+        if os.path.exists(json_file):
+            os.rename(json_file, final_json_file)
     
-    print("All presentations generated and files moved successfully.")
+    shutil.rmtree('code/buffer/temp')
+    
+    print("🟢 All presentations generated and files moved successfully.\n")
 
 if __name__ == "__main__":
     main()

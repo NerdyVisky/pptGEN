@@ -3,9 +3,9 @@
 
 outline_prompt = [
             ("system", "You are a helpful university professor and you are guiding your PhD student to create an outline for the lecture he will deliver to a class."),
-            ("human", """I would like to get help designing a detailed Table of Contents for an advanced university presentation lecture on {topic}. Please help me create the Table of Content in form of a Python dict.\n
+            ("human", """I would like to get help designing a detailed Table of Contents for an advanced university presentation lecture on {topic} based on the book {book}. Please help me create the Table of Content in form of a Python dict.\n
 Example:\n
-Input Topic : Tree Data Structures
+Input: Tree Data Structures based on the book Data Structures and Algorithms made easy.\n 
 Expected Output:\n
 [
     "Introduction : Definition & Characteristics",
@@ -27,7 +27,7 @@ Expected Output:\n
     "Summary of Trees"
 ]
              \n
-             I want you to provide the output in form of a python list of strings having slide titles of each slide. The length of the list will be the total number of slides in the presentation. Do not generate more than 15 slide titles.           
+             I want you to provide the output in form of a python list of strings having slide titles of each slide. The length of the list will be the total number of slides in the presentation. Do not generate more than 15 slide titles and each title should have maximum of 5 words.       
              Just return the output without the conversation.""")
         ]
 instruction_example = [
@@ -143,11 +143,12 @@ instruction_prompt = ("human", """Hello. I want you to help me prepare lecture s
                  Outline :{outline}
                  Each element in the object is a slide where the value represent the slide title. I want you to add two keys namely 'element_type' and 'element_caption' for each subsection and determine which types of elements would be most beneficial to understand that subsection.\n
                  The elements can be as follows: {elements}.\n
-                 You should provide two elements per slide.\n
+                 You should generate exactly two elements per slide. Do not generate more of less elements per slide.\n
                  Whenever possible generate atleast one text based element (Description, URL, or Enumeration) and one visual element (Rest of the elements) per subsection, such that there is diversity in elements.\n
                  As a rule of thumb, make sure the distribution of elements is nearly same for the entire presentation.\n 
                  I want you to generate the results within the outline and only output the revised outline without any conversation.\n
                  Do not generate the slide numbers in the output, they are just for your reference.
+                 Your output should be in form of a Python Dict.
                  """)
 
 
@@ -160,39 +161,12 @@ instruction_example_prompt = [
                  You should provide one or two elements per slide.\n
                  Whenever possible generate atleast one text based element (Description, URL, or Enumeration) and one visual element (Rest of the elements) per subsection, such that there is diversity in elements.\n
                  As a rule of thumb, make sure the distribution of elements is nearly same for the entire presentation.\n 
+                 And prefer suggesting more enumerations and urls in text content as they are easier to understand in a presentation.\n
                  I want you to generate the results within the outline and only output the revised outline without any conversation.\n
+                 Your output should be in form of a Python Dict.
                  """),
                  ("ai", "{output}")
             ]
-
-
-generation_prompt =  [
-                ("system", "You are an capable and expert content creator. You can create multi-modal content such as text, images, code, etc. You also have access to all internet sources at your discretion."),
-                ("human", """
-                 I am a university professor and I want to create lecture slides on the topic of {topic}\n
-                 I am providing you the Table of Contents for the same:\n
-                 {outline}
-                 \n
-                 Within each subsection of the Table of Contents, I have the list of element types I want to render while explaining that particular subsection with element_caption as the instruction to generate the element.\n
-                 Generate presentation content by keeping the following instructions in mind:\n
-                 1. Each section in the Table of Contents must be a title slide with no body elements.\n
-                 2. Each subsection in the Table of Contents should have the key name as the title with the body elements described by element_type, and element_caption.\n
-                 3. Depending on the element_type for each element in a subsection, you have to generate appropriate modality of the content. Consider the following guidelines for specific element_types:\n
-                 \t a. For element_type = 'description', you have to generate paragraph style element named description which explains or gives brief introduction to the topic.
-                 \t b. For element type = 'enumeration', you have to generate point-wise style element named enumeration. An enumeration can be a single point.\n
-                 \t c. For element_type = 'url', you have to generate a hyperlink to a URL according to element_caption. You can use any link as URL.\n
-                 \t e. For element_type = 'equation', you have to generate LaTex Code depending on the instruction given in element_caption.\n
-                 \t f. For element_type = 'table', you have to generate a table depending on the instruction given in element_caption. Use Latex code.\n
-                 \t g. For element_type = 'flowchart', you have to generate a flowchart depending on the instruction given in element_caption. Use Latex code. Follow the general guidelines for a flowchart, like each node should be a node with shape as per its use, arrows should be directional.\n
-                 \t h. For element_type = 'graph', you have to generate LaTex Code depending on the instruction given in element_caption. Graphs are figures with nodes and vertices. Each element in graph should be labelled if required.\n
-                 \t i. For element_type = 'diagram', you have to generate LaTex Code depending on the instruction given in element_caption. Diagrams can be simple block diagrams representing an entity or Venn Diagrams.\n
-                 4. The first point in an enumeration is the heading of the enumeration.\n
-                 I want you to generate have atleast 3 elements per subtopic.\n
-                 The presentation content should be generated in form of a JSON object. The presentation ID is {presentation_ID}
-
-                 """)
-            ]
-
 
 text_generation_example = [
     {
@@ -220,9 +194,11 @@ text_generation_example = [
         """,
         "topic": "Tree Data Structure",
         "presentation_ID": 12451,
+        "subject": "CS",
         "output": """
 {
 "presentation_ID": 12451,
+"subject": 'CS'
 "topic": Tree Data Structure,
 "slides":[
       {
@@ -274,7 +250,7 @@ text_generation_example = [
     }
 ]
 text_generation_ex_prompt = [
-                ("human", """I am providing you with some instructions given to generate content for a presentation on {topic}\n
+                ("human", """I am providing you with some instructions given to generate content for a presentation on {topic} of the subject {subject}\n
 The instructions have Slide Title as key and the value is a list of object describing what text/visual elements are required to explain that concept\n
 I want you to focus on generating the actual content for only the text elements, i.e. description, enumeration, and url.\n
 Following are the instructions:\n
@@ -366,15 +342,21 @@ def construct_generation_prompts(instruct_content, topic):
     Generate LaTeX code as plain text seperated by ```latex<content>``` and three line breaks.\n
     Do not add a caption to the table/equation and do not provide any conversation.\n
     For equations do not generate equation numbers like (1) as these are single equations to be rendered in a presentation.\n
+    Keep the following in mind:\n
+    Verify the syntax of the LaTeX code that you generate.\n
     Do not generate additional elements unless they are part of the above request. Once generating the all the code snipptes, verify that the total number of snippets generated are the same as total number of requests."""
     prompts[1] += """
     Generate python code using Matplotlib as plain text seperated by ```python<content>``` and three line breaks.\n
-    Each generated plot shoule be saved to 'code/buffer/figures/<num>.png' where <num> is numerical order of the code snippet. (First snippet is 1, Second is 2, etc.)\n 
+    Each generated plot shoule be saved to 'code/buffer/figures/<num>.png' where <num> is numerical order of the code snippet. (First snippet is 1, Second is 2, etc.)\n
+    Keep the following in mind:\n
+    Verify the syntax of the matplotlib code that you generate and do not import additional libraries.\n
     Do not generate a title for the plot and do not give any conversation.\n
     Do not generate additional elements unless they are part of the above request. Once generating the all the code snipptes, verify that the total number of snippets generated are the same as total number of requests."""
     prompts[2] += """
     Generate DOT language code as plain text seperated by ```dot<content>``` and three line breaks. Make sure to not make any syntax errors, and hence double check each output code snippet.\n
-    Do not add a caption to the diagram/chart, etc. and do not provide any conversation.\n
+    Keep the following in mind:\n
+    Verify the syntax of the DOT Language code that you generate.\n
+    Strictly do not add any caption to the diagram/chart, etc. and do not provide any conversation.\n
     Do not generate additional elements unless they are part of the above request. Once generating the all the code snipptes, verify that the total number of snippets generated are the same as total number of requests."""
     # Return the constructed prompts
-    return [prompts, positions, captions]
+    return [prompts, positions, captions, [n_s, n_p, n_f]]

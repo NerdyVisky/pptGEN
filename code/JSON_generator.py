@@ -86,7 +86,38 @@ def generate_random_slide(slide_number, data, style_obj, footer_obj, presentatio
     date = style_obj["date"]
     n_elements_list = count_body_elements(data, slide_number)
     total_body_elements = sum(n_elements_list)
-
+    topic = data["topic"]
+    title_dark, title_light = style_obj['title_font_dark'], style_obj['title_font_light']
+    # Title Generation
+    ## Generate Font-level random values for Title 
+    title_font, font_color = generate_contrasting_font_color(bg_color, title_dark, title_light)
+    ## Fetch Random content
+    title_content = data["slides"][slide_number - 1]["title"]
+    if(total_body_elements > 3):
+        slide = {
+             "pg_no": slide_number,
+             "bg_color": bg_color,
+             "slide_layout": 0,
+             "elements": {}
+        }
+        slide['elements']['title'] = [{
+            "label": "title",
+            "value": title_content,
+            "xmin": 0.5,
+            "ymin": 2,
+            "width": 9*1.33,
+            "height": 1.25,
+            "style": {
+                "font_name": title_font_family,
+                "font_size": title_font_attr["font_size"],
+                "font_color": title_font,
+                "bold": title_font_bold,
+                "italics": False,
+                "underlined": False,
+                "h_align": title_align
+            }
+        }]
+        return slide
 
     # Generate random slide layout
     layout_id = generate_random_layout(total_body_elements)
@@ -100,13 +131,6 @@ def generate_random_slide(slide_number, data, style_obj, footer_obj, presentatio
         "slide_layout": layout_id,
         "elements": {}
     }
-    title_dark, title_light = style_obj['title_font_dark'], style_obj['title_font_light']
-    # Title Generation
-    ## Generate Font-level random values for Title 
-    title_font, font_color = generate_contrasting_font_color(bg_color, title_dark, title_light)
-    ## Fetch Random content
-    title_content = data["slides"][slide_number - 1]["title"]
-    # print(title_content)
 
     ## Putting it together for the title object
     slide['elements']['title'] = [{
@@ -167,6 +191,7 @@ def generate_random_slide(slide_number, data, style_obj, footer_obj, presentatio
             enum_instance = {
             "label": "enumeration",
             "heading": {
+                "label": 'heading',
                 "value": enum[0],
                 "xmin": all_dims['body'][element_index]['left'],
                 "ymin": all_dims['body'][element_index]['top'],
@@ -200,7 +225,6 @@ def generate_random_slide(slide_number, data, style_obj, footer_obj, presentatio
             font_obj = generate_random_font("url")
             desc = data["slides"][slide_number - 1]["url"]
             desc_instance = {
-            "label": "url",
             "value": desc,
             "xmin": all_dims['body'][element_index]['left'],
             "ymin": all_dims['body'][element_index]['top'],
@@ -270,6 +294,7 @@ def generate_random_slide(slide_number, data, style_obj, footer_obj, presentatio
             fig_instance = {
             "label": label,
             "caption": {
+                "label": "caption",
                 "value": data["slides"][slide_number - 1]["figures"][i]["desc"],
                 "xmin": all_dims['body'][element_index]['left'],
                 "ymin": all_dims['body'][element_index]['top'] + all_dims['body'][element_index]['height'] - 0.35,
@@ -305,7 +330,7 @@ def generate_random_slide(slide_number, data, style_obj, footer_obj, presentatio
             value = str(slide_number)
         if 'footnote' in obj.keys():
             footer_type = 'footnote'
-            value = "This is a footnote"
+            value = topic
         if 'date' in obj.keys():
             footer_type = 'date'
             value = date         
@@ -335,18 +360,21 @@ def generate_random_slide(slide_number, data, style_obj, footer_obj, presentatio
 
 if __name__ == "__main__":
     # num_files = 3
+    print("Running layout discriminator module...")
     temp_dir = 'code/temp'
     entries = os.listdir(temp_dir)
     directories = [entry for entry in entries if os.path.isdir(os.path.join(temp_dir, entry))]
-    DUP_FAC = 3
+    DUP_FAC = 2
     for directory in directories:
         json_files = [f for f in os.listdir(os.path.join(temp_dir,directory)) if f.endswith('.json')]
-        for json_file in json_files: 
+        n_json_files = len(json_files)
+        for i, json_file in enumerate(json_files): 
             presentation_ID, _ = os.path.splitext(json_file)
             file_path = os.path.join(temp_dir, directory, json_file)
             with open(file_path, 'r') as file:
                 data = json.load(file)
             n_slides = len(data["slides"])
+            subject = data["subject"]
             for ver in range(DUP_FAC):
                 style_obj = generate_random_style_obj()
                 footer_obj = generate_footer_obj()
@@ -355,6 +383,7 @@ if __name__ == "__main__":
                     "slide_id": presentation_ID,
                     "n_slides": len(slides),
                     "topic" : data["topic"],
+                    "subject": subject,
                     "presenter": pick_random_presenter(),
                     "date": generate_random_date(),
                     "slides": slides
@@ -366,16 +395,7 @@ if __name__ == "__main__":
 
                 with open(f"code\\buffer\\full\\{directory}\\{presentation_ID}\\{ver + 1}.json", 'w') as json_file:
                     json.dump(new_data, json_file, indent=3)
-                print(f"{presentation_ID}_{ver + 1} JSON file created successfully")
-                # try:
-                #     if not os.path.exists(f'code\\json\content\\{directory}'):
-                #         os.mkdir(f'code\json\content\{directory}')
-                #         os.rename(file_path, f'code\\json\content\\{directory}\\{presentation_ID}.json')
-                # except:
-                #     pass
 
+            print(f"🟢 ({i+1}/{n_json_files}): generated {DUP_FAC} layouts for {presentation_ID}")
+    print('\n')
 
-    # #Delete content JSON files
-    # for json_file in json_files:
-    #     os.remove(os.path.join(buffer_dir, json_file))
-    

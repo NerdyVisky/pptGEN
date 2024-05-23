@@ -7,24 +7,17 @@ ppts/
 !ppts/sample.txt
 
 dataset/
-!dataset/json/sample.txt
-!dataset/ppts/sample.txt
 
-
+code/data/
 code/json/
-!code/json/sample.txt
 code/buffer/
-!code/buffer/sample.txt
 code/temp/
-!code/temp/sample.txt
 
-code/data/slide_summary.json
 
 code/test.py
 code/code.py
 code/plot_test.py
 
-demo_20/
 demo_20.zip
 desired_struct.json
 

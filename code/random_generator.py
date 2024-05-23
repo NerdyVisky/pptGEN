@@ -1,226 +1,200 @@
-import random
-from datetime import datetime
-
-FONT_STYLES = [
-    "Arial",
-    "Calibri",
-    "Times New Roman",
-    "Verdana",
-    "Georgia",
-    "Tahoma",
-    "Garamond",
-    "Trebuchet MS",
-    "Gill Sans MT",
-    "Century Gothic",
-    "Palatino Linotype",
-    "Cambria",
-    "Franklin Gothic Book",
-    "Lucida Sans"
-]
-
-TITLE_COLORS_DARK = [
-    {"r": 0, "g": 0, "b": 128},    # Navy Blue
-    {"r": 220, "g": 20, "b": 60},   # Crimson
-    {"r": 0, "g": 128, "b": 0},     # Emerald Green
-    {"r": 218, "g": 165, "b": 32},  # Goldenrod
-    {"r": 75, "g": 0, "b": 130},    # Royal Purple
-    {"r": 0, "g": 128, "b": 128},   # Teal
-    {"r": 204, "g": 85, "b": 0},    # Burnt Orange
-    {"r": 128, "g": 0, "b": 32},    # Burgundy
-    {"r": 112, "g": 128, "b": 144}, # Slate Gray
-    {"r": 255, "g": 0, "b": 255}    # Magenta
-]
-TITLE_COLORS_LIGHT = [
-    {"r": 255, "g": 215, "b": 0},     # Gold
-    {"r": 255, "g": 69, "b": 0},       # Orange-Red
-    {"r": 65, "g": 105, "b": 225},     # Royal Blue
-    {"r": 0, "g": 206, "b": 209},      # Turquoise
-    {"r": 255, "g": 165, "b": 0},      # Orange
-    {"r": 255, "g": 140, "b": 0},      # Dark Orange
-    {"r": 255, "g": 20, "b": 147},     # Deep Pink
-    {"r": 128, "g": 0, "b": 128},      # Purple
-    {"r": 255, "g": 69, "b": 0},       # Red-Orange
-    {"r": 255, "g": 192, "b": 203}     # Pink
-]
-
-H_ALIGNMENTS = [
-    'left',
-    'center',
-    'right',
-    'justify'
-]
-
-V_ALIGNMENTS = [
-    'top',
-    'middle',
-    'bottom'
-]
-
-PRESENTERS = [
-    "Dr. Marcella Nguyen",
-    "Prof. Benjamin Frost",
-    "Dr. Isabella Patel",
-    "Prof. Nathanial Lawson",
-    "Dr. Lydia Chen",
-    "Prof. Winston Harper",
-    "Dr. Gabrielle Santiago",
-    "Prof. Marcus Sinclair",
-    "Dr. Elena Petrov",
-    "Prof. Desmond Washington",
-    "Dr. Sophia Alvarez",
-    "Prof. Samuel Fitzgerald",
-    "Dr. Emily Roberts",
-    "Prof. Xavier Lee",
-    "Dr. Fiona O'Malley",
-    "Prof. Harrison Grant",
-    "Dr. Vivian Chang",
-    "Prof. Gregory Jensen",
-    "Dr. Jasmine Khan",
-    "Prof. Oliver Martin"
-]
-
-
-def generate_random_color(PROB=0.6):
-    if random.random() > PROB:
-        return {"r": random.randint(0, 255), "g": random.randint(0, 255), "b": random.randint(0, 255)}
-    else:
-        return {"r": 255, "g": 255, "b": 255}   
-
-def generate_random_font(element):
-    bold = False
-    underline = False
-    italics = False
-    if element == "title":
-        font_size = random.randint(16, 28) * 2
-    elif element == "description":
-        font_size = random.randint(18, 28)
-    elif element == 'enumeration':
-        font_size = random.randint(22, 32)
-    elif element == 'url':
-        font_size = random.randint(12, 18)
-    return {
-        "font_size": font_size,
-        "bold": bold,
-        "underline": underline,
-        "italics": italics
-    }
-
-def generate_random_value(type, lb, ub):
-    if type == int:
-        return random.randint(lb, ub)
-    elif type == float:
-        return random.uniform(lb, ub)
-
-def pick_random_presenter():
-    return pick_random(PRESENTERS)
-
-def generate_random_date():
-    formats = ["%d %b %Y", "%B %dth", "%d %b %Y", "%B %Y"]
-    chosen_format = random.choice(formats)
-    
-    if "th" in chosen_format:
-        date_str = datetime(year=random.randint(2018, 2024), month=random.randint(1, 12), day=random.randint(1, 28))  # Assuming maximum 28 days in a month for simplicity
-    else:
-        date_str = datetime(year=random.randint(2018, 2024), month=random.randint(1, 12), day=random.randint(1, 30))
-    
-    return date_str.strftime(chosen_format)
-
-def generate_footer_obj():
-    showSN = random.random() > 0.25
-    showDt = random.random() > 0.5
-    showFN = random.random() > 0.75 
-    total_footer_elements = 0
-    if showSN:
-        total_footer_elements += 1
-    if showDt:
-        total_footer_elements += 1
-    if showFN:
-        total_footer_elements += 1
-    inds = random.sample(range(3), total_footer_elements)
-    i = 0
-    footer_inds = []
-    if showSN:
-        footer_inds.append({"slideNr": inds[i]})
-        i+=1
-    if showDt:
-        footer_inds.append({"date": inds[i]})
-        i+=1
-    if showFN:
-        footer_inds.append({"footnote": inds[i]})
-        i+=1
-    return footer_inds
-
-
-    
-def generate_random_style_obj():
-    style_obj = {}
-    style_obj["bg_color"] = generate_random_color(0.6)
-    style_obj["title_font_family"] = pick_random(FONT_STYLES) 
-    style_obj["title_font_bold"] = random.random() > 0.75
-    style_obj["title_font_attr"] = generate_random_font("title")
-    style_obj["title_align"] = 'center' if random.random() > 0.33 else 'left'
-    style_obj['title_font_dark'] = pick_random(TITLE_COLORS_DARK)
-    style_obj['title_font_light'] = pick_random(TITLE_COLORS_LIGHT)
-    style_obj["desc_font_family"] = pick_random(FONT_STYLES)
-    style_obj["desc_font_attr"] = generate_random_font("description")
-    style_obj["date"] = generate_random_date()
-    return style_obj
-
-def pick_random(list_name):
-    if list_name == 'alignments':
-        return [random.choice(H_ALIGNMENTS), random.choice(V_ALIGNMENTS)]
-    else:
-        return random.choice(list_name)
-
-def generate_random_layout(total_body_elements):
-    layout_mapping = {
-        0: [0],
-        1: [1], 
-        2: [2, 3],
-        3: [4, 5, 6, 7, 8]
-        }
-    return random.choice(layout_mapping[total_body_elements])
-
-def generate_n_numbers_with_sum(sum_value, n):
-    numbers = [0] * n
-    for i in range(n-1):
-        numbers[i] = random.randint(0, sum_value - sum(numbers))
-
-    numbers[-1] = sum_value - sum(numbers[:-1])
-    return numbers
-
-def calculate_relative_luminance(color):
+few_shot_examples = [
+  {
+           "presentation_ID": 11111,
+           "topic": "0/1 Knapsack Problem",
+           "outline": """
+            The 0/1 Knapsack problem is a fundamental conundrum in computer science, tasked with maximizing value while respecting weight constraints. Its premise involves selecting items from a given set, each with an associated weight and value, to fill a knapsack of limited capacity. The challenge lies in determining the optimal combination of items to maximize the total value without surpassing the knapsack's weight limit. This problem is commonly tackled using dynamic programming techniques, where a table is filled iteratively to compute the maximum value achievable for various subproblems. The algorithm progresses by considering each item sequentially and updating the table with the maximum value achievable at each weight capacity. Once the table is fully populated, the solution can be found in its last cell, representing the maximum value attainable with the given constraints. Real-life applications of the 0/1 Knapsack problem span diverse domains. It finds utility in resource allocation for project management, portfolio optimization in finance, packet routing in telecommunications, cargo loading in transportation, and inventory management in retail. These applications leverage the problem's ability to efficiently optimize resource allocation, making it a crucial tool in decision-making processes across various industries.
+            """,
+           "ppt_content":
+           """
+       {{
+        "presentation_ID": 11237,
+        "topic": "0/1 Knapsack Problem"
+        "slides": [
+           {{
+              "slide_number": 1,
+              "title": "Solving the 0/1 Knapsack Problem",
+              "description": "Djikstra's Algorithm is a foundational tool in computer science for finding the shortest path between nodes in a graphExploring Dynamic Programming Approaches",
+              "enumeration": [],
+              "equations": []
+           }},
+           {{
+              "slide_number": 2,
+              "title": "Introduction to 0/1 Knapsack",
+              "description": "Definition: A classic optimization problem in computer science and combinatorial optimization. Given a set of items, each with a weight and a value, determine the number of each item to include in a knapsack so that the total weight is less than or equal to a given limit, and the total value is maximized.",
+              "enumeration": [
+                  "Widely applicable in various fields such as resource allocation, finance, and logistics.",
+                  "Foundation for understanding dynamic programming techniques."
+              ],
+              "equations": []
+           }},
+           {{
+              "slide_number": 3,
+              "title": "0/1 Knapsack: Pseudocode",
+              "description": "Dynamic Programming Algorithm for 0/1 Knapsack:",
+              "enumeration": [
+                  "-> Initialize a 2D array 'dp' of size (n+1) x (W+1)",
+                  "-> Iterate over each item and each possible weight capacity.",
+                  "-> At each step, determine whether including the current item would increase the total value.",
+                  "-> Update the 'dp' table accordingly.",
+                  "-> The final entry in 'dp[n][W]' contains the maximum achievable value."
+              ],
+              "equations":[
+                {{
+                "eq_desc": "DP Algorithm for 0/1 Knapsack",
+                "tex_code": "$DP[i][j] = \\max(DP[i-1][j], DP[i-1][j - w[i]] + v[i])$"
+                }}
+              ]
+           }},
+           {{
+              "slide_number": 4,
+              "title": "Use Cases",
+              "description": "0/1 Knapsack has a wide range of applications.",
+              "enumeration": [
+                 "Resource allocation in project management.",
+                 "Portfolio optimization in finance.",
+                 "Cargo loading in transportation logistics.",
+                 "Subset selection in machine learning feature engineering."
+              ],
+              "equations": []
+           }}
+        ]
+        }}
+           """
+       },
+  {
+    "presentation_ID": 22222,
+    "topic": "Language Modeling, Syntax, Parsing",
+    "context": """
+      Natural Language Processing (NLP) is a vast field concerned with the interaction between computers and human language. A core subfield within NLP is Language Modeling (LM), which deals with statistically analyzing and representing language patterns. LMs learn the probabilities of word sequences, enabling them to predict the next word in a sequence, generate text, translate languages, and perform other tasks involving human language.
+      The interplay between language modeling, syntax, and parsing is crucial for various NLP applications. LMs benefit from syntactic knowledge to generate more coherent and grammatically correct text. Parsing empowers computers to extract meaning from sentences by understanding their structure. Together, these concepts lay the foundation for tasks like machine translation, sentiment analysis, question answering, and text summarization.
+      """,
+    "ppt_content": """
+    {{
+      "presentation_ID": 11404,
+      "topic": "Language Modeling, Syntax, Parsing"
+      "slides": [
+        {{
+          "slide_number": 1,
+          "title": "Language Modeling, Syntax, and Parsing",
+          "description": "Cornerstones of Natural Language Processing (NLP)",
+          "enumeration": [],
+          "equations": []
+        }},
+        {{
+          "slide_number": 2,
+          "title": "Language Modeling (LM)",
+          "description": "Statistical analysis and representation of language patterns.",
+          "enumeration": [
+            "Predicting next words in sequences",
+            "Text generation",
+            "Machine translation",
+            "Understanding word relationships"
+          ],
+          "equations": [
+            {{
+              "eq_desc": "LM Probability Distribution",
+              "tex_code": "$P(w_n | w_1, w_2, ..., w_[n-1])$"
+            }}
+          ]
+        }},
+        {{
+          "slide_number": 3,
+          "title": "Syntax",
+          "description": "The grammatical structure of language",
+          "enumeration": [
+            "Rules for combining words into phrases and sentences",
+            "Ensuring grammatically correct structures",
+            "Understanding word order and relationships"
+          ],
+          "equations": [
+            {{
+              "eq_desc": "Example Context-Free Grammar Rule",
+              "tex_code": "VP -> VB NP"
+            }}
+          ]
+        }},
+        {{
+          "slide_number": 4,
+          "title": "Parsing",
+          "description": "Analyzing sentences and their structure",
+          "enumeration": [
+            "Breaking down sentences into constituents (words, phrases)",
+            "Identifying syntactic relationships",
+            "Understanding sentence structure for meaning extraction"
+          ],
+          "equations": []
+        }},
+        {{
+          "slide_number": 5,
+          "title": "Interplay and Applications",
+          "description": "Synergy for NLP tasks",
+          "enumeration": [
+            "LMs leveraging syntax for coherent text generation",
+            "Parsing for semantic understanding",
+            "Foundation for tasks like machine translation, sentiment analysis, question answering, and text summarization"
+          ],
+          "equations": []
+        }}
+      ]
+    }}
     """
-    Calculate the relative luminance of a color.
-    Input: color - a dictionary with 'r', 'g', 'b' keys representing RGB values.
-    Output: float - relative luminance value.
-    """
-    r, g, b = color['r'], color['g'], color['b']
-    # Convert RGB values to sRGB
-    r_srgb = r / 255.0
-    g_srgb = g / 255.0
-    b_srgb = b / 255.0
-    
-    # Calculate relative luminance
-    luminance = 0.2126 * r_srgb + 0.7152 * g_srgb + 0.0722 * b_srgb
-    return luminance
+  }
+]
 
-def generate_contrasting_font_color(bg_color, title_dark, title_light):
-    """
-    Generate a contrasting font color for a given background color.
-    Input: bg_color - a dictionary with 'r', 'g', 'b' keys representing RGB values.
-    Output: dictionary - a dictionary with 'r', 'g', 'b' keys representing RGB values of the font color.
-    """
-    luminance = calculate_relative_luminance(bg_color)
-    
-    # Choose a contrasting color based on the luminance
-    if luminance > 0.5:
-        # Background is light, use dark font color
-        font_color = {"r": 0, "g": 0, "b": 0} # Black
-        title_font = title_dark
-    else:
-        # Background is dark, use light font color
-        font_color = {"r": 255, "g": 255, "b": 255} # White
-        title_font = title_light
-        
-    return title_font, font_color
+
+suffix = """
+       Look at the above examples and help me create the content for a presentation of the following details:
+       Topic : {topic}\n
+       Refer the following context when you make the presentation:\n
+       {context}
+       The presentation ID is {presentation_ID}.
+       """
+
+prefix = f"""
+        I am a university professor and I want you to help me prepare content of presentations based on a lecture topic I will provide.
+        You can access to all online resources and the context I proivde on the provided topic\n
+        I want you to provide slide-wise detailed content in a JSON format. Make sure you understand the semantic meaning of each title to generate body content for that slide. Make use of bulleted enumerations, and maintain coherence from one slide to the next.
+        I am also providing context to generate the content. Generate content only based on the context I provide. 
+        \nAdditionally, I am sharing a few examples where "User" is my prompt and "Expected JSON Output" is the expected output.\n
+   """
+template = """
+       I am a university professor and I want you to help me prepare a presentation on the topic of {topic}\n
+       Prepare the actual content based on your knowledge of the topic \n
+       The presentation must have 6 slides on {topic}
+       First determine an appropriate Table of Contents of the presentation.
+       Each slide should have a title, and two textboxes - one paragraph-style (named description), and one point-wise-style (named enumeration)\n
+       The title should be between 1 to 4 words.\n
+       The description textbox should be between 10-50 words.\n
+       The enumeration should be rendered as a list where each element is a string is a bullet point of length between 1 to 4 words.
+       Equation is mandatory for each ppt, that means atleast on one slide. Determine whether you require an equation to explain a concept described in the slide and then generate the LaTex format of the equation.
+       Consider this an advanced university level course, and prepare the depth of content accordingly.
+       \n I am providing you a unique presentation_ID for each presentation which you need to attach as a key in your JSON output: {presentation_ID}
+       \n\n
+       """
+
+few_shot_template = """
+       User:\n
+       Create presentation content for a lecture to be presented on {topic}\n
+       Use the following context to derive knowledge about the topic:\n
+       {context}
+       \n
+       Keep the following requirements in mind:\n
+       1. The presentation must have 6 slides.
+       2. Each slide should have a title, and two textboxes - one paragraph-style (named description), and one point-wise-style (named enumeration)\n
+       3. The title should be between 1 to 4 words.\n
+       4. The description textbox should be between 10-50 words.\n
+       5. The enumeration should be rendered as a list where each element is a string is a bullet point.
+       6. The equation is mandatory for each ppt, that means atleast on one slide. Determine whether you require an equation to explain a concept described in the slide and then generate the LaTex format of the equation.
+       
+       Consider this an advanced university level course, and prepare the depth of content accordingly. Keep the content as detailed as possible.\n
+       \n I am providing you a unique presentation_ID for each presentation which you need to attach as a key in your JSON output: {presentation_ID}
+       \n\n
+       Expected JSON Output:\n
+       {ppt_content}
+       """
+
+sample_context = """
+Dijkstra's algorithm is a foundational method in computer science used for finding the shortest paths between nodes in a graph, particularly in weighted graphs with non-negative edge weights. Named after Dutch computer scientist Edsger W. Dijkstra, the algorithm efficiently explores the graph from a starting node outward, iteratively updating the shortest distance to each node it encounters. It maintains a priority queue or a set to keep track of the nodes whose shortest distances from the source have not yet been finalized. At each iteration, it selects the node with the smallest tentative distance and relaxes the distances of its neighboring nodes, potentially reducing their tentative distances. This process continues until all nodes have been visited or until the shortest path to the target node is found. Dijkstra's algorithm guarantees the shortest path under the condition that the graph does not contain negative weight cycles.\n
+Real-life applications of Dijkstra's algorithm are widespread across various domains. In transportation networks, it can be used to find the shortest route between two locations on a road map, optimizing travel time or distance for navigation systems. Similarly, in telecommunications, it aids in routing data packets through networks efficiently, minimizing latency and congestion. Additionally, Dijkstra's algorithm finds utility in network routing protocols, such as the Open Shortest Path First (OSPF) protocol used in Internet Protocol (IP) networks, where it determines the shortest paths between routers to facilitate packet forwarding. Moreover, it is employed in logistics and supply chain management to optimize delivery routes, reducing transportation costs and improving delivery times. By enabling efficient pathfinding in various applications, Dijkstra's algorithm plays a crucial role in enhancing efficiency and performance across diverse industries.
+"""

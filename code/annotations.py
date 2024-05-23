@@ -162,16 +162,16 @@ def show_annotations(filename):
 
 def main():
   # to correct Annotations
-  # correction()
+  correction()
   # to show Annotations
-  for subject in os.listdir("dataset/json"):
-    for topic in os.listdir(f"dataset/json/{subject}"):
-      for json_file in os.listdir(f"dataset/json/{subject}/{topic}"):
-        if json_file.endswith(".json"):
-          print(f"{subject}/{topic}/{json_file.split('.')[0]}")
-          show_annotations(f"{subject}/{topic}/{json_file.split('.')[0]}")
-        break
-      break
+  # for subject in os.listdir("dataset/json"):
+  #   for topic in os.listdir(f"dataset/json/{subject}"):
+  #     for json_file in os.listdir(f"dataset/json/{subject}/{topic}"):
+  #       if json_file.endswith(".json"):
+  #         print(f"{subject}/{topic}/{json_file.split('.')[0]}")
+  #         show_annotations(f"{subject}/{topic}/{json_file.split('.')[0]}")
+  #       break
+  #     break
 
 if __name__ == "__main__":
   main()

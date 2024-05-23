@@ -13,4 +13,5 @@ python 'D:\AakashYadav\00 IITJ RAI\00_SlideReconstruction\pptGEN\code\JSON_gener
 python 'D:\AakashYadav\00 IITJ RAI\00_SlideReconstruction\pptGEN\code\PPT_generator.py'
 python 'D:\AakashYadav\00 IITJ RAI\00_SlideReconstruction\pptGEN\code\pptx_to_png.py'
 python 'D:\AakashYadav\00 IITJ RAI\00_SlideReconstruction\pptGEN\code\annotations.py'
-
+python 'D:\AakashYadav\00 IITJ RAI\00_SlideReconstruction\pptGEN\code\utils\tracer.py'
+python 'D:\AakashYadav\00 IITJ RAI\00_SlideReconstruction\pptGEN\code\utils\junkfiles.py'

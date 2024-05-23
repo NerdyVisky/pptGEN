@@ -55,6 +55,17 @@ V_ALIGNMENTS = [
     'middle',
     'bottom'
 ]
+DAYS = list(range(1, 28))
+MONTHS = [
+    "January", "February", "March", "April", "May", "June",
+    "July", "August", "September", "October", "November", "December"
+]
+YEARS = list(range(2014, 2024))
+
+ABBR_MONTHS = [
+    "Jan.", "Feb.", "Mar.", "Apr.", "May", "Jun.",
+    "Jul.", "Aug.", "Sep.", "Oct.", "Nov.", "Dec."
+]
 
 PRESENTERS = [
     "Dr. Marcella Nguyen",
@@ -115,15 +126,25 @@ def pick_random_presenter():
     return pick_random(PRESENTERS)
 
 def generate_random_date():
-    formats = ["%d %b %Y", "%B %dth", "%d %b %Y", "%B %Y"]
-    chosen_format = random.choice(formats)
+    day = random.choice(DAYS)
+    month = random.choice(MONTHS)
+    abbrev_month = ABBR_MONTHS[MONTHS.index(month)]
+    year = random.choice(YEARS)
     
-    if "th" in chosen_format:
-        date_str = datetime(year=random.randint(2018, 2024), month=random.randint(1, 12), day=random.randint(1, 28))  # Assuming maximum 28 days in a month for simplicity
-    else:
-        date_str = datetime(year=random.randint(2018, 2024), month=random.randint(1, 12), day=random.randint(1, 30))
+    formats = [
+        f"{day} {month} {year}",
+        f"{day} {abbrev_month} {year}",
+        f"{month} {day}th",
+        f"{abbrev_month} {day}th",
+        f"{day}th {month}",
+        f"{day}th {abbrev_month}",
+        f"{month} {year}"
+        f"{abbrev_month} {year}",
+        f"Spring {year}",
+        f"Fall {year}"
+    ]
     
-    return date_str.strftime(chosen_format)
+    return random.choice(formats)
 
 def generate_footer_obj():
     showSN = random.random() > 0.25

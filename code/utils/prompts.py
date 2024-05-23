@@ -27,7 +27,7 @@ Expected Output:\n
     "Summary of Trees"
 ]
              \n
-             I want you to provide the output in form of a python list of strings having slide titles of each slide. The length of the list will be the total number of slides in the presentation. Do not generate more than 15 slide titles.           
+             I want you to provide the output in form of a python list of strings having slide titles of each slide. The length of the list will be the total number of slides in the presentation. Do not generate more than 15 slide titles and each title should have maximum of 5 words.       
              Just return the output without the conversation.""")
         ]
 instruction_example = [
@@ -342,15 +342,21 @@ def construct_generation_prompts(instruct_content, topic):
     Generate LaTeX code as plain text seperated by ```latex<content>``` and three line breaks.\n
     Do not add a caption to the table/equation and do not provide any conversation.\n
     For equations do not generate equation numbers like (1) as these are single equations to be rendered in a presentation.\n
+    Keep the following in mind:\n
+    Verify the syntax of the LaTeX code that you generate.\n
     Do not generate additional elements unless they are part of the above request. Once generating the all the code snipptes, verify that the total number of snippets generated are the same as total number of requests."""
     prompts[1] += """
     Generate python code using Matplotlib as plain text seperated by ```python<content>``` and three line breaks.\n
-    Each generated plot shoule be saved to 'code/buffer/figures/<num>.png' where <num> is numerical order of the code snippet. (First snippet is 1, Second is 2, etc.)\n 
+    Each generated plot shoule be saved to 'code/buffer/figures/<num>.png' where <num> is numerical order of the code snippet. (First snippet is 1, Second is 2, etc.)\n
+    Keep the following in mind:\n
+    Verify the syntax of the matplotlib code that you generate and do not import additional libraries.\n
     Do not generate a title for the plot and do not give any conversation.\n
     Do not generate additional elements unless they are part of the above request. Once generating the all the code snipptes, verify that the total number of snippets generated are the same as total number of requests."""
     prompts[2] += """
     Generate DOT language code as plain text seperated by ```dot<content>``` and three line breaks. Make sure to not make any syntax errors, and hence double check each output code snippet.\n
-    Do not add a caption to the diagram/chart, etc. and do not provide any conversation.\n
+    Keep the following in mind:\n
+    Verify the syntax of the DOT Language code that you generate.\n
+    Strictly do not add any caption to the diagram/chart, etc. and do not provide any conversation.\n
     Do not generate additional elements unless they are part of the above request. Once generating the all the code snipptes, verify that the total number of snippets generated are the same as total number of requests."""
     # Return the constructed prompts
     return [prompts, positions, captions, [n_s, n_p, n_f]]

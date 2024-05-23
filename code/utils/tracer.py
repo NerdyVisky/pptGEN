@@ -57,4 +57,4 @@ if not os.path.exists('code\logs\\api_traces'):
 wb.save(os.path.join('code\logs\\api_traces', f"{formatted_now}.xlsx"))
 print(f"🟢 (5/5) API traces saved as {formatted_now}.xlsx in logs\\api_traces")
 
-# client.delete_project(project_name="pptGEN")
+client.delete_project(project_name="pptGEN")

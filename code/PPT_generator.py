@@ -16,7 +16,7 @@ class Element:
         self.style = style
         self.bounding_box = bounding_box
     
-    def apply_font_style_on_run(self, run):
+    def apply_font_style_on_run(self, run, element=None):
         if 'font_name' in self.style:
             run.font.name = self.style['font_name']
         if 'font_size' in self.style:
@@ -29,23 +29,30 @@ class Element:
             run.font.italic = self.style['italics']
         if 'underlined' in self.style:
             run.font.underline = self.style['underlined']
-        if 'h_align' in self.style:
-            if self.style['h_align'] == 'center':
-                run.alignment = PP_ALIGN.CENTER
-            elif self.style['h_align'] == 'left':
-                run.alignment = PP_ALIGN.LEFT
-            elif self.style['h_align'] == 'right':
-                run.alignment = PP_ALIGN.RIGHT
-            else:
-                run.alignment = PP_ALIGN.JUSTIFY
         
-        if 'v_align' in self.style:
-            if self.style['v_align'] == 'top':
-                run.vertical_anchor = MSO_ANCHOR.TOP
-            elif self.style['v_align'] == 'middle':
-                run.vertical_anchor = MSO_ANCHOR.MIDDLE
-            else:
-                run.vertical_anchor = MSO_ANCHOR.BOTTOM
+        if element == None:
+            print(element)
+            if 'h_align' in self.style:
+                if self.style['h_align'] == 'center':
+                    run.alignment = PP_ALIGN.CENTER
+                elif self.style['h_align'] == 'left':
+                    run.alignment = PP_ALIGN.LEFT
+                elif self.style['h_align'] == 'right':
+                    run.alignment = PP_ALIGN.RIGHT
+                else:
+                    run.alignment = PP_ALIGN.JUSTIFY
+            
+            if 'v_align' in self.style:
+                if self.style['v_align'] == 'top':
+                    run.vertical_anchor = MSO_ANCHOR.TOP
+                elif self.style['v_align'] == 'middle':
+                    run.vertical_anchor = MSO_ANCHOR.MIDDLE
+                else:
+                    run.vertical_anchor = MSO_ANCHOR.BOTTOM
+        else:
+            run.alignment = PP_ALIGN.LEFT
+            run.vertical_anchor = MSO_ANCHOR.TOP
+
 
     
     def apply_font_style(self, shape):
@@ -151,7 +158,7 @@ class Enumeration(Description):
                         p = enum_tf.add_paragraph()
                         run = p.add_run()
                         run.text = pt_text
-                        self.apply_font_style_on_run(run)
+                        self.apply_font_style_on_run(run, 'enumeration')
 
                     elif isinstance(pt_text, list):
                         for sub_pt in pt_text:

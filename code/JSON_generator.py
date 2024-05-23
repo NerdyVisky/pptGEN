@@ -86,7 +86,7 @@ def generate_random_slide(slide_number, data, style_obj, footer_obj, presentatio
     date = style_obj["date"]
     n_elements_list = count_body_elements(data, slide_number)
     total_body_elements = sum(n_elements_list)
-
+    topic = data["topic"]
     title_dark, title_light = style_obj['title_font_dark'], style_obj['title_font_light']
     # Title Generation
     ## Generate Font-level random values for Title 
@@ -330,7 +330,7 @@ def generate_random_slide(slide_number, data, style_obj, footer_obj, presentatio
             value = str(slide_number)
         if 'footnote' in obj.keys():
             footer_type = 'footnote'
-            value = "This is a footnote"
+            value = topic
         if 'date' in obj.keys():
             footer_type = 'date'
             value = date         

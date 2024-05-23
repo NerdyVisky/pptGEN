@@ -2,7 +2,19 @@ import os
 import shutil
 
 
-parent_directories = ['code\\buffer', 'code\\temp', 'code\json\content', 'dataset\pdfs']
+SOURCE = 'ppts'
+DESTINATION = 'dataset\pptfiles'
+
+subjects = os.listdir(SOURCE)
+for sub in subjects:
+    sub_path = os.path.join(SOURCE, sub)
+    ppts_in_sub = os.listdir(sub_path)
+    for ppt in ppts_in_sub:
+        shutil.move(os.path.join(sub_path, ppt), os.path.join(DESTINATION, sub))
+print("PPT files saved and transferred.")
+
+parent_directories = ['code\json\\final', 'dataset\pdfs']
+# parent_directories = ['code\\buffer', 'code\\temp', 'code\json\content', 'dataset\pdfs']
 def delete_subdirectories(parent_dirs):
     for parent_dir in parent_dirs:
         for item in os.listdir(parent_dir):
@@ -23,7 +35,6 @@ def delete_subdirectories(parent_dirs):
     print("Temporary files discarded.")
 
 
-                
-
 # Example usage
 delete_subdirectories(parent_directories)
+

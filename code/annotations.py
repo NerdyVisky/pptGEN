@@ -28,8 +28,8 @@ def correct_element_annotations(annotations, image, bg_color):
     # Initializing coordinates
     xmin = annotations["xmin"]
     ymin = annotations["ymin"]
-    xmax = annotations["xmin"] + annotations["width"]
-    ymax = annotations["ymin"] + annotations["height"]
+    xmax = min(annotations["xmin"] + annotations["width"], 1279)
+    ymax = min(annotations["ymin"] + annotations["height"], 719)
 
     # Convert bg_color to numpy array for comparison
     bg_color = np.array([bg_color['b'], bg_color['g'], bg_color['r']])

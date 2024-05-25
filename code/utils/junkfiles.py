@@ -10,11 +10,18 @@ for sub in subjects:
     sub_path = os.path.join(SOURCE, sub)
     ppts_in_sub = os.listdir(sub_path)
     for ppt in ppts_in_sub:
-        shutil.move(f"{sub_path}/{ppt}", f"{DESTINATION}/{sub}")
+        # check if file exists at destination, if not, move it
+        src = os.path.join(sub_path, ppt)
+        dest = os.path.join(DESTINATION, sub, ppt)
+        # print(src, dest)
+        if not os.path.exists(dest):
+            shutil.move(src, dest)
+        #     # print(f"Moved {ppt} to {dest}")
 print("PPT files saved and transferred.")
 
-parent_directories = [f"code/json/final", f"dataset/pdfs"]
-# parent_directories = ['code\\buffer', 'code\\temp', 'code\json\content', 'dataset\pdfs']
+# parent_directories = [f"code/json/final", f"dataset/pdfs"]
+# parent_directories = [f"code/buffer", f"code/temp", f"code/json/content", f"dataset/pdfs"]
+parent_directories = [f"dataset/pdfs"]
 def delete_subdirectories(parent_dirs):
     for parent_dir in parent_dirs:
         for item in os.listdir(parent_dir):

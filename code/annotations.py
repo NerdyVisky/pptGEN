@@ -15,6 +15,11 @@ def get_element_annotations(element):
     width = element.get("width", 0)
     height = element.get("height", 0)
     
+    if xmin + width > slide_width:
+        width = slide_width - xmin
+    if ymin + height > slide_height:
+        height = slide_height - ymin
+    
     normalized_bbox = {
         "label": element.get("label"),
         "xmin": int(xmin / slide_width * 1280),
@@ -30,7 +35,7 @@ def correct_element_annotations(annotations, image, bg_color):
     ymin = annotations["ymin"]
     xmax = annotations["xmin"] + annotations["width"]
     ymax = annotations["ymin"] + annotations["height"]
-
+    
     # Convert bg_color to numpy array for comparison
     bg_color = np.array([bg_color['b'], bg_color['g'], bg_color['r']])
 
@@ -53,13 +58,22 @@ def correct_element_annotations(annotations, image, bg_color):
         "width": xmax - xmin,
         "height": ymax - ymin
     }
-    
+    if xmin == xmax or ymin == ymax:
+      return annotations
     return new_annotations
 
 def correction():
+  a = 0
+  created_files = []
+  for subject in os.listdir("dataset/json/"):
+      for topic in os.listdir(f"dataset/json/{subject}"):
+          created_files.append(topic)
   json_path = f"code/json/final/"
   for subject in os.listdir(json_path):
+    b = 0
     for topic in os.listdir(json_path + subject):
+      if topic in created_files:
+        continue
       for json_file in os.listdir(f"{json_path}{subject}/{topic}"):
         if json_file.endswith(".json"):
           folder_name = f"dataset/images/{subject}/{topic}/{json_file.split(".")[0]}"
@@ -68,17 +82,27 @@ def correction():
 
             i = 1
             for slide in data["slides"]:
-              print(slide["pg_no"])
+              # print(slide["pg_no"])
               img_path = f"{folder_name}/slide{i}.png"
               image = cv2.imread(img_path)
+              a += 1
               i += 1
-              print(img_path)
+              # print(img_path)
               
               elements = slide["elements"]
               bg_color = slide["bg_color"]
               
               for element_type, element_list in elements.items():
                 for items in element_list:
+                  if element_type == 'url':
+                    items["label"] = "url"
+                  annotations = get_element_annotations(items)
+                  new_annotations = correct_element_annotations(annotations, image, bg_color)
+                  items["xmin"] = new_annotations["xmin"]
+                  items["ymin"] = new_annotations["ymin"]
+                  items["width"] = new_annotations["width"]
+                  items["height"] = new_annotations["height"]
+                  items["label"] = new_annotations["label"]
                   if element_type == 'description':
                     if items["label"] == 'enumeration':
                       annotations = get_element_annotations(items["heading"])
@@ -91,25 +115,25 @@ def correction():
                   elif element_type == 'figures':
                     annotations = get_element_annotations(items["caption"])
                     new_annotations = correct_element_annotations(annotations, image, bg_color)
+                    if new_annotations == annotations:
+                      avg_width = 491
+                      avg_height = 27
+                      new_annotations["xmin"] = int(items["xmin"] + ( items["width"] / 2 ) - ( avg_width / 2 ))
+                      new_annotations["ymin"] = items["ymin"] + items["height"] - avg_height
+                      new_annotations["width"] = avg_width
+                      new_annotations["height"] = avg_height
+                      new_annotations = correct_element_annotations(new_annotations, image, bg_color)
                     items["caption"]["xmin"] = new_annotations["xmin"]
                     items["caption"]["ymin"] = new_annotations["ymin"]
                     items["caption"]["width"] = new_annotations["width"]
                     items["caption"]["height"] = new_annotations["height"]
                     items["caption"]["label"] = "caption"
-                  elif element_type == 'url':
-                    items["label"] = "url"
-                  annotations = get_element_annotations(items)
-                  new_annotations = correct_element_annotations(annotations, image, bg_color)
-                  items["xmin"] = new_annotations["xmin"]
-                  items["ymin"] = new_annotations["ymin"]
-                  items["width"] = new_annotations["width"]
-                  items["height"] = new_annotations["height"]
-                  items["label"] = new_annotations["label"]
                     
                 if not os.path.exists(f"dataset/json/{subject}/{topic}/"):
                   os.makedirs(f"dataset/json/{subject}/{topic}/")
                 with open(f"dataset/json/{subject}/{topic}/{json_file}", "w") as f:
                   json.dump(data, f, indent=3)
+  print(f"🟢 (3/5) Annotations corrected for {a} images.")
               
 def show_annotations(filename):
     with open(f"dataset/json/{filename}.json", "r") as f:
@@ -129,6 +153,8 @@ def show_annotations(filename):
           for items in element_list:
             if element_type == 'figures':
               cv2.rectangle(image, (items["caption"].get("xmin", 0), items["caption"].get("ymin", 0)), (items["caption"].get("xmin", 0) + items["caption"].get("width", 0), items["caption"].get("ymin", 0) + items["caption"].get("height", 0)), (255, 0, 0), 2)
+            if element_type == 'description' and items["label"] == 'enumeration':
+              cv2.rectangle(image, (items["heading"].get("xmin", 0), items["heading"].get("ymin", 0)), (items["heading"].get("xmin", 0) + items["heading"].get("width", 0), items["heading"].get("ymin", 0) + items["heading"].get("height", 0)), (255, 0, 0), 2)
             cv2.rectangle(image, (items.get("xmin", 0), items.get("ymin", 0)), (items.get("xmin", 0) + items.get("width", 0), items.get("ymin", 0) + items.get("height", 0)), (255, 0, 0), 2)
         
         # save the annotated image
@@ -158,7 +184,7 @@ def show_annotations(filename):
             axes.flat[i - start_index].axis('off')
 
         plt.tight_layout()
-        # plt.show()
+        plt.show()
 
 def main():
   # to correct Annotations
@@ -170,8 +196,6 @@ def main():
   #       if json_file.endswith(".json"):
   #         print(f"{subject}/{topic}/{json_file.split('.')[0]}")
   #         show_annotations(f"{subject}/{topic}/{json_file.split('.')[0]}")
-  #       break
-  #     break
 
 if __name__ == "__main__":
   main()

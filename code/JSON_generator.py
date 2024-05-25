@@ -360,6 +360,11 @@ def generate_random_slide(slide_number, data, style_obj, footer_obj, presentatio
 
 if __name__ == "__main__":
     # num_files = 3
+    # get the list of json files from all subdirectories of folder dataset/json/
+    created_files = []
+    for subject in os.listdir("dataset/json/"):
+        for topic in os.listdir(f"dataset/json/{subject}"):
+            created_files.append(topic)
     print("Running layout discriminator module...")
     temp_dir = f"code/temp"
     entries = os.listdir(temp_dir)
@@ -367,6 +372,7 @@ if __name__ == "__main__":
     DUP_FAC = 2
     for directory in directories:
         json_files = [f for f in os.listdir(os.path.join(temp_dir,directory)) if f.endswith('.json')]
+        json_files = [f for f in json_files if f.split('.')[0] not in created_files]
         n_json_files = len(json_files)
         for i, json_file in enumerate(json_files): 
             presentation_ID, _ = os.path.splitext(json_file)

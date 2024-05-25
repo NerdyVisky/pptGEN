@@ -147,11 +147,13 @@ class Enumeration(Description):
         self.apply_font_style(enum_heading)
         enum_heading.text_frame.auto_size = True
         enum_heading.text_frame.word_wrap = True
+        enum_heading.text_frame.paragraphs[0].alignment = PP_ALIGN.JUSTIFY
         enum_shape = slide.shapes.placeholders[1]
         enum_tf = enum_shape.text_frame
         if self.content != []:            
             enum_tf.text = self.content[0]
             self.apply_font_style(enum_shape)
+            # enum_tf.paragraphs[0].paragraph_format.alignment = MSO_ANCHOR.JUSTIFY
             for i, pt_text in enumerate(self.content):
                 if i>0:
                     if isinstance(pt_text, str):
@@ -167,12 +169,16 @@ class Enumeration(Description):
                             sub_run = s_p.add_run()
                             sub_run.text = sub_pt
                             self.apply_font_style_on_run(run)
+                            s_p.paragraph_format.alignment = MSO_ANCHOR.JUSTIFY
                     else:
                         raise Exception("Invalid Enumeration format")
                 
         enum_tf.auto_size = True
         enum_tf.word_wrap = True
-
+        MAX_LINES = 5
+        if len(enum_tf.paragraphs) > MAX_LINES:
+            for paragraph in enum_tf.paragraphs[MAX_LINES:]:
+                paragraph.text = paragraph.text[:paragraph.text.rfind(' ')] + "..."
         self.position_element(enum_shape)
         self.enum_tf = enum_tf
             
@@ -339,6 +345,11 @@ def main():
     print("Running PPT generator module...")
     buffer_folder_path = f"./code/buffer/full"
     entries = os.listdir(buffer_folder_path)
+    # already generated presentations
+    created_files = []
+    for subject in os.listdir("dataset/json/"):
+        for topic in os.listdir(f"dataset/json/{subject}"):
+            created_files.append(topic)
     # Filter out directories
     directories = [entry for entry in entries if os.path.isdir(os.path.join(buffer_folder_path, entry))]
     json_file_paths = []
@@ -363,7 +374,9 @@ def main():
 
 
     for i, json_file in enumerate(json_file_paths):
-        #Load JSON file from buffer
+        if json_file.split("\\")[-2] in created_files:
+            continue
+        # Load JSON file from buffer
         subject_name = os.path.basename(os.path.dirname(os.path.dirname(json_file)))
         slide_id = os.path.basename(os.path.dirname(json_file))
         version , _ = os.path.splitext(os.path.basename(json_file))
@@ -376,6 +389,8 @@ def main():
 
     final_json_path = f"code/json/final"
     for i, json_file in enumerate(json_file_paths):
+        if json_file.split("\\")[-2] in created_files:
+            continue
         subject_name = os.path.basename(os.path.dirname(os.path.dirname(json_file)))
         slide_id = os.path.basename(os.path.dirname(json_file))
         version , _ = os.path.splitext(os.path.basename(json_file))

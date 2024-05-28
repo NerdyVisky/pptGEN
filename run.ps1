@@ -14,4 +14,4 @@ python 'D:\Research_work\Experimentation_Results\py_pptx_code_gen_using_LLMs\ppt
 python 'D:\Research_work\Experimentation_Results\py_pptx_code_gen_using_LLMs\pptGEN\code\pptx_to_png.py'
 python 'D:\Research_work\Experimentation_Results\py_pptx_code_gen_using_LLMs\pptGEN\code\annotations.py'
 python 'D:\Research_work\Experimentation_Results\py_pptx_code_gen_using_LLMs\pptGEN\code\utils\tracer.py'
-python 'D:\Research_work\Experimentation_Results\py_pptx_code_gen_using_LLMs\pptGEN\code\utils\junkfiles.py'
+# python 'D:\Research_work\Experimentation_Results\py_pptx_code_gen_using_LLMs\pptGEN\code\utils\junkfiles.py'

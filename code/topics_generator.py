@@ -9,8 +9,8 @@ print("Running topic generation module...")
 LLM_MODEL = 'gpt-4-turbo'
 TEMPERATURE = 0
 SUBJECT = 'CS'
-BOOK = 'Distributed Systems: Principles and Paradigms'
-AUTHOR = 'Andrew S. Tanenbaum'
+BOOK = 'Computer Organization and Design'
+AUTHOR = 'David A. Patterson'
 
 
 model = ChatOpenAI(
@@ -23,7 +23,8 @@ prompt = ChatPromptTemplate.from_messages([
     ("human", """I am a {subject}  professor and I want to create lectures slides for various topics in the book : {book} by {author}.\n
 Give me a list of topics from the book I provided in the form of a Python dict.\n
 Also, I will use these topics to make presentations and hence augment the presentation titles if they are generic\n
-For example: for titles like Introduction, Applications convert them to Introduction to Deep Learning, Applications of Deep Learning, respectively.
+For example: for titles like Introduction, Applications convert them to Introduction to Deep Learning, Applications of Deep Learning, respectively.\n
+Generate upto 25 topic suggestions and skip topics like Introduction, History, etc.\n
 Do not provide any converstation.\n
 Here's an example\n
      
@@ -33,7 +34,7 @@ Expected Output:\n
 {{
     "CS": [
         "Math for Deep Learning Basics",
-        "Intro to Supervised Learning",
+        "Supervised Learning",
         "Shallow Neural Networks",
         "Activation Functions",
         "Composing Neural Networks",

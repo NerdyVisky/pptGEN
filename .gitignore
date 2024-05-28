@@ -21,3 +21,4 @@ dataset/
 code/logs/
 Experiments/
 code/plot_test.py
+code/temp/*

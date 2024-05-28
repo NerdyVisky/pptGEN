@@ -184,20 +184,13 @@ def generate_random_slide(slide_number, data, style_obj, footer_obj, presentatio
             element_index += 1
 
         ## Generate Enumerations
+        P_H = 0
         h_enum_align, v_enum_align = pick_random("alignments")
         for _ in range(n_elements_list[1]):
             font_obj = generate_random_font("enumeration")
             enum = data["slides"][slide_number - 1]["enumeration"]
             enum_instance = {
             "label": "enumeration",
-            "heading": {
-                "label": 'heading',
-                "value": enum[0],
-                "xmin": all_dims['body'][element_index]['left'],
-                "ymin": all_dims['body'][element_index]['top'],
-                "width": all_dims['body'][element_index]['width'],
-                "height": 0.5,
-            },
             "value": enum[1:],
             "xmin": all_dims['body'][element_index]['left'],
             "ymin": all_dims['body'][element_index]['top'] + 0.5,
@@ -210,10 +203,19 @@ def generate_random_slide(slide_number, data, style_obj, footer_obj, presentatio
                 "bold": font_obj["bold"],
                 "italics": font_obj["italics"],
                 "underlined": font_obj["underline"],
-                "h_align": h_enum_align,
-                "v_align": v_enum_align
+                "h_align": 'left',
+                "v_align": 'top'
                }
-            } 
+            }
+            if (P_H > random.random()):
+                enum_instance['heading'] = {
+                "label": 'heading',
+                "value": enum[0],
+                "xmin": all_dims['body'][element_index]['left'],
+                "ymin": all_dims['body'][element_index]['top'],
+                "width": all_dims['body'][element_index]['width'],
+                "height": 0.5,
+                }, 
             slide['elements']['description'].append(enum_instance)
             element_index += 1
 
@@ -281,8 +283,7 @@ def generate_random_slide(slide_number, data, style_obj, footer_obj, presentatio
             remove_tmp_files()
 
         # Render Figures
-        
-
+        P_C = 0
         slide['elements']['figures'] = []
         for i in range(n_elements_list[5]):
             font_obj = generate_random_font("enumeration")
@@ -293,22 +294,6 @@ def generate_random_slide(slide_number, data, style_obj, footer_obj, presentatio
             label = data["slides"][slide_number - 1]["figures"][i]['label'] 
             fig_instance = {
             "label": label,
-            "caption": {
-                "label": "caption",
-                "value": data["slides"][slide_number - 1]["figures"][i]["desc"],
-                "xmin": all_dims['body'][element_index]['left'],
-                "ymin": all_dims['body'][element_index]['top'] + all_dims['body'][element_index]['height'] - 0.35,
-                "width": all_dims['body'][element_index]['width'],
-                "height": 0.35,
-                "style": {
-                    "font_name": desc_font_family,
-                    "font_size": 14,
-                    "font_color": font_color,
-                    "bold": font_obj["bold"],
-                    "italics": True,
-                    "underlined": font_obj["underline"]
-               }
-            },
             "xmin": all_dims['body'][element_index]['left'],
             "ymin": all_dims['body'][element_index]['top'],
             "width": all_dims['body'][element_index]['width'],
@@ -316,6 +301,24 @@ def generate_random_slide(slide_number, data, style_obj, footer_obj, presentatio
             "desc": data["slides"][slide_number - 1]["figures"][i]["desc"],
             "path": img_path
             }
+            if (P_C > random.random()):
+                fig_instance["caption"] = {
+                    "label": "caption",
+                    "value": data["slides"][slide_number - 1]["figures"][i]["desc"],
+                    "xmin": all_dims['body'][element_index]['left'],
+                    "ymin": all_dims['body'][element_index]['top'] + all_dims['body'][element_index]['height'] - 0.35,
+                    "width": all_dims['body'][element_index]['width'],
+                    "height": 0.35,
+                    "style": {
+                        "font_name": desc_font_family,
+                        "font_size": 14,
+                        "font_color": font_color,
+                        "bold": font_obj["bold"],
+                        "italics": True,
+                        "underlined": font_obj["underline"]
+                }
+                }
+
             slide['elements']['figures'].append(fig_instance)
             element_index += 1
             remove_tmp_files()
@@ -360,13 +363,19 @@ def generate_random_slide(slide_number, data, style_obj, footer_obj, presentatio
 
 if __name__ == "__main__":
     # num_files = 3
+    # get the list of json files from all subdirectories of folder dataset/json/
+    created_files = []
+    for subject in os.listdir("dataset/json/"):
+        for topic in os.listdir(f"dataset/json/{subject}"):
+            created_files.append(topic)
     print("Running layout discriminator module...")
-    temp_dir = 'code/temp'
+    temp_dir = f"code/temp"
     entries = os.listdir(temp_dir)
     directories = [entry for entry in entries if os.path.isdir(os.path.join(temp_dir, entry))]
     DUP_FAC = 2
     for directory in directories:
         json_files = [f for f in os.listdir(os.path.join(temp_dir,directory)) if f.endswith('.json')]
+        json_files = [f for f in json_files if f.split('.')[0] not in created_files]
         n_json_files = len(json_files)
         for i, json_file in enumerate(json_files): 
             presentation_ID, _ = os.path.splitext(json_file)
@@ -388,15 +397,14 @@ if __name__ == "__main__":
                     "date": generate_random_date(),
                     "slides": slides
                 }
-                if not os.path.exists(f"code\\buffer\\full\\{directory}"):
-                    os.mkdir(f"code\\buffer\\full\\{directory}")
-                if not os.path.exists(f"code\\buffer\\full\\{directory}\\{presentation_ID}"):
-                    os.mkdir(f"code\\buffer\\full\\{directory}\\{presentation_ID}")
+                if not os.path.exists(f"code/buffer/full/{directory}"):
+                    os.mkdir(f"code/buffer/full/{directory}")
+                if not os.path.exists(f"code/buffer/full/{directory}/{presentation_ID}"):
+                    os.mkdir(f"code/buffer/full/{directory}/{presentation_ID}")
 
-                with open(f"code\\buffer\\full\\{directory}\\{presentation_ID}\\{ver + 1}.json", 'w') as json_file:
+                with open(f"code/buffer/full/{directory}/{presentation_ID}/{ver + 1}.json", 'w') as json_file:
                     json.dump(new_data, json_file, indent=3)
 
             print(f"🟢 ({i+1}/{n_json_files}): generated {DUP_FAC} layouts for {presentation_ID}")
     print('\n')
-
 

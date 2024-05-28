@@ -8,9 +8,9 @@ import json
 print("Running topic generation module...")
 LLM_MODEL = 'gpt-4-turbo'
 TEMPERATURE = 0
-SUBJECT = 'Mathematics'
-BOOK = 'Theory and Problems of Probability and Statistics'
-AUTHOR = 'Murray R. Spiegel'
+SUBJECT = 'CS'
+BOOK = 'Pattern Recognition and Classification: An Introduction'
+AUTHOR = 'Geoff Dougherty'
 
 
 model = ChatOpenAI(

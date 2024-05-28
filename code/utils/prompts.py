@@ -217,9 +217,6 @@ text_generation_example = [
                         "Binary Search Tree (BST)",
                         "AVL Tree",
                         "Red-Black Tree",
-                        "B-tree",
-                        "Trie",
-                        "Heap"
                         ],
         "url": ""
       },
@@ -259,6 +256,8 @@ While generating content keep the following in mind:\n
 1. Description should be between 15 to 30 words long and be rendered as a string.\n
 2. Enumeration should have short pithy points related to the slide content. It should be rendered as a list of strings where the first element of the list is the heading of the enumeration.\n
 3. URL should be a weblink to a related resource in the web and it should be rendered as a string\n
+                 
+Enumeration should not have more than 5 points.
                  
 Do not generate additional text elements other than one mentioned in the instruction. Keep your responses as detailed as possible.\n
         """),
@@ -356,7 +355,7 @@ def construct_generation_prompts(instruct_content, topic):
     Generate DOT language code as plain text seperated by ```dot<content>``` and three line breaks. Make sure to not make any syntax errors, and hence double check each output code snippet.\n
     Keep the following in mind:\n
     Verify the syntax of the DOT Language code that you generate.\n
-    Strictly do not add any caption to the diagram/chart, etc. and do not provide any conversation.\n
+    Strictly DO NOT add any textual caption in the figure. It should be a figure with no caption at the bottom. And do not provide any conversation.\n
     Do not generate additional elements unless they are part of the above request. Once generating the all the code snipptes, verify that the total number of snippets generated are the same as total number of requests."""
     # Return the constructed prompts
     return [prompts, positions, captions, [n_s, n_p, n_f]]

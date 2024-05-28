@@ -12,45 +12,56 @@ def main():
   if not os.path.exists(f"dataset/json"):
     os.makedirs(f"dataset/json")
   
-  ppt_path = f"ppts/"
-  pdf_path = f"dataset/pdfs/"
-  img_path = f"dataset/images/"
+  ppt_dir = f"ppts/"
+  pdf_dir = f"dataset/pdfs/"
+  img_dir = f"dataset/images/"
 
   # PPTX to PDF
   a = 0
-  for subject in os.listdir(ppt_path):
-    for topic in os.listdir(f"{ppt_path}{subject}"):
-      for ppt in os.listdir(f"{ppt_path}{subject}/{topic}"):
+  for subject in os.listdir(ppt_dir):
+    for topic in os.listdir(f"{ppt_dir}{subject}"):
+      for ppt in os.listdir(f"{ppt_dir}{subject}/{topic}"):
         if ppt.endswith('.pptx'):
-          convert(f"{ppt_path}{subject}/{topic}/{ppt}", f"{pdf_path}{subject}/{topic}/")
+          convert(f"{ppt_dir}{subject}/{topic}/{ppt}", f"{pdf_dir}{subject}/{topic}/")
           a += 1
+          if a == 10:
+            break
+    break
 
   print(f"🟢 (1/5) {a} PPT files converted to PDF for processing")
 
   # PDF to Image
   a = 0
-  for subject in os.listdir(pdf_path):
-    for topic in os.listdir(pdf_path + subject):
-      for pdf in os.listdir(pdf_path + subject + '/' + topic):
+  for subject in os.listdir(pdf_dir):
+    for topic in os.listdir(pdf_dir + subject):
+      for pdf in os.listdir(pdf_dir + subject + '/' + topic):
         if pdf.endswith('.pdf'):
-          # print(pdf_path + subject + '/' + topic + '/' + pdf)
-          images = convert_from_path(pdf_path + subject + '/' + topic + '/' + pdf)
+          # print(pdf_dir + subject + '/' + topic + '/' + pdf)
+          images = convert_from_path(pdf_dir + subject + '/' + topic + '/' + pdf)
           for i, image in enumerate(images):
-            image_path = img_path + subject + '/' + topic + '/' + pdf[:-4]
+            image_path = img_dir + subject + '/' + topic + '/' + pdf[:-4]
             # print(image_path)
             if not os.path.exists(image_path):
               os.makedirs(image_path)
             image_resized = image.resize((1280, 720))
-            image_resized.save(image_path + '/slide' + str(i) + '.png', 'PNG')
+            if i <= 9:
+              id = '0' + str(i)
+            else:
+              id = str(i)
+            if id == '00':
+              continue
+            image_name = image_path + '/' + id + pdf[:-4] + topic + '.png'
+            print(image_name)
+            image_resized.save(image_name, 'PNG')
             a += 1
   print(f"🟢 (2/5) {a} images generated and saved to dataset/images")
        
   # Remove PDFs
-  # for subject in os.listdir(pdf_path):
-  #   for topic in os.listdir(pdf_path + subject):
-  #     for pdf in os.listdir(pdf_path + subject + '/' + topic):
+  # for subject in os.listdir(pdf_dir):
+  #   for topic in os.listdir(pdf_dir + subject):
+  #     for pdf in os.listdir(pdf_dir + subject + '/' + topic):
   #       if pdf.endswith('.pdf'):
-  #         os.remove(pdf_path + subject + '/' + topic + '/' + pdf)
+  #         os.remove(pdf_dir + subject + '/' + topic + '/' + pdf)
   #     os.rmdir(pdf)
   
   # move topics.json to dataset/

@@ -16,7 +16,7 @@ class Element:
         self.style = style
         self.bounding_box = bounding_box
     
-    def apply_font_style_on_run(self, run, element=None):
+    def apply_font_style_on_run(self, run):
         if 'font_name' in self.style:
             run.font.name = self.style['font_name']
         if 'font_size' in self.style:
@@ -30,29 +30,23 @@ class Element:
         if 'underlined' in self.style:
             run.font.underline = self.style['underlined']
         
-        if element == None:
-            print(element)
-            if 'h_align' in self.style:
-                if self.style['h_align'] == 'center':
-                    run.alignment = PP_ALIGN.CENTER
-                elif self.style['h_align'] == 'left':
-                    run.alignment = PP_ALIGN.LEFT
-                elif self.style['h_align'] == 'right':
-                    run.alignment = PP_ALIGN.RIGHT
-                else:
-                    run.alignment = PP_ALIGN.JUSTIFY
-            
-            if 'v_align' in self.style:
-                if self.style['v_align'] == 'top':
-                    run.vertical_anchor = MSO_ANCHOR.TOP
-                elif self.style['v_align'] == 'middle':
-                    run.vertical_anchor = MSO_ANCHOR.MIDDLE
-                else:
-                    run.vertical_anchor = MSO_ANCHOR.BOTTOM
-        else:
-            run.alignment = PP_ALIGN.LEFT
-            run.vertical_anchor = MSO_ANCHOR.TOP
-
+        if 'h_align' in self.style:
+            if self.style['h_align'] == 'center':
+                run.alignment = PP_ALIGN.CENTER
+            elif self.style['h_align'] == 'left':
+                run.alignment = PP_ALIGN.LEFT
+            elif self.style['h_align'] == 'right':
+                run.alignment = PP_ALIGN.RIGHT
+            else:
+                run.alignment = PP_ALIGN.JUSTIFY
+        
+        if 'v_align' in self.style:
+            if self.style['v_align'] == 'top':
+                run.vertical_anchor = MSO_ANCHOR.TOP
+            elif self.style['v_align'] == 'middle':
+                run.vertical_anchor = MSO_ANCHOR.MIDDLE
+            else:
+                run.vertical_anchor = MSO_ANCHOR.BOTTOM
 
     
     def apply_font_style(self, shape):
@@ -141,13 +135,14 @@ class Enumeration(Description):
         self.heading = heading
 
     def render(self, slide):
-        left, top, width, height = self.heading['xmin'], self.heading['ymin'], self.heading['width'], self.heading['height']
-        enum_heading = slide.shapes.add_textbox(Inches(left), Inches(top), Inches(width), Inches(height))
-        enum_heading.text = self.heading['value']
-        self.apply_font_style(enum_heading)
-        enum_heading.text_frame.auto_size = True
-        enum_heading.text_frame.word_wrap = True
-        enum_heading.text_frame.paragraphs[0].alignment = PP_ALIGN.JUSTIFY
+        if self.heading != None:
+            left, top, width, height = self.heading['xmin'], self.heading['ymin'], self.heading['width'], self.heading['height']
+            enum_heading = slide.shapes.add_textbox(Inches(left), Inches(top), Inches(width), Inches(height))
+            enum_heading.text = self.heading['value']
+            self.apply_font_style(enum_heading)
+            enum_heading.text_frame.auto_size = True
+            enum_heading.text_frame.word_wrap = True
+            # enum_heading.text_frame.paragraphs[0].alignment = PP_ALIGN.JUSTIFY
         enum_shape = slide.shapes.placeholders[1]
         enum_tf = enum_shape.text_frame
         if self.content != []:            
@@ -160,7 +155,7 @@ class Enumeration(Description):
                         p = enum_tf.add_paragraph()
                         run = p.add_run()
                         run.text = pt_text
-                        self.apply_font_style_on_run(run, 'enumeration')
+                        self.apply_font_style_on_run(run)
 
                     elif isinstance(pt_text, list):
                         for sub_pt in pt_text:
@@ -169,7 +164,7 @@ class Enumeration(Description):
                             sub_run = s_p.add_run()
                             sub_run.text = sub_pt
                             self.apply_font_style_on_run(run)
-                            s_p.paragraph_format.alignment = MSO_ANCHOR.JUSTIFY
+                            # s_p.paragraph_format.alignment = MSO_ANCHOR.JUSTIFY
                     else:
                         raise Exception("Invalid Enumeration format")
                 
@@ -190,17 +185,18 @@ class Figure(Element):
         self.content = content
         
     def render(self, slide):
+        if self.caption != None:
+            left_c, top_c, width_c, height_c = self.caption['xmin'], self.caption['ymin'], self.caption['width'], self.caption['height']
+            cap_shape = slide.shapes.add_textbox(Inches(left_c), Inches(top_c - (height - n_h)/2), Inches(width_c), Inches(height_c))
+            cap_shape.text = self.caption['value']
+            self.apply_font_style(cap_shape)
+            cap_shape.text_frame.auto_size = True
+            cap_shape.text_frame.word_wrap = True
+            cap_shape.text_frame.paragraphs[0].alignment = PP_ALIGN.CENTER
         left, top, width, height = self.bounding_box
         resized_img_path, n_w, n_h = resize_image(self.content, width, height)
         img = slide.shapes.add_picture(resized_img_path, Inches(left - (n_w - width)/2), Inches(top - (n_h - height)/2), Inches(n_w), Inches(n_h))
-        left_c, top_c, width_c, height_c = self.caption['xmin'], self.caption['ymin'], self.caption['width'], self.caption['height']
-
-        cap_shape = slide.shapes.add_textbox(Inches(left_c), Inches(top_c - (height - n_h)/2), Inches(width_c), Inches(height_c))
-        cap_shape.text = self.caption['value']
-        self.apply_font_style(cap_shape)
-        cap_shape.text_frame.auto_size = True
-        cap_shape.text_frame.word_wrap = True
-        cap_shape.text_frame.paragraphs[0].alignment = PP_ALIGN.CENTER
+        
         self.image = img 
 
 class Equation(Element):
@@ -294,7 +290,11 @@ class PresentationGenerator:
             for element_type, elements in slide_info['elements'].items():
                 for element_info in elements:
                     if element_type == 'figures':
-                        element = Figure(element_info['path'], element_info['caption']['style'], (element_info['xmin'], element_info['ymin'], element_info['width'], element_info['height']), element_info['caption'])
+                        if 'caption' in element_info.keys():
+                            element = Figure(element_info['path'], element_info['caption']['style'], (element_info['xmin'], element_info['ymin'], element_info['width'], element_info['height']), element_info['caption'])
+                        else:
+                            element = Figure(element_info['path'], None, (element_info['xmin'], element_info['ymin'], element_info['width'], element_info['height']), None)
+
                     elif element_type == 'equations':
                         element = Equation(element_info['path'], None, (element_info['xmin'], element_info['ymin'], element_info['width'], element_info['height']))
                     elif element_type == 'tables':
@@ -303,7 +303,12 @@ class PresentationGenerator:
                         element = Description(element_info['value'], element_info['style'], (element_info['xmin'], element_info['ymin'], element_info['width'], element_info['height']))
                     elif element_type == 'description':
                         if element_info['label'] == "enumeration":
-                            element = Enumeration(element_info['value'], element_info['style'], (element_info['xmin'], element_info['ymin'], element_info['width'], element_info['height']), element_info['heading'])
+                            if 'heading' in element_info.keys():
+                                element = Enumeration(element_info['value'], element_info['style'], (element_info['xmin'], element_info['ymin'], element_info['width'], element_info['height']), element_info['heading'])
+                            else:
+                                element = Enumeration(element_info['value'], element_info['style'], (element_info['xmin'], element_info['ymin'], element_info['width'], element_info['height']), None)
+
+                                
                         else:
                             element = Description(element_info['value'], element_info['style'], (element_info['xmin'], element_info['ymin'], element_info['width'], element_info['height']))
                     elif element_type == 'title':

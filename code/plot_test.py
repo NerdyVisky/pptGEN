@@ -1,13 +1,11 @@
 import matplotlib.pyplot as plt
-import numpy as np
 
-# Data for plotting
-aes_implementations = ['Impl 1', 'Impl 2', 'Impl 3', 'Impl 4']
-performance = [1.2, 0.8, 1.5, 1.1]
+# Data
+market_shares = [25, 25, 20, 15, 15]
+labels = ['Company A', 'Company B', 'Company C', 'Company D', 'Others']
 
+# Creating the pie chart
 plt.figure()
-plt.bar(aes_implementations, performance)
-plt.xlabel('AES Implementations')
-plt.ylabel('Performance (Gbps)')
-plt.savefig('code/buffer/figures/2.png')
+plt.pie(market_shares, labels=labels, autopct='%1.1f%%')
+plt.savefig('code/buffer/figures/4.png')
 plt.close()

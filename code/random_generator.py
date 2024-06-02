@@ -89,7 +89,34 @@ PRESENTERS = [
     "Dr. Jasmine Khan",
     "Prof. Oliver Martin"
 ]
+TEMPLATES = {
+    1: ["code\\assets\ppt_templates\\1.png", 0],
+    2: ["code\\assets\ppt_templates\\2.png", 0],
+    3: ["code\\assets\ppt_templates\\3.png", 1],
+    4: ["code\\assets\ppt_templates\\4.png", 0],
+    5: ["code\\assets\ppt_templates\\5.png", 0],
+    6: ["code\\assets\ppt_templates\\6.png", 0],
+    7: ["code\\assets\ppt_templates\\7.png", 1],
+    8: ["code\\assets\ppt_templates\\8.png", 0],
+    9: ["code\\assets\ppt_templates\\9.png", 1],
+    10: ["code\\assets\ppt_templates\\10.png", 1],
+    11: ["code\\assets\ppt_templates\\11.png", 1],
+    12: ["code\\assets\ppt_templates\\12.png", 1],
+    13: ["code\\assets\ppt_templates\\13.png", 1],
+    14: ["code\\assets\ppt_templates\\14.png", 0],
+    15: ["code\\assets\ppt_templates\\15.png", 1],
+    16: ["code\\assets\ppt_templates\\16.png", 0],
+    17: ["code\\assets\ppt_templates\\17.png", 1],
+    18: ["code\\assets\ppt_templates\\18.png", 0],
+}
 
+def pick_random_template(PROB=1) -> list:
+    path = ''
+    isDark = -1
+    if PROB > random.random():
+        path, isDark = TEMPLATES.get(random.randint(1, 18))
+    return [path, isDark]
+    
 
 def generate_random_color(PROB=0.6):
     if random.random() > PROB:
@@ -175,6 +202,7 @@ def generate_footer_obj():
     
 def generate_random_style_obj():
     style_obj = {}
+    style_obj["template"] = pick_random_template()
     style_obj["bg_color"] = generate_random_color(0.6)
     style_obj["title_font_family"] = pick_random(FONT_STYLES) 
     style_obj["title_font_bold"] = random.random() > 0.75

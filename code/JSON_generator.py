@@ -12,13 +12,6 @@ from random_generator import (generate_random_style_obj,
                               generate_contrasting_font_color,
                               generate_random_date,
                               pick_random_presenter)
-import pandas as pd
-import matplotlib.pyplot as plt
-from PIL import Image
-from io import BytesIO 
-import subprocess
-import fitz
-
 
 
 def count_footer_elements(date, showFN, showSN):
@@ -82,15 +75,28 @@ def remove_tmp_files():
 
 
 def generate_random_slide(slide_number, data, style_obj, footer_obj, presentation_ID):
-    bg_color, title_font_family, title_font_bold, title_font_attr, title_align, desc_font_family, desc_font_attr = style_obj["bg_color"], style_obj["title_font_family"], style_obj["title_font_bold"], style_obj["title_font_attr"], style_obj['title_align'], style_obj["desc_font_family"], style_obj["desc_font_attr"]
-    date = style_obj["date"]
+    bg_color, title_font_family, title_font_bold, title_font_attr, title_align,\
+          desc_font_family, desc_font_attr, date, tmp_list = style_obj["bg_color"], style_obj["title_font_family"],\
+              style_obj["title_font_bold"], style_obj["title_font_attr"], style_obj['title_align'], style_obj["desc_font_family"],\
+                  style_obj["desc_font_attr"], style_obj["date"], style_obj["template"]
+    tmp_path, isDark = tmp_list
     n_elements_list = count_body_elements(data, slide_number)
     total_body_elements = sum(n_elements_list)
     topic = data["topic"]
     title_dark, title_light = style_obj['title_font_dark'], style_obj['title_font_light']
     # Title Generation
-    ## Generate Font-level random values for Title 
-    title_font, font_color = generate_contrasting_font_color(bg_color, title_dark, title_light)
+    ## Generate Font-level random values for Title
+    if(tmp_path != ''):
+        if isDark == 0:
+            title_font = title_dark
+            font_color = {"r": 0, "g": 0, "b": 0}
+        elif isDark == 1:
+            title_font = title_light
+            font_color = {"r": 255, "g": 255, "b": 255}
+        else:
+            raise Exception('Invalid template list')
+    else:
+        title_font, font_color = generate_contrasting_font_color(bg_color, title_dark, title_light)
     ## Fetch Random content
     title_content = data["slides"][slide_number - 1]["title"]
     if(total_body_elements > 3):
@@ -127,10 +133,13 @@ def generate_random_slide(slide_number, data, style_obj, footer_obj, presentatio
     ## Skeleton Slide object with Slide-level metadata
     slide = {
         "pg_no": slide_number,
-        "bg_color": bg_color,
         "slide_layout": layout_id,
         "elements": {}
     }
+    if tmp_path != '':
+        slide["template"] = tmp_path
+    else:
+        slide["bg_color"] = bg_color
 
     ## Putting it together for the title object
     slide['elements']['title'] = [{
@@ -184,7 +193,7 @@ def generate_random_slide(slide_number, data, style_obj, footer_obj, presentatio
             element_index += 1
 
         ## Generate Enumerations
-        P_H = 0
+        P_H = 1
         h_enum_align, v_enum_align = pick_random("alignments")
         for _ in range(n_elements_list[1]):
             font_obj = generate_random_font("enumeration")
@@ -215,7 +224,8 @@ def generate_random_slide(slide_number, data, style_obj, footer_obj, presentatio
                 "ymin": all_dims['body'][element_index]['top'],
                 "width": all_dims['body'][element_index]['width'],
                 "height": 0.5,
-                }, 
+                }
+            
             slide['elements']['description'].append(enum_instance)
             element_index += 1
 
@@ -246,78 +256,156 @@ def generate_random_slide(slide_number, data, style_obj, footer_obj, presentatio
             slide['elements']['url'].append(desc_instance)
             element_index += 1
        
-        # Render Equations    
+        # Render Equations
+       
 
+        P_E = 1
         slide['elements']['equations'] = []
         for i in range(n_elements_list[3]):
-            img_path = data["slides"][slide_number - 1]["equations"][i]["path"]
-            eq_instance = {
-            "label": "equation",
-            "xmin": all_dims['body'][element_index]['left'],
-            "ymin": all_dims['body'][element_index]['top'],
-            "width": all_dims['body'][element_index]['width'],
-            "height": all_dims['body'][element_index]['height'],
-            "desc": data["slides"][slide_number - 1]["equations"][i]["desc"],
-            "path": img_path
-            }
-            slide['elements']['equations'].append(eq_instance)
-            element_index += 1
-            remove_tmp_files()
-
-        # Render Tables
-
-        slide['elements']['tables'] = []
-        for i in range(n_elements_list[4]):
-            img_path = data["slides"][slide_number - 1]["tables"][i]['path']
-            tab_instance = {
-            "label": "table",
-            "xmin": all_dims['body'][element_index]['left'],
-            "ymin": all_dims['body'][element_index]['top'],
-            "width": all_dims['body'][element_index]['width'],
-            "height": all_dims['body'][element_index]['height'],
-            "desc": data["slides"][slide_number - 1]["tables"][i]["desc"],
-            "path": img_path    
-            }
-            slide['elements']['tables'].append(tab_instance)
-            element_index += 1
-            remove_tmp_files()
-
-        # Render Figures
-        P_C = 0
-        slide['elements']['figures'] = []
-        for i in range(n_elements_list[5]):
-            font_obj = generate_random_font("enumeration")
-            # if data["slides"][slide_number - 1]["figures"][i]["label"] == "diagram":    
-            #     img_path = get_fig_img_path_matplot(data["slides"][slide_number - 1]["figures"][i]['fig_code'], slide_number, i)
-            # else:
-            img_path = data["slides"][slide_number - 1]["figures"][i]['path']
-            label = data["slides"][slide_number - 1]["figures"][i]['label'] 
-            fig_instance = {
-            "label": label,
-            "xmin": all_dims['body'][element_index]['left'],
-            "ymin": all_dims['body'][element_index]['top'],
-            "width": all_dims['body'][element_index]['width'],
-            "height": all_dims['body'][element_index]['height'] - 0.35,
-            "desc": data["slides"][slide_number - 1]["figures"][i]["desc"],
-            "path": img_path
-            }
-            if (P_C > random.random()):
-                fig_instance["caption"] = {
-                    "label": "caption",
-                    "value": data["slides"][slide_number - 1]["figures"][i]["desc"],
+            ele_ymin = all_dims['body'][element_index]['top']
+            ele_height = all_dims['body'][element_index]['height']
+            eq_instance = {}
+            if (P_E > random.random()):
+                ele_height =all_dims['body'][element_index]['height'] - 0.35 
+                if random.random() > 0.5:
+                # Caption below the visual element
+                    cap_ymin = all_dims['body'][element_index]['top'] + all_dims['body'][element_index]['height'] - 0.35 
+                else:
+                    # Caption above the visual element
+                    ele_ymin = all_dims['body'][element_index]['top'] + 0.35
+                    cap_ymin = all_dims['body'][element_index]['top']
+                eq_instance["caption"] = {
+                    "label": "equation_caption",
+                    "value": data["slides"][slide_number - 1]["equations"][i]["desc"],
                     "xmin": all_dims['body'][element_index]['left'],
-                    "ymin": all_dims['body'][element_index]['top'] + all_dims['body'][element_index]['height'] - 0.35,
+                    "ymin": cap_ymin,
                     "width": all_dims['body'][element_index]['width'],
                     "height": 0.35,
                     "style": {
                         "font_name": desc_font_family,
                         "font_size": 14,
                         "font_color": font_color,
-                        "bold": font_obj["bold"],
-                        "italics": True,
-                        "underlined": font_obj["underline"]
+                        "bold": random.random() > 0.5,
+                        "italics": random.random() > 0.25,
+                        "underlined": random.random() > 0.75
                 }
                 }
+            img_path = data["slides"][slide_number - 1]["equations"][i]["path"]
+            eq_instance = {**eq_instance, **{
+            "label": "equation",
+            "xmin": all_dims['body'][element_index]['left'],
+            "ymin": ele_height,
+            "width": all_dims['body'][element_index]['width'],
+            "height": ele_height,
+            "desc": data["slides"][slide_number - 1]["equations"][i]["desc"],
+            "path": img_path
+            }}
+            slide['elements']['equations'].append(eq_instance)
+            element_index += 1
+            remove_tmp_files()
+
+        # Render Table
+
+        P_T = 1
+        slide['elements']['tables'] = []
+        for i in range(n_elements_list[4]):
+            ele_ymin = all_dims['body'][element_index]['top']
+            ele_height = all_dims['body'][element_index]['height']
+            tab_instance = {}
+            if (P_T > random.random()):
+                ele_height =all_dims['body'][element_index]['height'] - 0.35 
+                if random.random() > 0.5:
+                # Caption below the visual element
+                    cap_ymin = all_dims['body'][element_index]['top'] + all_dims['body'][element_index]['height'] - 0.35 
+                else:
+                    # Caption above the visual element
+                    ele_ymin = all_dims['body'][element_index]['top'] + 0.35
+                    cap_ymin = all_dims['body'][element_index]['top']
+                tab_instance["caption"] = {
+                    "label": "table_caption",
+                    "value": data["slides"][slide_number - 1]["tables"][i]["desc"],
+                    "xmin": all_dims['body'][element_index]['left'],
+                    "ymin": cap_ymin,
+                    "width": all_dims['body'][element_index]['width'],
+                    "height": 0.35,
+                    "style": {
+                        "font_name": desc_font_family,
+                        "font_size": 14,
+                        "font_color": font_color,
+                        "bold": random.random() > 0.5,
+                        "italics": random.random() > 0.25,
+                        "underlined": random.random() > 0.75
+                }
+                }
+            
+                
+            img_path = data["slides"][slide_number - 1]["tables"][i]['path']
+            tab_instance = {**tab_instance, **{
+            "label": "table",
+            "xmin": all_dims['body'][element_index]['left'],
+            "ymin": ele_ymin,
+            "width": all_dims['body'][element_index]['width'],
+            "height": ele_height,
+            "desc": data["slides"][slide_number - 1]["tables"][i]["desc"],
+            "path": img_path    
+            }}
+            
+            slide['elements']['tables'].append(tab_instance)
+            element_index += 1
+            remove_tmp_files()
+
+        # Render Figures
+        P_F = 1
+        slide['elements']['figures'] = []
+        for i in range(n_elements_list[5]):
+            font_obj = generate_random_font("enumeration")
+            # if data["slides"][slide_number - 1]["figures"][i]["label"] == "diagram":    
+            #     img_path = get_fig_img_path_matplot(data["slides"][slide_number - 1]["figures"][i]['fig_code'], slide_number, i)
+            # else:
+            fig_instance = {}
+            img_path = data["slides"][slide_number - 1]["figures"][i]['path']
+            label = data["slides"][slide_number - 1]["figures"][i]['label']
+            ele_ymin = all_dims['body'][element_index]['top']
+            ele_height =  all_dims['body'][element_index]['height']
+            if (P_F > random.random()):
+                ele_height =  all_dims['body'][element_index]['height'] - 0.35
+                if random.random() > 0.5:
+                # Caption below the visual element
+                    cap_ymin = all_dims['body'][element_index]['top'] + all_dims['body'][element_index]['height'] - 0.35 
+                else:
+                    # Caption above the visual element
+                    ele_ymin = all_dims['body'][element_index]['top'] + 0.35
+                    cap_ymin = all_dims['body'][element_index]['top']
+                fig_instance["caption"] = {
+                    "label": "figure_caption",
+                    "value": data["slides"][slide_number - 1]["figures"][i]["desc"],
+                    "xmin": all_dims['body'][element_index]['left'],
+                    "ymin": cap_ymin,
+                    "width": all_dims['body'][element_index]['width'],
+                    "height": 0.35,
+                    "style": {
+                        "font_name": desc_font_family,
+                        "font_size": 14,
+                        "font_color": font_color,
+                        "bold": random.random() > 0.5,
+                        "italics": random.random() > 0.25,
+                        "underlined": random.random() > 0.75
+                }
+                }
+            
+            # if label == 'graph' or label == 'tree' or label == 'flow-chart' or label == 'block-diagram':
+            #     superlabel = 'diagram'
+            # else:
+            #     superlabel = 'graph'
+            fig_instance = {**fig_instance, **{
+            "label": label,
+            "xmin": all_dims['body'][element_index]['left'],
+            "ymin": ele_ymin,
+            "width": all_dims['body'][element_index]['width'],
+            "height": ele_height,
+            "desc": data["slides"][slide_number - 1]["figures"][i]["desc"],
+            "path": img_path
+            }}
 
             slide['elements']['figures'].append(fig_instance)
             element_index += 1

@@ -135,6 +135,7 @@ class Enumeration(Description):
         self.heading = heading
 
     def render(self, slide):
+        print(self.heading)
         if self.heading != None:
             left, top, width, height = self.heading['xmin'], self.heading['ymin'], self.heading['width'], self.heading['height']
             enum_heading = slide.shapes.add_textbox(Inches(left), Inches(top), Inches(width), Inches(height))
@@ -185,38 +186,67 @@ class Figure(Element):
         self.content = content
         
     def render(self, slide):
+        left, top, width, height = self.bounding_box
+        resized_img_path, n_w, n_h = resize_image(self.content, width, height)
         if self.caption != None:
             left_c, top_c, width_c, height_c = self.caption['xmin'], self.caption['ymin'], self.caption['width'], self.caption['height']
-            cap_shape = slide.shapes.add_textbox(Inches(left_c), Inches(top_c - (height - n_h)/2), Inches(width_c), Inches(height_c))
+            if top_c > top:
+                cap_shape = slide.shapes.add_textbox(Inches(left_c), Inches(top_c - (height - n_h)/2), Inches(width_c), Inches(height_c))
+            else:
+                cap_shape = slide.shapes.add_textbox(Inches(left_c), Inches(top_c + (height - n_h)/2), Inches(width_c), Inches(height_c))
             cap_shape.text = self.caption['value']
             self.apply_font_style(cap_shape)
             cap_shape.text_frame.auto_size = True
             cap_shape.text_frame.word_wrap = True
             cap_shape.text_frame.paragraphs[0].alignment = PP_ALIGN.CENTER
-        left, top, width, height = self.bounding_box
-        resized_img_path, n_w, n_h = resize_image(self.content, width, height)
         img = slide.shapes.add_picture(resized_img_path, Inches(left - (n_w - width)/2), Inches(top - (n_h - height)/2), Inches(n_w), Inches(n_h))
         
         self.image = img 
 
 class Equation(Element):
-    def __init__(self, content, style, bounding_box):
+    def __init__(self, content, style, bounding_box, caption):
         super().__init__(content, style, bounding_box)
+        self.caption = caption
+        self.content = content
 
     def render(self, slide):
         left, top, width, height = self.bounding_box
         resized_img_path, n_w, n_h = resize_image(self.content, width, height)
+        if self.caption != None:
+            left_c, top_c, width_c, height_c = self.caption['xmin'], self.caption['ymin'], self.caption['width'], self.caption['height']
+            if top_c > top:
+                cap_shape = slide.shapes.add_textbox(Inches(left_c), Inches(top_c - (height - n_h)/2), Inches(width_c), Inches(height_c))
+            else:
+                cap_shape = slide.shapes.add_textbox(Inches(left_c), Inches(top_c + (height - n_h)/2), Inches(width_c), Inches(height_c))
+            cap_shape.text = self.caption['value']
+            self.apply_font_style(cap_shape)
+            cap_shape.text_frame.auto_size = True
+            cap_shape.text_frame.word_wrap = True
+            cap_shape.text_frame.paragraphs[0].alignment = PP_ALIGN.CENTER
         img = slide.shapes.add_picture(resized_img_path, Inches(left - (n_w - width)/2), Inches(top - (n_h - height)/2), Inches(n_w), Inches(n_h))
         self.image = img 
 
 
 class Table(Element):
-    def __init__(self, content, style, bounding_box):
+    def __init__(self, content, style, bounding_box, caption):
         super().__init__(content, style, bounding_box)
+        self.caption = caption
+        self.content = content
 
     def render(self, slide):
         left, top, width, height = self.bounding_box
         resized_img_path, n_w, n_h = resize_image(self.content, width, height)
+        if self.caption != None:
+            left_c, top_c, width_c, height_c = self.caption['xmin'], self.caption['ymin'], self.caption['width'], self.caption['height']
+            if top_c > top:
+                cap_shape = slide.shapes.add_textbox(Inches(left_c), Inches(top_c - (height - n_h)/2), Inches(width_c), Inches(height_c))
+            else:
+                cap_shape = slide.shapes.add_textbox(Inches(left_c), Inches(top_c + (height - n_h)/2), Inches(width_c), Inches(height_c))
+            cap_shape.text = self.caption['value']
+            self.apply_font_style(cap_shape)
+            cap_shape.text_frame.auto_size = True
+            cap_shape.text_frame.word_wrap = True
+            cap_shape.text_frame.paragraphs[0].alignment = PP_ALIGN.CENTER
         img = slide.shapes.add_picture(resized_img_path, Inches(left - (n_w - width)/2), Inches(top - (n_h - height)/2), Inches(n_w), Inches(n_h))
         self.image = img 
         
@@ -241,6 +271,14 @@ class Footer(Element):
         self.position_element(textbox)
         self.textbox = textbox
 
+class Template():
+    def __init__(self, content):
+        self.content = content
+    def render(self, slide):
+        img = slide.shapes.add_picture(self.content, Inches(0), Inches(0), Inches(13.333), Inches(7.5))
+        slide.shapes._spTree.remove(img._element)
+        slide.shapes._spTree.insert(2, img._element)  
+        self.image = img
 
 class PresentationGenerator:
     def __init__(self, json_payload, subject_name, slide_id, version):
@@ -282,10 +320,14 @@ class PresentationGenerator:
             slide_layout = self.presentation.slide_layouts[1]
             slide = self.presentation.slides.add_slide(slide_layout)
             slide.background.fill.solid()
-            if slide_info['bg_color']:
+            if 'bg_color' in slide_info.keys():
                 slide.background.fill.fore_color.rgb = RGBColor(slide_info['bg_color']['r'], slide_info['bg_color']['g'], slide_info['bg_color']['b'])
             else:
-                slide.background.fill.fore_color.rgb = RGBColor(255, 255, 255)
+                slide.background.fill.fore_color.rgb = RGBColor(255, 255, 255)                
+            
+            if 'template' in slide_info.keys():
+                element = Template(slide_info['template'])
+                element.render(slide)
 
             for element_type, elements in slide_info['elements'].items():
                 for element_info in elements:
@@ -296,9 +338,15 @@ class PresentationGenerator:
                             element = Figure(element_info['path'], None, (element_info['xmin'], element_info['ymin'], element_info['width'], element_info['height']), None)
 
                     elif element_type == 'equations':
-                        element = Equation(element_info['path'], None, (element_info['xmin'], element_info['ymin'], element_info['width'], element_info['height']))
+                        if 'caption' in element_info.keys():
+                            element = Equation(element_info['path'], element_info['caption']['style'], (element_info['xmin'], element_info['ymin'], element_info['width'], element_info['height']), element_info['caption'])
+                        else:
+                            element = Equation(element_info['path'], None, (element_info['xmin'], element_info['ymin'], element_info['width'], element_info['height']), None)
                     elif element_type == 'tables':
-                        element = Table(element_info['path'], None, (element_info['xmin'], element_info['ymin'], element_info['width'], element_info['height']))
+                        if 'caption' in element_info.keys():
+                            element = Table(element_info['path'], element_info['caption']['style'], (element_info['xmin'], element_info['ymin'], element_info['width'], element_info['height']), element_info['caption'])
+                        else:
+                            element = Table(element_info['path'], None, (element_info['xmin'], element_info['ymin'], element_info['width'], element_info['height']), None)
                     elif element_type == 'url':
                         element = Description(element_info['value'], element_info['style'], (element_info['xmin'], element_info['ymin'], element_info['width'], element_info['height']))
                     elif element_type == 'description':

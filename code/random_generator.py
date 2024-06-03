@@ -110,6 +110,14 @@ TEMPLATES = {
     18: ["code\\assets\ppt_templates\\18.png", 0],
 }
 
+PROG_LANGS=[
+    'Python',
+    'Javascript',
+    'C++',
+    'Java',
+    'C'
+]
+
 def pick_random_template(PROB=1) -> list:
     path = ''
     isDark = -1
@@ -218,6 +226,8 @@ def generate_random_style_obj():
 def pick_random(list_name):
     if list_name == 'alignments':
         return [random.choice(H_ALIGNMENTS), random.choice(V_ALIGNMENTS)]
+    elif list_name == 'prog_langs':
+        return random.choice(PROG_LANGS)
     else:
         return random.choice(list_name)
 

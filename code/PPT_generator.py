@@ -135,7 +135,6 @@ class Enumeration(Description):
         self.heading = heading
 
     def render(self, slide):
-        print(self.heading)
         if self.heading != None:
             left, top, width, height = self.heading['xmin'], self.heading['ymin'], self.heading['width'], self.heading['height']
             enum_heading = slide.shapes.add_textbox(Inches(left), Inches(top), Inches(width), Inches(height))
@@ -271,6 +270,40 @@ class Footer(Element):
         self.position_element(textbox)
         self.textbox = textbox
 
+class CodeSnippet(Element):
+    def __init__(self, content, style, bounding_box):
+        super().__init__(content, style, bounding_box)
+
+    def render(self, slide):
+        left, top, width, height = self.bounding_box
+        code_shape = slide.shapes.add_textbox(Inches(left), Inches(top), Inches(width), Inches(height))
+        code_tf = code_shape.text_frame
+        if self.content != []:            
+            code_tf.text = self.content[0]
+            self.apply_font_style(code_shape)
+            # enum_tf.paragraphs[0].paragraph_format.alignment = MSO_ANCHOR.JUSTIFY
+            code_lines = self.content.split('\n')
+            for i, pt_text in enumerate(code_lines):
+                if i>0:
+                    if isinstance(pt_text, str):
+                        p = code_tf.add_paragraph()
+                        run = p.add_run()
+                        run.text = pt_text
+                        self.apply_font_style_on_run(run)
+                    else:
+                        raise Exception("Invalid Code lines format")
+                
+        code_tf.auto_size = True
+        code_tf.word_wrap = True
+        MAX_LINES = 10
+        if len(code_tf.paragraphs) > MAX_LINES:
+            for paragraph in code_tf.paragraphs[MAX_LINES:]:
+                paragraph.text = paragraph.text[:paragraph.text.rfind(' ')] + "..."
+        self.position_element(code_shape)
+        self.enum_tf = code_tf
+
+
+
 class Template():
     def __init__(self, content):
         self.content = content
@@ -347,6 +380,9 @@ class PresentationGenerator:
                             element = Table(element_info['path'], element_info['caption']['style'], (element_info['xmin'], element_info['ymin'], element_info['width'], element_info['height']), element_info['caption'])
                         else:
                             element = Table(element_info['path'], None, (element_info['xmin'], element_info['ymin'], element_info['width'], element_info['height']), None)
+                    
+                    elif element_type == 'code':
+                        element = CodeSnippet(element_info['value'], element_info['style'], (element_info['xmin'], element_info['ymin'], element_info['width'], element_info['height']))
                     elif element_type == 'url':
                         element = Description(element_info['value'], element_info['style'], (element_info['xmin'], element_info['ymin'], element_info['width'], element_info['height']))
                     elif element_type == 'description':

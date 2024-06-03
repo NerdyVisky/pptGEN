@@ -1,4 +1,4 @@
-
+from random_generator import pick_random
 
 
 outline_prompt = [
@@ -64,10 +64,10 @@ instruction_example = [
         {"element_type": "graph", "element_caption": "Visual introduction to the bell curve shape of Gaussian distributions"}
     ],
     "Historical Background": [
-        {"element_type": "description", "element_caption": "Discussion on the origin and development of Gaussian distributions"},
+        {"element_type": "enumeration", "element_caption": "Discussion on the origin and development of Gaussian distributions"},
     ],
     "The Normal Distribution: Definition": [
-        {"element_type": "description", "element_caption": "Formal definition of the normal distribution"},
+        {"element_type": "enumeration", "element_caption": "Listing the characteristics of a normal distribution"},
         {"element_type": "equation", "element_caption": "Mathematical equation of the normal distribution"}
     ],
     "Properties of Gaussian Distributions": [
@@ -79,54 +79,54 @@ instruction_example = [
         {"element_type": "plot", "element_caption": "Plot showing the probability density function across different values"}
     ],
     "Cumulative Distribution Function": [
-        {"element_type": "description", "element_caption": "Defining cumulative distribution function"},
+        {"element_type": "enumeration", "element_caption": "Listing properties of Culminative Density Function"},
         {"element_type": "plot", "element_caption": "Graphical representation of CDF for Gaussian distribution"}
     ],
     "Parameters of Gaussian Distribution: Mean and Variance": [
-        {"element_type": "description", "element_caption": "Explanation of mean and variance in Gaussian distributions"},
+        {"element_type": "enumeration", "element_caption": "Explanation of mean and variance in Gaussian distributions"},
         {"element_type": "table", "element_caption": "Table showing effects of different means and variances on the distribution shape"}
     ],
     "Standard Normal Distribution": [
-        {"element_type": "description", "element_caption": "Characteristics of the standard normal distribution"},
+        {"element_type": "enumeration", "element_caption": "Characteristics of the standard normal distribution"},
         {"element_type": "equation", "element_caption": "Equation defining the standard normal distribution"}
     ],
     "Z-Scores and Normalization": [
-        {"element_type": "description", "element_caption": "Explanation of Z-scores and their use in normalization"},
+        {"element_type": "enumeration", "element_caption": "Bulleted list having an explanation of Z-scores and their use in normalization"},
         {"element_type": "graph", "element_caption": "Graph showing transformation of data into Z-scores"}
     ],
     "Central Limit Theorem": [
-        {"element_type": "description", "element_caption": "Statement and explanation of the Central Limit Theorem"},
+        {"element_type": "enumeration", "element_caption": "Explainaing Central Limit Theorem in short bullet points"},
     ],
     "Applications of Gaussian Distributions": [
         {"element_type": "enumeration", "element_caption": "List of various applications in different fields"},
     ],
     "Estimating Parameters": [
-        {"element_type": "description", "element_caption": "Methods for estimating parameters of Gaussian distributions"},
+        {"element_type": "enumeration", "element_caption": "Listing the methods for estimating parameters of Gaussian distributions"},
         {"element_type": "block-diagram", "element_caption": "Diagram illustrating parameter estimation techniques"}
     ],
     "Maximum Likelihood Estimation": [
         {"element_type": "description", "element_caption": "Introduction to maximum likelihood estimation"},
         {"element_type": "equation", "element_caption": "Equation used in the maximum likelihood estimation for Gaussian"},
-        {"element_type": "equation", "element_caption": "An MLE equation used in Deep Learning"}
+        {"element_type": "code", "element_caption": "Code example of calculating the Maximum Likelihood of an outcome"}
     ],
     "Gaussian Distributions in Machine Learning": [
-        {"element_type": "description", "element_caption": "Overview of how Gaussian distributions are used in machine learning"},
+        {"element_type": "enumeration", "element_caption": "Overview of how Gaussian distributions are used in machine learning"},
         {"element_type": "flow-chart", "element_caption": "Flowchart showing steps in a machine learning model using Gaussian assumptions"}
     ],
     "Multivariate Gaussian Distribution": [
-        {"element_type": "description", "element_caption": "Explanation of multivariate Gaussian distributions"},
+        {"element_type": "enumeration", "element_caption": "Explanation of multivariate Gaussian distributions"},
         {"element_type": "3d-plot", "element_caption": "3D plot of a multivariate Gaussian distribution"}
     ],
     "Covariance and Correlation Matrices": [
-        {"element_type": "description", "element_caption": "Defining covariance and correlation in the context of Gaussian distributions"},
+        {"element_type": "enumeration", "element_caption": "Defining covariance and correlation in the context of Gaussian distributions"},
         {"element_type": "table", "element_caption": "Table showing example covariance and correlation matrices"}
     ],
     "Sampling from a Multivariate Gaussian": [
-        {"element_type": "description", "element_caption": "Techniques for sampling from a multivariate Gaussian distribution"},
-        {"element_type": "plot", "element_caption": "Plot showing samples drawn from a multivariate Gaussian"}
+        {"element_type": "enumeration", "element_caption": "Techniques for sampling from a multivariate Gaussian distribution"},
+        {"element_type": "code", "element_caption": "Code example to sample a gaussian distribution"}
     ],
     "Gaussian Processes": [
-        {"element_type": "description", "element_caption": "Introduction to Gaussian processes"},
+        {"element_type": "enumeration", "element_caption": "Introduction to Gaussian processes"},
         {"element_type": "graph", "element_caption": "Graph illustrating a simple Gaussian process"}
     ],
     "Challenges and Limitations of Gaussian Models": [
@@ -134,7 +134,7 @@ instruction_example = [
         {"element_type": "enumeration", "element_caption": "List of common issues and scenarios where Gaussian models may fail"}
     ],
     "Summary and Conclusions": [
-        {"element_type": "description", "element_caption": "Recap of key points covered in the presentation"},
+        {"element_type": "enumeration", "element_caption": "Recap of key points covered in the presentation"},
     ]
 }
 """}
@@ -145,7 +145,7 @@ instruction_prompt = ("human", """Hello. I want you to help me prepare lecture s
                  The elements can be as follows: {elements}.\n
                  You should generate exactly two elements per slide. Do not generate more of less elements per slide.\n
                  Whenever possible generate atleast one text based element (Description, URL, or Enumeration) and one visual element (Rest of the elements) per subsection, such that there is diversity in elements.\n
-                 As a rule of thumb, make sure the distribution of elements is nearly same for the entire presentation.\n 
+                 As a rule of thumb, make sure the distribution of elements is nearly same for the entire presentation, but also that enumeration dominates overall given it's the most imporatant element.\n 
                  I want you to generate the results within the outline and only output the revised outline without any conversation.\n
                  Do not generate the slide numbers in the output, they are just for your reference.
                  Your output should be in form of a Python Dict.
@@ -160,7 +160,7 @@ instruction_example_prompt = [
                  The elements can be as follows: {elements}.\n
                  You should provide one or two elements per slide.\n
                  Whenever possible generate atleast one text based element (Description, URL, or Enumeration) and one visual element (Rest of the elements) per subsection, such that there is diversity in elements.\n
-                 As a rule of thumb, make sure the distribution of elements is nearly same for the entire presentation.\n 
+                 As a rule of thumb, make sure the distribution of elements is nearly same for the entire presentation, but also that enumeration dominates overall given it's the most imporatant element.\n 
                  And prefer suggesting more enumerations and urls in text content as they are easier to understand in a presentation.\n
                  I want you to generate the results within the outline and only output the revised outline without any conversation.\n
                  Your output should be in form of a Python Dict.
@@ -269,7 +269,8 @@ Do not generate additional text elements other than one mentioned in the instruc
 def construct_generation_prompts(instruct_content, topic):
     prompts = [f"I am providing some instructions which are related to generating structural content for a presentation like tables and equations on {topic}.\n"
                , f"I am providing some instructions which are related to generating plots for a presentation on {topic}.\n"
-               , f"I am providing some instructions which are related to generating diagrams and figures for a presentation on {topic}.\n"]
+               , f"I am providing some instructions which are related to generating diagrams and figures for a presentation on {topic}.\n"
+               , f"I am providing some instructions which are related to generating code for a particular example being discuseed in a presentation on {topic}.\n"]
     # prompts -> ['text', 'structural (LaTeX)', 'plots (Matplotlib)', 'figures (DOT + GraphViz)']
     positions = [{
                   "tables": {},
@@ -287,6 +288,9 @@ def construct_generation_prompts(instruct_content, topic):
                     "graph": {},
                     "flow-chart": {},
                     "block-diagram": {} 
+                 },
+                 {
+                     "code": {}
                  }]
     
     captions = [{
@@ -305,6 +309,9 @@ def construct_generation_prompts(instruct_content, topic):
                     "graph": {},
                     "flow-chart": {},
                     "block-diagram": {} 
+                 },
+                 {
+                     "code": {}
                  }]
 
 
@@ -312,6 +319,7 @@ def construct_generation_prompts(instruct_content, topic):
     n_s = 0
     n_p = 0
     n_f = 0
+    n_c = 0
     for slide, elements in instruct_content.items():
         for element in elements:
             context_line = f"For the section title '{slide}'(Slide Number {i+1})"
@@ -334,6 +342,12 @@ def construct_generation_prompts(instruct_content, topic):
                 positions[2][element_type][n_f] = i + 1
                 captions[2][element_type][n_f] = element_caption
                 prompts[2] += (context_line + f" generate DOT language code for a simple {element_type} given the caption: {element_caption}\n")
+            elif element_type in ["code"]:
+                LANGUAGE = pick_random('prog_langs')
+                n_c += 1
+                positions[3][element_type][n_c] = i + 1
+                captions[3][element_type][n_c] = element_caption
+                prompts[3] += (context_line + f"generate {LANGUAGE} language code for: {element_caption}. Do not provide any input and output examples in the code. Just the basic code function. Do not provide more than 20 lines of code in any case.")
         i+=1
                 
   
@@ -357,5 +371,9 @@ def construct_generation_prompts(instruct_content, topic):
     Verify the syntax of the DOT Language code that you generate.\n
     Strictly DO NOT add any textual caption in the figure. It should be a figure with no caption at the bottom. And do not provide any conversation.\n
     Do not generate additional elements unless they are part of the above request. Once generating the all the code snipptes, verify that the total number of snippets generated are the same as total number of requests."""
+    prompts[3] += """
+    Generate code as plain text seperated by ```code<content>``` and three line breaks. Make sure to not make any syntax errors, and hence double check each output code snippet.\n
+    Keep the following in mind:\n
+    Do not generate additional elements unless they are part of the above request. Once generating the all the code snipptes, verify that the total number of snippets generated are the same as total number of requests."""
     # Return the constructed prompts
-    return [prompts, positions, captions, [n_s, n_p, n_f]]
+    return [prompts, positions, captions, [n_s, n_p, n_f, n_c]]

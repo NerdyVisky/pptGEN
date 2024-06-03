@@ -31,6 +31,7 @@ def count_body_elements(data, slide_number):
     ttl_eq = 0
     ttl_tb = 0
     ttl_fig = 0
+    ttl_cd = 0
     for k, v in data["slides"][slide_number - 1].items():
         if k == 'description' and v != "":
             ttl_desc = 1
@@ -44,7 +45,9 @@ def count_body_elements(data, slide_number):
             ttl_tb = len(v)
         elif k == 'figures' and v:
             ttl_fig = len(v)
-    return [ttl_desc, ttl_enum, ttl_url, ttl_eq, ttl_tb, ttl_fig]
+        elif k == 'code' and v:
+            ttl_cd = len(v)
+    return [ttl_desc, ttl_enum, ttl_url, ttl_eq, ttl_tb, ttl_fig, ttl_cd]
 
 def remove_tmp_files():
     tmp_files = ['tmp.tex', 'tmp.aux', 'tmp.log', 'tmp.pdf']
@@ -244,7 +247,7 @@ def generate_random_slide(slide_number, data, style_obj, footer_obj, presentatio
             "height": all_dims['body'][element_index]['height'],
             "style": {
                 "font_name": desc_font_family,
-                "font_size": desc_font_attr["font_size"],
+                "font_size": font_obj['font_size'],
                 "font_color": {"r": 0, "g": 0, "b": 238},
                 "bold": False,
                 "italics": True,
@@ -410,6 +413,33 @@ def generate_random_slide(slide_number, data, style_obj, footer_obj, presentatio
             slide['elements']['figures'].append(fig_instance)
             element_index += 1
             remove_tmp_files()
+    
+        slide['elements']['code'] = []
+        for i in range(n_elements_list[6]):
+            font_obj = generate_random_font("url")
+            value = data["slides"][slide_number - 1]["code"][i]['value']
+            caption = data["slides"][slide_number - 1]["code"][i]['desc']
+            code_instance = {
+            "label": "code",
+            "desc": caption,
+            "value": value,
+            "xmin": all_dims['body'][element_index]['left'],
+            "ymin": all_dims['body'][element_index]['top'],
+            "width": all_dims['body'][element_index]['width'],
+            "height": all_dims['body'][element_index]['height'],
+            "style": {
+                "font_name": 'Courier New',
+                "font_size": font_obj['font_size'],
+                "font_color": font_color,
+                "bold": False,
+                "italics": False,
+                "underlined": False,
+                "h_align": 'left',
+                "v_align": 'top'
+               }
+            } 
+            slide['elements']['code'].append(code_instance)
+            element_index += 1
         
 
     ##Footer generation
@@ -475,6 +505,7 @@ if __name__ == "__main__":
             for ver in range(DUP_FAC):
                 style_obj = generate_random_style_obj()
                 footer_obj = generate_footer_obj()
+                
                 slides = [generate_random_slide(i+1, data, style_obj, footer_obj, presentation_ID) for i in range(n_slides)]
                 new_data = {
                     "slide_id": presentation_ID,

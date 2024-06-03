@@ -216,14 +216,40 @@ def generate_plot_content(prompt, model, presentation_ID):
     os.rename(py_code_dump, os.path.join(dir_path, presentation_ID, 'plots_code.txt'))
     return plot_img_paths
 
+@traceable(name='Code Snippets')
+def generate_code_snippets(prompt, model, presentation_ID):
+    gen_code = model.invoke(prompt).content
+    # gen_plot = generate_content(prompt, model).content
+    code_dump = f"code/buffer/{presentation_ID}_cd.txt"
+    with open(code_dump, 'w') as file:
+        file.write(gen_code)
 
-def assemble_elements(text_json, struct_imgs, plot_imgs, figure_imgs, positions, prompts, captions):
+    with open(code_dump, 'r') as file:
+        content = file.read()
+
+    pattern = r'```code(.*?)```'
+    matches = re.findall(pattern, content, re.DOTALL)
+    code_dir = 'code/buffer/code'
+    code_snip_paths = []
+    for i, match in enumerate(matches):
+        code_snippet = match.strip() # Remove leading/trailing whitespace
+        os.makedirs(os.path.join(code_dir, presentation_ID), exist_ok=True)
+        code_file_path = os.path.join(code_dir, presentation_ID, f'{i+1}') + '.txt'
+        with open(code_file_path, 'w') as file:
+            file.write(code_snippet)
+        code_snip_paths.append(code_file_path)
+    dir_path = 'code/buffer/vis_dump'
+    os.rename(code_dump, os.path.join(dir_path, presentation_ID, 'code_snips.txt'))
+    return code_snip_paths
+
+def assemble_elements(text_json, struct_imgs, plot_imgs, figure_imgs, code_files, positions, prompts, captions):
     # text_json = json.loads(text_json)
     vis_eles = [struct_imgs, plot_imgs, figure_imgs]
     for slide in text_json["slides"]:
         slide["equations"] = []
         slide["tables"] = []
         slide["figures"] = []
+        slide['code'] = []
     for ind, imgs in enumerate(vis_eles):
         # prompt_lines = prompts[ind].split('\n')
         for i, img_path in enumerate(imgs):
@@ -253,6 +279,22 @@ def assemble_elements(text_json, struct_imgs, plot_imgs, figure_imgs, positions,
                 obj['label'] = element_name
                 text_json["slides"][slide_number - 1]["figures"].append(obj)
     
+    
+    for i, file_path in enumerate(code_files):
+        file_name = os.path.basename(file_path)
+        name = file_name.split('.')[0]
+        if int(name) in positions[3]['code'].keys():
+            slide_number = positions[3]['code'][int(name)]
+            caption = captions[3]['code'][int(name)]
+        with open(file_path, 'r') as f:
+            code_snip = f.read()
+        obj = {
+            'desc': caption,
+            'value': code_snip,
+            'label': 'code'
+        }
+        text_json["slides"][slide_number - 1]['code'].append(obj)
+
     return text_json
 
 

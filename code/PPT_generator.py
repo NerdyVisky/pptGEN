@@ -129,6 +129,19 @@ class Description(Element):
         self.position_element(textbox)
         self.textbox = textbox
 
+class Reference(Element):
+    def __init__(self, content, style, bounding_box):
+        super().__init__(content, style, bounding_box)
+    def render(self, slide):
+        left, top, width, height = self.bounding_box
+        textbox = slide.shapes.add_textbox(Inches(left), Inches(top), Inches(width), Inches(height))
+        textbox.text = self.content
+        self.apply_font_style(textbox)
+        textbox.text_frame.auto_size = True
+        textbox.text_frame.word_wrap = True 
+        self.position_element(textbox)
+        self.textbox = textbox
+
 class Enumeration(Description):
     def __init__(self, content, style, bounding_box, heading):
         super().__init__(content, style, bounding_box)
@@ -302,7 +315,16 @@ class CodeSnippet(Element):
         self.position_element(code_shape)
         self.enum_tf = code_tf
 
-
+class Graphic(Element):
+    def __init__(self, content, style, bounding_box):
+        super().__init__(content, style, bounding_box)
+    
+    def render(self, slide):
+        left, top, width, height = self.bounding_box
+        img = slide.shapes.add_picture(self.content, Inches(left), Inches(top), Inches(width), Inches(height))
+        # slide.shapes._spTree.remove(img._element)
+        # slide.shapes._spTree.insert(1, img._element)
+        self.image = img 
 
 class Template():
     def __init__(self, content):
@@ -348,7 +370,7 @@ class PresentationGenerator:
         self.presentation.slide_width = Inches(13.333)
         self.presentation.slide_height = Inches(7.5)
         MUL_FAC = 1.33
-        self.insert_title_slide(MUL_FAC)
+        # self.insert_title_slide(MUL_FAC)
         for slide_info in self.json_payload['slides']:
             slide_layout = self.presentation.slide_layouts[1]
             slide = self.presentation.slides.add_slide(slide_layout)
@@ -364,7 +386,10 @@ class PresentationGenerator:
 
             for element_type, elements in slide_info['elements'].items():
                 for element_info in elements:
-                    if element_type == 'figures':
+                    if element_type == 'graphic':
+                        if element_info['label'] == 'logo':
+                            element = Graphic(element_info['value'], None, (element_info['xmin'], element_info['ymin'], element_info['width'], element_info['height']))
+                    elif element_type == 'figures':
                         if 'caption' in element_info.keys():
                             element = Figure(element_info['path'], element_info['caption']['style'], (element_info['xmin'], element_info['ymin'], element_info['width'], element_info['height']), element_info['caption'])
                         else:
@@ -383,16 +408,14 @@ class PresentationGenerator:
                     
                     elif element_type == 'code':
                         element = CodeSnippet(element_info['value'], element_info['style'], (element_info['xmin'], element_info['ymin'], element_info['width'], element_info['height']))
-                    elif element_type == 'url':
-                        element = Description(element_info['value'], element_info['style'], (element_info['xmin'], element_info['ymin'], element_info['width'], element_info['height']))
-                    elif element_type == 'description':
+                    elif element_type == 'refs':
+                        element = Reference(element_info['value'], element_info['style'], (element_info['xmin'], element_info['ymin'], element_info['width'], element_info['height']))
+                    elif element_type == 'text':
                         if element_info['label'] == "enumeration":
                             if 'heading' in element_info.keys():
                                 element = Enumeration(element_info['value'], element_info['style'], (element_info['xmin'], element_info['ymin'], element_info['width'], element_info['height']), element_info['heading'])
                             else:
-                                element = Enumeration(element_info['value'], element_info['style'], (element_info['xmin'], element_info['ymin'], element_info['width'], element_info['height']), None)
-
-                                
+                                element = Enumeration(element_info['value'], element_info['style'], (element_info['xmin'], element_info['ymin'], element_info['width'], element_info['height']), None)                             
                         else:
                             element = Description(element_info['value'], element_info['style'], (element_info['xmin'], element_info['ymin'], element_info['width'], element_info['height']))
                     elif element_type == 'title':

@@ -11,7 +11,9 @@ from random_generator import (generate_random_style_obj,
                               generate_n_numbers_with_sum, 
                               generate_contrasting_font_color,
                               generate_random_date,
-                              pick_random_presenter)
+                              pick_random_presenter,
+                              generate_title_slide_obj
+                              )
 
 
 def count_footer_elements(date, showFN, showSN):
@@ -37,8 +39,8 @@ def count_body_elements(data, slide_number):
             ttl_desc = 1
         elif k == 'enumeration' and v:
             ttl_enum = 1
-        elif k == 'url' and v != "":
-            ttl_url = 1
+        # elif k == 'url' and v != "":
+        #     ttl_url = 1
         elif k == 'equations' and v:
             ttl_eq = len(v)
         elif k == 'tables' and v:
@@ -47,7 +49,8 @@ def count_body_elements(data, slide_number):
             ttl_fig = len(v)
         elif k == 'code' and v:
             ttl_cd = len(v)
-    return [ttl_desc, ttl_enum, ttl_url, ttl_eq, ttl_tb, ttl_fig, ttl_cd]
+    # return [ttl_desc, ttl_enum, ttl_url, ttl_eq, ttl_tb, ttl_fig, ttl_cd]
+    return [ttl_desc, ttl_enum, 0, ttl_eq, ttl_tb, ttl_fig, ttl_cd]
 
 def remove_tmp_files():
     tmp_files = ['tmp.tex', 'tmp.aux', 'tmp.log', 'tmp.pdf']
@@ -76,15 +79,117 @@ def remove_tmp_files():
     #         if os.path.isfile(file_path):
     #             os.remove(file_path)
 
+def insert_title_slide(data, style_obj, course_code):
+    slide = {
+        "pg_no": 0,
+        "slide_layout": 0,
+        "elements": {}
+    }
+    title_obj = generate_title_slide_obj()
+    layouts = CustomLayouts()
+    all_dims = layouts.get_layout_dimensions(0)
+    slide['elements']['footer'] = []
+    for i, obj in enumerate(title_obj):
+        if 'PT' in obj.keys():
+            slide['elements']['title'] = [{
+                "label": 'presentation_title',
+                "value": data["topic"],
+                "xmin": all_dims['topic_slide'][obj['PT']]['left'],
+                "ymin": all_dims['topic_slide'][obj['PT']]['top'],
+                "width": all_dims['topic_slide'][obj['PT']]['width'],
+                "height": all_dims['topic_slide'][obj['PT']]['height'],
+                "style": {
+                    "font_name": style_obj['title_font_family'],
+                    "font_size": style_obj['title_font_attr']["font_size"],
+                    "font_color": style_obj['title_font_dark'],
+                    "bold": style_obj["title_font_bold"],
+                    "italics": False,
+                    "underlined": False
+                }
+            }]
+        if 'DT' in obj.keys():
+            footer_instance = {
+                "label": 'date',
+                "location": 2,
+                "value": style_obj['date'],
+                "xmin": all_dims['topic_slide'][obj['DT']]['left'],
+                "ymin": all_dims['topic_slide'][obj['DT']]['top'],
+                "width": all_dims['topic_slide'][obj['DT']]['width'],
+                "height": all_dims['topic_slide'][obj['DT']]['height'],
+                "style": {
+                    "font_name": style_obj['desc_font_family'],
+                    "font_size": style_obj['desc_font_attr']["font_size"],
+                    "font_color": style_obj['title_font_dark'],
+                    "bold": False,
+                    "italics": False,
+                    "underlined": False
+                }
+            }
+            slide['elements']['footer'].append(footer_instance)
 
-def generate_random_slide(slide_number, data, style_obj, footer_obj, presentation_ID):
+
+        if 'CC' in obj.keys():
+            footer_instance = {
+                "label": 'course_code',
+                "location": 2,
+                "value": course_code,
+                "xmin": all_dims['topic_slide'][obj['CC']]['left'],
+                "ymin": all_dims['topic_slide'][obj['CC']]['top'],
+                "width": all_dims['topic_slide'][obj['CC']]['width'],
+                "height": all_dims['topic_slide'][obj['CC']]['height'],
+                "style": {
+                    "font_name": style_obj['desc_font_family'],
+                    "font_size": style_obj['desc_font_attr']["font_size"],
+                    "font_color": style_obj['title_font_dark'],
+                    "bold": False,
+                    "italics": False,
+                    "underlined": False
+                }
+            }
+            slide['elements']['footer'].append(footer_instance)
+
+        if 'Lg' in obj.keys():
+            slide['elements']['graphic'] = [{
+                "label": 'logo',
+                "value": 'code\\assets\logos\iiit_h_logo.jpg',
+                "xmin": all_dims['topic_slide'][obj['Lg']]['left'],
+                "ymin": all_dims['topic_slide'][obj['Lg']]['top'],
+                "width": all_dims['topic_slide'][obj['Lg']]['width'],
+                "height": all_dims['topic_slide'][obj['Lg']]['height']
+            }]
+        if 'Is' in obj.keys():
+            footer_instance = {
+                "label": 'instructor',
+                "location": 2,
+                "value": style_obj['instructor'],
+                "xmin": all_dims['topic_slide'][obj['Is']]['left'],
+                "ymin": all_dims['topic_slide'][obj['Is']]['top'],
+                "width": all_dims['topic_slide'][obj['Is']]['width'],
+                "height": all_dims['topic_slide'][obj['Is']]['height'],
+                "style": {
+                    "font_name": style_obj['desc_font_family'],
+                    "font_size": style_obj['desc_font_attr']["font_size"],
+                    "font_color": style_obj['title_font_dark'],
+                    "bold": False,
+                    "italics": False,
+                    "underlined": False
+                }
+            }
+            slide['elements']['footer'].append(footer_instance)
+    return slide       
+    
+
+
+def generate_random_slide(slide_number, data, style_obj, footer_obj, course_code, presentation_ID):
     bg_color, title_font_family, title_font_bold, title_font_attr, title_align,\
           desc_font_family, desc_font_attr, date, tmp_list = style_obj["bg_color"], style_obj["title_font_family"],\
               style_obj["title_font_bold"], style_obj["title_font_attr"], style_obj['title_align'], style_obj["desc_font_family"],\
                   style_obj["desc_font_attr"], style_obj["date"], style_obj["template"]
     tmp_path, isDark = tmp_list
+    logo_path, logo_width, logo_height, pos = style_obj['logo']
     n_elements_list = count_body_elements(data, slide_number)
     total_body_elements = sum(n_elements_list)
+    print(total_body_elements)
     topic = data["topic"]
     title_dark, title_light = style_obj['title_font_dark'], style_obj['title_font_light']
     # Title Generation
@@ -143,6 +248,24 @@ def generate_random_slide(slide_number, data, style_obj, footer_obj, presentatio
         slide["template"] = tmp_path
     else:
         slide["bg_color"] = bg_color
+    
+    if logo_path != '':
+        if pos == 1:
+            xmin = 0
+            ymin = 0
+        else:
+            xmin = (11.333 + (2 - logo_width))
+            ymin = 0
+
+            
+        slide["elements"]["graphic"] = [{
+            "label": "logo",
+            "value": logo_path,
+            "xmin": xmin,
+            "ymin": ymin,
+            "width": logo_width,
+            "height": logo_height,
+        }]
 
     ## Putting it together for the title object
     slide['elements']['title'] = [{
@@ -170,7 +293,7 @@ def generate_random_slide(slide_number, data, style_obj, footer_obj, presentatio
         element_index = 0
         h_desc_align, v_desc_align = pick_random("alignments")
         ## Generate Descriptions
-        slide['elements']['description'] = []
+        slide['elements']['text'] = []
         for _ in range(n_elements_list[0]):
             font_obj = generate_random_font("description")
             desc = data["slides"][slide_number - 1]["description"]
@@ -192,7 +315,7 @@ def generate_random_slide(slide_number, data, style_obj, footer_obj, presentatio
                 "v_align": v_desc_align
                }
             } 
-            slide['elements']['description'].append(desc_instance)
+            slide['elements']['text'].append(desc_instance)
             element_index += 1
 
         ## Generate Enumerations
@@ -229,22 +352,22 @@ def generate_random_slide(slide_number, data, style_obj, footer_obj, presentatio
                 "height": 0.5,
                 }
             
-            slide['elements']['description'].append(enum_instance)
+            slide['elements']['text'].append(enum_instance)
             element_index += 1
 
 
         #Render URLs
         h_url_align, v_url_align = ['left', 'center']
-        slide['elements']['url'] = []
-        for _ in range(n_elements_list[2]):
+        slide['elements']['refs'] = []
+        for _ in range(1):
             font_obj = generate_random_font("url")
             desc = data["slides"][slide_number - 1]["url"]
             desc_instance = {
             "value": desc,
-            "xmin": all_dims['body'][element_index]['left'],
-            "ymin": all_dims['body'][element_index]['top'],
-            "width": all_dims['body'][element_index]['width'],
-            "height": all_dims['body'][element_index]['height'],
+            "xmin": 0.5 if random.random() > 0.5 else 5*1.333,
+            "ymin": 6.5 if random.random() > 0.5 else 1.5,
+            "width": 4.5*1.333,
+            "height": 0.5,
             "style": {
                 "font_name": desc_font_family,
                 "font_size": font_obj['font_size'],
@@ -256,8 +379,7 @@ def generate_random_slide(slide_number, data, style_obj, footer_obj, presentatio
                 "v_align": v_url_align
                }
             } 
-            slide['elements']['url'].append(desc_instance)
-            element_index += 1
+            slide['elements']['refs'].append(desc_instance)
        
         # Render Equations
        
@@ -449,9 +571,12 @@ def generate_random_slide(slide_number, data, style_obj, footer_obj, presentatio
         if 'slideNr' in obj.keys():
             footer_type = 'slideNr'
             value = str(slide_number)
-        if 'footnote' in obj.keys():
-            footer_type = 'footnote'
-            value = topic
+        if 'affiliation' in obj.keys():
+            footer_type = 'affiliation'
+            value = style_obj["instructor"]
+        if 'course_code' in obj.keys():
+            footer_type = 'course_code'
+            value = course_code
         if 'date' in obj.keys():
             footer_type = 'date'
             value = date         
@@ -502,19 +627,21 @@ if __name__ == "__main__":
                 data = json.load(file)
             n_slides = len(data["slides"])
             subject = data["subject"]
+            course_code = f'{subject} {random.randint(100, 300)}'
             for ver in range(DUP_FAC):
                 style_obj = generate_random_style_obj()
                 footer_obj = generate_footer_obj()
-                
-                slides = [generate_random_slide(i+1, data, style_obj, footer_obj, presentation_ID) for i in range(n_slides)]
+                all_slide = [insert_title_slide(data, style_obj, course_code)]
+                slides = [generate_random_slide(i+1, data, style_obj, footer_obj, course_code, presentation_ID) for i in range(n_slides)]
+                all_slide.extend(slides)
                 new_data = {
                     "slide_id": presentation_ID,
                     "n_slides": len(slides),
                     "topic" : data["topic"],
                     "subject": subject,
-                    "presenter": pick_random_presenter(),
-                    "date": generate_random_date(),
-                    "slides": slides
+                    "presenter": style_obj['instructor'],
+                    "date": style_obj['date'],
+                    "slides": all_slide
                 }
                 if not os.path.exists(f"code/buffer/full/{directory}"):
                     os.mkdir(f"code/buffer/full/{directory}")

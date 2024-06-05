@@ -1,5 +1,7 @@
 import random
 from datetime import datetime
+from utils.os_helpers import resize_image
+
 
 FONT_STYLES = [
     "Arial",
@@ -109,6 +111,12 @@ TEMPLATES = {
     17: ["code\\assets\ppt_templates\\17.png", 1],
     18: ["code\\assets\ppt_templates\\18.png", 0],
 }
+LOGO_URLS = [
+    'code\\assets\logos\cvit_logo.jpg',
+    'code\\assets\logos\iiit_h_logo.jpg',
+    'code\\assets\logos\\nptel_logo.jpg',
+    'code\\assets\logos\\nyu_courant_logo_2.png'
+]
 
 PROG_LANGS=[
     'Python',
@@ -118,11 +126,19 @@ PROG_LANGS=[
     'C'
 ]
 
+def pick_random_logo(PROB=1):
+    path = ''
+    if PROB > random.random():
+        path = LOGO_URLS[random.randint(0, len(LOGO_URLS) - 1)]
+        pos = random.randint(1, 2)
+        path, n_w, n_h = resize_image(path, 2, 1)
+    return path, n_w, n_h, pos
+
 def pick_random_template(PROB=1) -> list:
     path = ''
     isDark = -1
     if PROB > random.random():
-        path, isDark = TEMPLATES.get(random.randint(1, 18))
+        path, isDark = TEMPLATES.get(random.randint(1, len(TEMPLATES)))
     return [path, isDark]
     
 
@@ -202,9 +218,51 @@ def generate_footer_obj():
         footer_inds.append({"date": inds[i]})
         i+=1
     if showFN:
-        footer_inds.append({"footnote": inds[i]})
+        if random.random() > 0.5:
+            footer_inds.append({"affiliation": inds[i]})
+        else:
+            footer_inds.append({"course_code": inds[i]})
         i+=1
     return footer_inds
+
+def generate_title_slide_obj():
+    showPT = random.random() > 0.25
+    showLg = random.random() > 0.5
+    showCC = random.random() > 0.5 
+    showDt = random.random() > 0.75 
+    showIs = random.random() > 0.75
+    total_slide_elements = 0
+    if showPT:
+        total_slide_elements += 1
+    if showLg:
+        total_slide_elements += 1
+    if showCC:
+        total_slide_elements += 1
+    if showDt:
+        total_slide_elements += 1
+    if showIs:
+        total_slide_elements += 1
+    # inds = random.sample(range(9), total_slide_elements)
+    inds = random.sample(range(5), total_slide_elements)
+    i = 0
+    title_inds = []
+    if showPT:
+        title_inds.append({"PT": inds[i]})
+        i+=1
+    if showDt:
+        title_inds.append({"DT": inds[i]})
+        i+=1
+    if showCC:
+        title_inds.append({"CC": inds[i]})
+        i+=1
+    if showLg:
+        title_inds.append({"Lg": inds[i]})
+        i+=1
+    if showIs:
+        title_inds.append({"Is": inds[i]})
+        i+=1
+
+    return title_inds
 
 
     
@@ -221,6 +279,8 @@ def generate_random_style_obj():
     style_obj["desc_font_family"] = pick_random(FONT_STYLES)
     style_obj["desc_font_attr"] = generate_random_font("description")
     style_obj["date"] = generate_random_date()
+    style_obj['logo'] = pick_random_logo()
+    style_obj["instructor"] = pick_random_presenter()
     return style_obj
 
 def pick_random(list_name):

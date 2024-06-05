@@ -2,7 +2,41 @@ MUL_FAC = 1.333
 class CustomLayouts:
     def __init__(self):
         self.dimensions = {'title' : {'type': 1, 'left': 0.5, 'top': 0.3, 'width': 9*MUL_FAC, 'height': 1.25},
-                           'footer': [{'type' : 1, 'left': 0.5, 'top': 7, 'width': 3*MUL_FAC, 'height': 0.5}, {'type' : 2, 'left': 3.5*MUL_FAC, 'top': 7, 'width': 3*MUL_FAC, 'height': 0.5}, {'type' : 3, 'left': 6.5*MUL_FAC, 'top': 7, 'width': 3*MUL_FAC, 'height': 0.5}]}
+                           'footer': [{'type' : 1, 'left': 0.5, 'top': 7, 'width': 3*MUL_FAC, 'height': 0.5}, {'type' : 2, 'left': 3.5*MUL_FAC, 'top': 7, 'width': 3*MUL_FAC, 'height': 0.5}, {'type' : 3, 'left': 6.5*MUL_FAC, 'top': 7, 'width': 3*MUL_FAC, 'height': 0.5}],
+                           'topic_slide': [
+    {
+        "left": 0,
+        "top": 0,
+        "width": 6.6665,
+        "height": 3.75
+    },
+    {
+        "left": 0,
+        "top": 3.75,
+        "width": 6.6665,
+        "height": 3.75
+    },
+    {
+        "left": 6.6665,
+        "top": 0,
+        "width": 6.6665,
+        "height": 2.5
+    },
+    {
+        "left": 6.6665,
+        "top": 2.5,
+        "width": 6.6665,
+        "height": 2.5
+    },
+    {
+        "left": 6.6665,
+        "top": 5,
+        "width": 6.6665,
+        "height": 2.5
+    }
+
+]
+        }
     
     def get_layout_dimensions(self, layout_id):
         match layout_id:

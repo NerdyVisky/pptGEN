@@ -189,7 +189,6 @@ def generate_random_slide(slide_number, data, style_obj, footer_obj, course_code
     logo_path, logo_width, logo_height, pos = style_obj['logo']
     n_elements_list = count_body_elements(data, slide_number)
     total_body_elements = sum(n_elements_list)
-    print(total_body_elements)
     topic = data["topic"]
     title_dark, title_light = style_obj['title_font_dark'], style_obj['title_font_light']
     # Title Generation
@@ -463,17 +462,21 @@ def generate_random_slide(slide_number, data, style_obj, footer_obj, course_code
                 }
                 }
             
-                
-            img_path = data["slides"][slide_number - 1]["tables"][i]['path']
             tab_instance = {**tab_instance, **{
             "label": "table",
             "xmin": all_dims['body'][element_index]['left'],
             "ymin": ele_ymin,
             "width": all_dims['body'][element_index]['width'],
             "height": ele_height,
-            "desc": data["slides"][slide_number - 1]["tables"][i]["desc"],
-            "path": img_path    
+            "desc": data["slides"][slide_number - 1]["tables"][i]["desc"]
             }}
+            
+            if 'path' in data["slides"][slide_number - 1]["tables"][i].keys():
+                tab_instance['path'] = data["slides"][slide_number - 1]["tables"][i]['path']
+            elif 'content' in data["slides"][slide_number - 1]['tables'][i]:
+                tab_instance['content'] = data["slides"][slide_number - 1]['tables'][i]['content']
+                   
+          
             
             slide['elements']['tables'].append(tab_instance)
             element_index += 1

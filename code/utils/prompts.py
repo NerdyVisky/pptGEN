@@ -246,6 +246,20 @@ text_generation_example = [
         """
     }
 ]
+
+tbl_var_prompt = [("system", "You are a helpful code assistant. You have access to internet resources."),
+                            ("human", """
+I am providing some instructions to modify a LaTeX table.
+Given the inital latex code, modify it such that:
+1. The table should have {BACKGROUND} background. 
+2. The font size should be {FONT_SIZE} points, font color should be {FONT_COLOR}
+3. The table should have {BORDERS}.\n
+
+Do not add any additional tags like documents and packages. (Assume they already exist). Also do not provide any conversation. Just the output.\n
+The original latex code is as follows:\n
+{input}
+\n      
+""")]
 text_generation_ex_prompt = [
                 ("human", """I am providing you with some instructions given to generate content for a presentation on {topic} of the subject {subject}\n
 The instructions have Slide Title as key and the value is a list of object describing what text/visual elements are required to explain that concept\n
@@ -325,13 +339,20 @@ def construct_generation_prompts(instruct_content, topic):
             context_line = f"For the section title '{slide}'(Slide Number {i+1})"
             element_type = element["element_type"]
             element_caption = element["element_caption"]
-
+            ROWS = 5
+            COLUMNS = 3
+            FONT_SIZE = 10
+            BORDERS = 'no vertical or horizontal borders'
+            FONT_COLOR = 'red'
+            BACKGROUND = 'transparent'
             if element_type in ["table", "equation"]:
                 n_s += 1
                 element_type += 's'
                 positions[0][element_type][n_s] = i + 1
                 captions[0][element_type][n_s] = element_caption
-                prompts[0] += (context_line + f" generate LaTeX code for a simple {element_type} given the caption: {element_caption}\n")
+                prompts[0] += (context_line + f" generate LaTeX code for a simple {element_type} given the caption: {element_caption}.\n")
+                # if element_type == 'table':
+                #     prompts[0] += f"You will have to generate the content that goes into the table and the table should have {COLUMNS} columns and {ROWS} rows with {BACKGROUND} background. For the text inside the table, the font size should be {FONT_SIZE} points, font color should be {FONT_COLOR} and the table itself should have {BORDERS}."
             elif element_type in ["plot", "bar-chart", "line-chart", "pie-chart", "3d-plot"]:
                 n_p += 1
                 positions[1][element_type][n_p] = i + 1

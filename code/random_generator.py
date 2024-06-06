@@ -1,6 +1,8 @@
 import random
 from datetime import datetime
 from utils.os_helpers import resize_image
+from langchain_core.prompts import (ChatPromptTemplate)
+
 
 
 FONT_STYLES = [
@@ -125,6 +127,35 @@ PROG_LANGS=[
     'Java',
     'C'
 ]
+PRIMARY_COLORS = [
+    'red',
+    'blue',
+    'yellow',
+    'green',
+    'grey'
+]
+BACKGROUNDS = [
+    'transparent'
+]
+TBL_BORDER_TYPES = [
+    # 'all horizontal and vertical borders',
+    'only vertical borders',
+    'only horizontal borders',
+    'no horizontal or vertical borders',
+    'only horizontal header borders'
+]
+def pick_random(list_name):
+    if list_name == 'alignments':
+        return [random.choice(H_ALIGNMENTS), random.choice(V_ALIGNMENTS)]
+    elif list_name == 'prog_langs':
+        return random.choice(PROG_LANGS)
+    else:
+        return random.choice(list_name)
+
+FONT_SIZE = random.randint(4, 8)*2
+FONT_COLOR = pick_random(PRIMARY_COLORS) if random.random() > 0 else 'black'
+BACKGROUND_COLOR = pick_random(BACKGROUNDS) if random.random() > 0 else 'white'
+BORDERS = pick_random(TBL_BORDER_TYPES) if random.random() > 0 else 'all horizontal and vertical borders'
 
 def pick_random_logo(PROB=1):
     path = ''
@@ -264,6 +295,11 @@ def generate_title_slide_obj():
 
     return title_inds
 
+def randomize_table_styling(content, model, tbl_prompt):
+    prompt = ChatPromptTemplate.from_messages(tbl_prompt)
+    chain = prompt | model
+    tbl_output = chain.invoke({"FONT_SIZE": FONT_SIZE, "FONT_COLOR": FONT_COLOR, "BACKGROUND": BACKGROUND_COLOR, "BORDERS": BORDERS, "input": content})
+    return tbl_output.content
 
     
 def generate_random_style_obj():
@@ -283,13 +319,7 @@ def generate_random_style_obj():
     style_obj["instructor"] = pick_random_presenter()
     return style_obj
 
-def pick_random(list_name):
-    if list_name == 'alignments':
-        return [random.choice(H_ALIGNMENTS), random.choice(V_ALIGNMENTS)]
-    elif list_name == 'prog_langs':
-        return random.choice(PROG_LANGS)
-    else:
-        return random.choice(list_name)
+
 
 def generate_random_layout(total_body_elements):
     layout_mapping = {

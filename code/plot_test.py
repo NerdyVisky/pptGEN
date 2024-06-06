@@ -1,11 +1,15 @@
 import matplotlib.pyplot as plt
 
-# Data
-market_shares = [25, 25, 20, 15, 15]
-labels = ['Company A', 'Company B', 'Company C', 'Company D', 'Others']
+# Data for plotting
+methods = ['Mutex', 'Semaphore', 'Monitor', 'Message Passing']
+performance = [85, 90, 80, 75]
 
-# Creating the pie chart
-plt.figure()
-plt.pie(market_shares, labels=labels, autopct='%1.1f%%')
-plt.savefig('code/buffer/figures/4.png')
+fig, ax = plt.subplots()
+ax.bar(methods, performance, color='blue')
+
+ax.set_ylabel('Performance')
+ax.set_xlabel('Synchronization Methods')
+
+# Save the figure
+plt.savefig('code/buffer/figures/1.png')
 plt.close()

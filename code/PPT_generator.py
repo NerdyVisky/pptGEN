@@ -9,6 +9,7 @@ import json
 import os
 from utils.os_helpers import resize_image
 import shutil
+import ast
 
 class Element:
     def __init__(self, content, style, bounding_box):
@@ -240,27 +241,42 @@ class Equation(Element):
 
 
 class Table(Element):
-    def __init__(self, content, style, bounding_box, caption):
+    def __init__(self, content, style, bounding_box, caption, tbl_cnt):
         super().__init__(content, style, bounding_box)
         self.caption = caption
         self.content = content
+        self.tbl_cnt = ast.literal_eval(tbl_cnt)
 
     def render(self, slide):
         left, top, width, height = self.bounding_box
-        resized_img_path, n_w, n_h = resize_image(self.content, width, height)
-        if self.caption != None:
-            left_c, top_c, width_c, height_c = self.caption['xmin'], self.caption['ymin'], self.caption['width'], self.caption['height']
-            if top_c > top:
-                cap_shape = slide.shapes.add_textbox(Inches(left_c), Inches(top_c - (height - n_h)/2), Inches(width_c), Inches(height_c))
-            else:
-                cap_shape = slide.shapes.add_textbox(Inches(left_c), Inches(top_c + (height - n_h)/2), Inches(width_c), Inches(height_c))
-            cap_shape.text = self.caption['value']
-            self.apply_font_style(cap_shape)
-            cap_shape.text_frame.auto_size = True
-            cap_shape.text_frame.word_wrap = True
-            cap_shape.text_frame.paragraphs[0].alignment = PP_ALIGN.CENTER
-        img = slide.shapes.add_picture(resized_img_path, Inches(left - (n_w - width)/2), Inches(top - (n_h - height)/2), Inches(n_w), Inches(n_h))
-        self.image = img 
+        if not self.content is None:
+            resized_img_path, n_w, n_h = resize_image(self.content, width, height)
+            if self.caption != None:
+                left_c, top_c, width_c, height_c = self.caption['xmin'], self.caption['ymin'], self.caption['width'], self.caption['height']
+                if top_c > top:
+                    cap_shape = slide.shapes.add_textbox(Inches(left_c), Inches(top_c - (height - n_h)/2), Inches(width_c), Inches(height_c))
+                else:
+                    cap_shape = slide.shapes.add_textbox(Inches(left_c), Inches(top_c + (height - n_h)/2), Inches(width_c), Inches(height_c))
+                cap_shape.text = self.caption['value']
+                self.apply_font_style(cap_shape)
+                cap_shape.text_frame.auto_size = True
+                cap_shape.text_frame.word_wrap = True
+                cap_shape.text_frame.paragraphs[0].alignment = PP_ALIGN.CENTER
+            img = slide.shapes.add_picture(resized_img_path, Inches(left - (n_w - width)/2), Inches(top - (n_h - height)/2), Inches(n_w), Inches(n_h))
+            self.image = img 
+        else:
+            print(self.tbl_cnt)
+            rows = len(self.tbl_cnt)
+            columns = len(self.tbl_cnt[0])
+            x, y, cx, cy = Inches(left), Inches(top), Inches(width), Inches(height)
+            shape = slide.shapes.add_table(rows, columns, x, y, cx, cy)
+            table = shape.table
+            for i in range(rows):
+                for j in range(columns):
+                    cell = table.cell(i, j)
+                    cell.text = self.tbl_cnt[i][j]
+            self.table = table
+            
         
 class Footer(Element):
     def __init__(self, content, style, bounding_box, location):
@@ -401,10 +417,16 @@ class PresentationGenerator:
                         else:
                             element = Equation(element_info['path'], None, (element_info['xmin'], element_info['ymin'], element_info['width'], element_info['height']), None)
                     elif element_type == 'tables':
-                        if 'caption' in element_info.keys():
-                            element = Table(element_info['path'], element_info['caption']['style'], (element_info['xmin'], element_info['ymin'], element_info['width'], element_info['height']), element_info['caption'])
+                        path = None
+                        content = None
+                        if 'path' in element_info.keys():
+                            path = element_info['path']
                         else:
-                            element = Table(element_info['path'], None, (element_info['xmin'], element_info['ymin'], element_info['width'], element_info['height']), None)
+                            content = element_info['content']
+                        if 'caption' in element_info.keys():
+                            element = Table(path, element_info['caption']['style'], (element_info['xmin'], element_info['ymin'], element_info['width'], element_info['height']), element_info['caption'], content)
+                        else:
+                            element = Table(path, None, (element_info['xmin'], element_info['ymin'], element_info['width'], element_info['height']), None, content)
                     
                     elif element_type == 'code':
                         element = CodeSnippet(element_info['value'], element_info['style'], (element_info['xmin'], element_info['ymin'], element_info['width'], element_info['height']))

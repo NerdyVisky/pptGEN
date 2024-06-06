@@ -1,5 +1,6 @@
 import re
 import subprocess
+import random
 import os
 import fitz
 import graphviz
@@ -10,8 +11,37 @@ from utils.prompts import text_generation_example, text_generation_ex_prompt
 from utils.data_validation import PPTContentJSON
 from langchain.output_parsers.openai_functions import JsonOutputFunctionsParser
 from langchain_core.utils.function_calling import convert_to_openai_function
+from utils.prompts import tbl_var_prompt
+from random_generator import randomize_table_styling
+from langchain_openai import ChatOpenAI
 
+def configure_llm(TEMPERATURE=0,LLM_MODEL='gpt-3.5-turbo'):
+     model = ChatOpenAI(
+       model_name=LLM_MODEL, 
+       temperature=TEMPERATURE,
+       )
+     return model
 
+def latex_to_matrix(latex_code):
+    # Remove LaTeX table and tabular environment markers
+    latex_code = re.sub(r'\\begin{table}.*?\\begin{tabular}{.*?}', '', latex_code, flags=re.DOTALL)
+    latex_code = re.sub(r'\\end{tabular}.*?\\end{table}', '', latex_code, flags=re.DOTALL)
+    
+    # Replace \hline with a unique marker
+    latex_code = latex_code.replace('\\hline', '|')
+
+    # Split rows by the marker and clean up each row
+    rows = [row.strip() for row in latex_code.split('|') if row.strip()]
+
+    # Split columns by & and clean up each cell
+    matrix = []
+    for row in rows:
+        columns = [re.sub(r'\\textbf{(.*?)}', r'\1', col).strip() for col in row.split('&')]
+        # Remove extra trailing \\ from cells
+        columns = [col.replace('\\\\', '').strip() for col in columns]
+        matrix.append(columns)
+    
+    return matrix
 
 def get_full_element_name(im_par):
     match im_par:
@@ -106,12 +136,33 @@ def generate_struct_content(prompt, model, presentation_ID):
         prompt_line = prompt.split('\n')[i+1]
         struct_type = get_element_type(prompt_line)
         # print(struct_type)
-        try:
-            img_path = get_struct_img_path(tex_code, i, presentation_ID, struct_type)
-            struct_img_paths.append(img_path)
-        except Exception as e:
-            print(f"\t 🟠 Error rendering struct: {e}. Continuing generation for other images.")
-            continue
+        if struct_type == 'tables':
+            if random.random() > 0:
+                ### DECODE ER
+                matrix = latex_to_matrix(tex_code)
+                tab_dir = f'code/buffer/structs/{struct_type}'
+                os.makedirs(os.path.join(tab_dir, presentation_ID), exist_ok=True)
+                txt_path = os.path.join(tab_dir, presentation_ID, f'{i+1}.txt')
+                with open(txt_path, 'w') as f:
+                    f.write(str(matrix))
+                struct_img_paths.append(txt_path)
+            else:
+                model = configure_llm(TEMPERATURE=0, LLM_MODEL='gpt-4-turbo')
+                var_tex_code = randomize_table_styling(tex_code, model, tbl_var_prompt)
+                try:
+                    img_path = get_struct_img_path(var_tex_code, i, presentation_ID, struct_type)
+                    struct_img_paths.append(img_path)
+                except Exception as e:
+                    print(f"\t 🟠 Error rendering struct: {e}. Continuing generation for other images.")
+                    continue
+        else:
+            try:
+                img_path = get_struct_img_path(tex_code, i, presentation_ID, struct_type)
+                struct_img_paths.append(img_path)
+            except Exception as e:
+                print(f"\t 🟠 Error rendering struct: {e}. Continuing generation for other images.")
+                continue
+
     
     dir_path = 'code/buffer/vis_dump'
     if not os.path.exists(os.path.join(dir_path, presentation_ID)):
@@ -152,6 +203,9 @@ def generate_figure_content(prompt, model, presentation_ID):
             print(f"\t 🟠 Error rendering figure: {e}. Continuing generation for other images.")
             continue
     dir_path = 'code/buffer/vis_dump'
+    if not os.path.exists(os.path.join(dir_path, presentation_ID)):
+        os.mkdir(os.path.join(dir_path, presentation_ID))
+        
     os.rename(dot_code_dump, os.path.join(dir_path, presentation_ID, 'figure_code.txt'))
     return fig_img_paths
 
@@ -213,6 +267,9 @@ def generate_plot_content(prompt, model, presentation_ID):
             plot_img_paths.append(new_file_path)
     
     dir_path = 'code/buffer/vis_dump'
+    if not os.path.exists(os.path.join(dir_path, presentation_ID)):
+        os.mkdir(os.path.join(dir_path, presentation_ID))
+        
     os.rename(py_code_dump, os.path.join(dir_path, presentation_ID, 'plots_code.txt'))
     return plot_img_paths
 
@@ -258,17 +315,26 @@ def assemble_elements(text_json, struct_imgs, plot_imgs, figure_imgs, code_files
             element_name = os.path.basename(second_parent_dir)
             # element_name = get_full_element_name(im_par)
             file_name = os.path.basename(img_path)
-            name = file_name.split('.')[0]
+            name, ext = file_name.split('.')
             if int(name) in positions[ind][element_name].keys():
                 slide_number = positions[ind][element_name][int(name)]
                 caption = captions[ind][element_name][int(name)]
                 
             # presentation_id = int(parts[1].replace('.png', ''))
             # caption = prompt_lines[i+1].split(':')[1].strip()
-            obj = {
-                'desc': caption,
-                'path': img_path
-            }
+            if ext == 'png':
+                obj = {
+                    'desc': caption,
+                    'path': img_path
+                }
+            else:
+                print(f'{dir_name}/{file_name}')
+                with open(img_path, 'r') as f:
+                    content = f.read()
+                obj = {
+                    'desc': caption,
+                    'content': content
+                }
             if ind == 0:
                 if element_name == 'table':
                     element_name = 'tables'
@@ -286,7 +352,7 @@ def assemble_elements(text_json, struct_imgs, plot_imgs, figure_imgs, code_files
         if int(name) in positions[3]['code'].keys():
             slide_number = positions[3]['code'][int(name)]
             caption = captions[3]['code'][int(name)]
-        with open(file_path, 'r') as f:
+        with open(file_path, 'r', encoding='utf-8') as f:
             code_snip = f.read()
         obj = {
             'desc': caption,

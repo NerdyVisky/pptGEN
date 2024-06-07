@@ -1,15 +1,13 @@
 import matplotlib.pyplot as plt
 
-# Data for plotting
-methods = ['Mutex', 'Semaphore', 'Monitor', 'Message Passing']
-performance = [85, 90, 80, 75]
+# Data for the line chart
+years = [2000, 2005, 2010, 2015, 2020]
+standards = [20, 40, 60, 80, 100]
 
-fig, ax = plt.subplots()
-ax.bar(methods, performance, color='blue')
-
-ax.set_ylabel('Performance')
-ax.set_xlabel('Synchronization Methods')
+# Creating the line chart
+fig3, ax3 = plt.subplots()
+ax3.plot(years, standards, marker='o')
 
 # Save the figure
-plt.savefig('code/buffer/figures/1.png')
+plt.savefig('code/buffer/figures/3.png')
 plt.close()

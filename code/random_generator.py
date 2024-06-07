@@ -2,8 +2,7 @@ import random
 from datetime import datetime
 from utils.os_helpers import resize_image
 from langchain_core.prompts import (ChatPromptTemplate)
-
-
+from itertools import combinations
 
 FONT_STYLES = [
     "Arial",
@@ -119,6 +118,24 @@ LOGO_URLS = [
     'code\\assets\logos\\nptel_logo.jpg',
     'code\\assets\logos\\nyu_courant_logo_2.png'
 ]
+MUL_FAC = 1.333
+LOGO_ALL_POS = {
+    0: {
+       'left': 0.25, 'top': 7
+    },
+    1: {
+       'left': 5, 'top': 7
+    },
+    2:{
+        'left': 11.333, 'top': 7
+    },
+    3:{
+        'left': 0.25, 'top': 0.25
+    },
+    4:{
+        'left': 11.333, 'top': 0.25
+    }
+}
 
 PROG_LANGS=[
     'Python',
@@ -130,8 +147,6 @@ PROG_LANGS=[
 PRIMARY_COLORS = [
     'red',
     'blue',
-    'yellow',
-    'green',
     'grey'
 ]
 BACKGROUNDS = [
@@ -144,6 +159,26 @@ TBL_BORDER_TYPES = [
     'no horizontal or vertical borders',
     'only horizontal header borders'
 ]
+URL_PREFIXES = [
+    'Source:',
+    'Visit for more:',
+    'Know more here:',
+]
+
+def random_logo_pos(footer_obj):
+    logo_pos = LOGO_ALL_POS
+    for ele in footer_obj:
+        for p_i in ele.values():
+            if p_i in logo_pos.keys():
+                logo_pos.pop(p_i)
+    
+    avl_pos = list(logo_pos.keys())
+    random_choice = random.choice(avl_pos)
+    bbox_logo = logo_pos[random_choice]
+    return bbox_logo
+
+
+
 def pick_random(list_name):
     if list_name == 'alignments':
         return [random.choice(H_ALIGNMENTS), random.choice(V_ALIGNMENTS)]
@@ -157,15 +192,16 @@ FONT_COLOR = pick_random(PRIMARY_COLORS) if random.random() > 0 else 'black'
 BACKGROUND_COLOR = pick_random(BACKGROUNDS) if random.random() > 0 else 'white'
 BORDERS = pick_random(TBL_BORDER_TYPES) if random.random() > 0 else 'all horizontal and vertical borders'
 
-def pick_random_logo(PROB=1):
+def pick_random_logo(PROB=0.5):
     path = ''
+    n_w = 0
+    n_h = 0
     if PROB > random.random():
         path = LOGO_URLS[random.randint(0, len(LOGO_URLS) - 1)]
-        pos = random.randint(1, 2)
         path, n_w, n_h = resize_image(path, 2, 1)
-    return path, n_w, n_h, pos
+    return path, n_w, n_h
 
-def pick_random_template(PROB=1) -> list:
+def pick_random_template(PROB=0.15) -> list:
     path = ''
     isDark = -1
     if PROB > random.random():
@@ -173,7 +209,7 @@ def pick_random_template(PROB=1) -> list:
     return [path, isDark]
     
 
-def generate_random_color(PROB=0.6):
+def generate_random_color(PROB=0.85):
     if random.random() > PROB:
         return {"r": random.randint(0, 255), "g": random.randint(0, 255), "b": random.randint(0, 255)}
     else:
@@ -301,6 +337,10 @@ def randomize_table_styling(content, model, tbl_prompt):
     tbl_output = chain.invoke({"FONT_SIZE": FONT_SIZE, "FONT_COLOR": FONT_COLOR, "BACKGROUND": BACKGROUND_COLOR, "BORDERS": BORDERS, "input": content})
     return tbl_output.content
 
+def modify_url_prefix(desc):
+    prefix = pick_random(URL_PREFIXES)
+    return prefix
+    
     
 def generate_random_style_obj():
     style_obj = {}
@@ -314,12 +354,44 @@ def generate_random_style_obj():
     style_obj['title_font_light'] = pick_random(TITLE_COLORS_LIGHT)
     style_obj["desc_font_family"] = pick_random(FONT_STYLES)
     style_obj["desc_font_attr"] = generate_random_font("description")
+    style_obj["url_font_color"] = pick_random(TITLE_COLORS_DARK)
     style_obj["date"] = generate_random_date()
     style_obj['logo'] = pick_random_logo()
     style_obj["instructor"] = pick_random_presenter()
     return style_obj
+    
+def modify_style(style):
+    if style["font_color"]["r"] == 0:
+        new_font_color = pick_random(TITLE_COLORS_DARK)
+    else:
+        new_font_color = pick_random(TITLE_COLORS_LIGHT)
 
+    special_style = {
+    "font_name": style["font_name"],
+    "font_size": style["font_size"] + random.randint(0, 2),
+    "font_color": new_font_color,
+    "bold": random.random() > 0.5,
+    "italics": random.random() > 0.5,
+    "underlined": random.random() > 0.5,
+    }
+    return special_style
 
+def generate_random_phrases(desc):
+    words = desc.split()
+    n = len(words)
+    
+    ab_pairs = [(a, b) for a in range(n) for b in range(a+1, min(a+3, n))]
+    
+    cd_pairs = [(c, d) for c in range(n) for d in range(c+1, min(c+3, n))]
+
+    valid_sets = [(a, b, c, d) for a, b in ab_pairs for c, d in cd_pairs if b < c]
+    
+
+    if valid_sets:
+        a, b, c, d = random.choice(valid_sets)
+        return [list(range(a, b + 1)), list(range(c, d + 1))]
+    else:
+        return None  
 
 def generate_random_layout(total_body_elements):
     layout_mapping = {

@@ -8,8 +8,65 @@ from pptx.dml.color import RGBColor
 import json
 import os
 from utils.os_helpers import resize_image
+from random_generator import modify_style
 import shutil
 import ast
+import random
+
+
+def add_style_pertubations(textbox, text, style_indexes, default_style, special_style):
+    tf = textbox.text_frame
+    words = text.split()
+    tf.auto_size = True
+    tf.word_wrap = True
+    current_index = 0
+    current_run = None
+    para = tf.add_paragraph()
+    for i, word in enumerate(words):
+        word += ' '
+        for index in style_indexes:
+            start = index[0]
+            end = index[-1]
+            if i >= start and i <= end:
+                current_run = None
+                if current_run != None:
+                    current_run = para.add_run()
+                    current_run.text = word
+                else:
+                    current_run = para.add_run()
+                    current_run.text = word
+                    current_run.font.bold = special_style.get('bold', False)
+                    current_run.font.color.rgb = RGBColor(special_style['font_color']['r'], special_style['font_color']['g'], special_style['font_color']['b'])                    
+                    current_run.font.italic = special_style.get('italics', False)
+                    current_run.font.underline = special_style.get('underlined', False)
+                    current_run.font.size = Pt(special_style.get('font_size', 16))
+                    current_run.font.name = special_style.get('font_name', 'Arial')
+                break
+        else:
+            current_run = para.add_run()
+            current_run.text = word
+            current_run.font.color.rgb = RGBColor(default_style['font_color']['r'], default_style['font_color']['g'], default_style['font_color']['b'])                    
+            current_run.font.bold = default_style.get('bold', False)
+            current_run.font.italic = default_style.get('italics', False)
+            current_run.font.underline = default_style.get('underlined', False)
+            current_run.font.size = Pt(default_style.get('font_size', 16))
+            current_run.font.name = default_style.get('font_name', 'Arial')
+                
+        current_index += len(word) + 1  
+        
+    current_index += len(word) + 1  # Account for spaces between words
+
+# Ensure the last part of the text is added
+    if current_index < len(text):
+        current_run.text += text[current_index:]
+        current_run = None
+# Reset the font properties for the last run
+    current_run.font.bold = default_style.get('bold', False)
+    current_run.font.italic = default_style.get('italic', False)
+    current_run.font.underline = default_style.get('underlined', False)
+    current_run.font.size = Pt(default_style.get('font_size', 16))
+    current_run.font.name = default_style.get('font_name', 'Arial')
+
 
 class Element:
     def __init__(self, content, style, bounding_box):
@@ -117,17 +174,15 @@ class Title(Element):
         pass
 
 class Description(Element):
-    def __init__(self, content, style, bounding_box):
+    def __init__(self, content, style, bounding_box, phrases):
         super().__init__(content, style, bounding_box)
+        self.phrases = phrases
+        self.special_style = modify_style(style)
 
     def render(self, slide):
         left, top, width, height = self.bounding_box
         textbox = slide.shapes.add_textbox(Inches(left), Inches(top), Inches(width), Inches(height))
-        textbox.text = self.content
-        self.apply_font_style(textbox)
-        textbox.text_frame.auto_size = True
-        textbox.text_frame.word_wrap = True 
-        self.position_element(textbox)
+        add_style_pertubations(textbox, self.content, self.phrases, self.style, self.special_style)
         self.textbox = textbox
 
 class Reference(Element):
@@ -144,8 +199,8 @@ class Reference(Element):
         self.textbox = textbox
 
 class Enumeration(Description):
-    def __init__(self, content, style, bounding_box, heading):
-        super().__init__(content, style, bounding_box)
+    def __init__(self, content, style, bounding_box, heading, phrases):
+        super().__init__(content, style, bounding_box, phrases)
         self.heading = heading
 
     def render(self, slide):
@@ -154,6 +209,9 @@ class Enumeration(Description):
             enum_heading = slide.shapes.add_textbox(Inches(left), Inches(top), Inches(width), Inches(height))
             enum_heading.text = self.heading['value']
             self.apply_font_style(enum_heading)
+            enum_heading.text_frame.paragraphs[0].font.size = Pt(self.heading['style']['font_size'])
+            enum_heading.text_frame.paragraphs[0].font.bold = self.heading['style']['bold']
+            enum_heading.text_frame.paragraphs[0].font.underline = self.heading['style']['underlined']
             enum_heading.text_frame.auto_size = True
             enum_heading.text_frame.word_wrap = True
             # enum_heading.text_frame.paragraphs[0].alignment = PP_ALIGN.JUSTIFY
@@ -170,14 +228,21 @@ class Enumeration(Description):
                         run = p.add_run()
                         run.text = pt_text
                         self.apply_font_style_on_run(run)
+                        if random.random() > 0.5:
+                            p.level = 1
+                            run.font.size = Pt(self.style['font_size'] - random.randint(0, 2))
+                            if self.style['font_color']['r'] == 0:
+                                run.font.color.rgb = RGBColor(169, 169, 169)
+                            else:
+                                run.font.color.rgb = RGBColor(211, 211, 211)
 
-                    elif isinstance(pt_text, list):
-                        for sub_pt in pt_text:
-                            s_p = enum_tf.add_paragraph()
-                            s_p.level = 1
-                            sub_run = s_p.add_run()
-                            sub_run.text = sub_pt
-                            self.apply_font_style_on_run(run)
+                    # elif isinstance(pt_text, list):
+                    #     for sub_pt in pt_text:
+                    #         s_p = enum_tf.add_paragraph()
+                    #         sub_run = s_p.add_run()
+                    #         sub_run.text = sub_pt
+                    #         s_p.level = 1
+                    #         self.apply_font_style_on_run(sub_run)
                             # s_p.paragraph_format.alignment = MSO_ANCHOR.JUSTIFY
                     else:
                         raise Exception("Invalid Enumeration format")
@@ -245,7 +310,8 @@ class Table(Element):
         super().__init__(content, style, bounding_box)
         self.caption = caption
         self.content = content
-        self.tbl_cnt = ast.literal_eval(tbl_cnt)
+        if tbl_cnt:
+            self.tbl_cnt = ast.literal_eval(tbl_cnt)
 
     def render(self, slide):
         left, top, width, height = self.bounding_box
@@ -265,7 +331,6 @@ class Table(Element):
             img = slide.shapes.add_picture(resized_img_path, Inches(left - (n_w - width)/2), Inches(top - (n_h - height)/2), Inches(n_w), Inches(n_h))
             self.image = img 
         else:
-            print(self.tbl_cnt)
             rows = len(self.tbl_cnt)
             columns = len(self.tbl_cnt[0])
             x, y, cx, cy = Inches(left), Inches(top), Inches(width), Inches(height)
@@ -435,11 +500,11 @@ class PresentationGenerator:
                     elif element_type == 'text':
                         if element_info['label'] == "enumeration":
                             if 'heading' in element_info.keys():
-                                element = Enumeration(element_info['value'], element_info['style'], (element_info['xmin'], element_info['ymin'], element_info['width'], element_info['height']), element_info['heading'])
+                                element = Enumeration(element_info['value'], element_info['style'], (element_info['xmin'], element_info['ymin'], element_info['width'], element_info['height']), element_info['heading'], None)
                             else:
-                                element = Enumeration(element_info['value'], element_info['style'], (element_info['xmin'], element_info['ymin'], element_info['width'], element_info['height']), None)                             
+                                element = Enumeration(element_info['value'], element_info['style'], (element_info['xmin'], element_info['ymin'], element_info['width'], element_info['height']), None, None)                             
                         else:
-                            element = Description(element_info['value'], element_info['style'], (element_info['xmin'], element_info['ymin'], element_info['width'], element_info['height']))
+                            element = Description(element_info['value'], element_info['style'], (element_info['xmin'], element_info['ymin'], element_info['width'], element_info['height']), element_info["style"]["phrases"])
                     elif element_type == 'title':
                         element = Title(element_info['value'], element_info['style'], (element_info['xmin'], element_info['ymin'], element_info['width'], element_info['height']))
                     elif element_type == 'footer':

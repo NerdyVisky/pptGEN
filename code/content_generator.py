@@ -58,7 +58,7 @@ def generate_slide_content(slide_id, arg_topic, subject, book):
 
     ## Instruction Phase
     instruct_prompt = configure_prompt("instruction")
-    arg_elements = ['flow-chart', 'graph', 'tree', 'block-diagram', 'enumeration','description', 'url', 'table', 'equation', 'plot', 'bar-chart', 'line-chart', 'pie-chart', '3d-plot', 'code']
+    arg_elements = ['flow-chart', 'architecture-diagram', 'class-diagram', 'sequence-diagram', 'enumeration','description', 'url', 'table', 'equation', 'plot', 'bar-chart', 'line-chart', 'pie-chart', '3d-plot', 'code']
     instruct_content = generate_instructions(instruct_prompt, model, arg_topic, arg_elements, outline)
     print(f"\t🟢 (2/{STEPS}) Devised instructions for {slide_id}")
 
@@ -122,7 +122,7 @@ def main():
                     os.mkdir(dir_path)
                 file_path = f"code/temp/{subject}/{presentation_ID}.json"
                 save_slide_content_to_json(generated_content, file_path)
-                print(f"\t🟢 (9/9) Content saved for {presentation_ID}")
+                print(f"\t🟢 (10/10) Content saved for {presentation_ID}")
             # try:
             #     generated_content = generate_slide_content(presentation_ID, topic, subject, book)
             #     if isinstance(generated_content, dict):

@@ -43,34 +43,34 @@ def latex_to_matrix(latex_code):
     
     return matrix
 
-def get_full_element_name(im_par):
-    match im_par:
-        case "tb":
-           element_name = "table"
-        case "eq":
-           element_name = "equation"
-        case "bc":
-           element_name = "bar-chart"
-        case "lc":
-           element_name = "line-chart"
-        case "pc":
-           element_name = "pie-chart"
-        case "3p":
-           element_name = "3d-plot"
-        case "pt":
-           element_name = "plot"
-        case "tr":
-           element_name = "tree"
-        case "gr":
-           element_name = "graph"
-        case "fc":
-           element_name = "flow-chart"
-        case "bd":
-           element_name = "block-diagram"
-    return element_name
+# def get_full_element_name(im_par):
+#     match im_par:
+#         case "tb":
+#            element_name = "table"
+#         case "eq":
+#            element_name = "equation"
+#         case "bc":
+#            element_name = "bar-chart"
+#         case "lc":
+#            element_name = "line-chart"
+#         case "pc":
+#            element_name = "pie-chart"
+#         case "3p":
+#            element_name = "3d-plot"
+#         case "pt":
+#            element_name = "plot"
+#         case "tr":
+#            element_name = "tree"
+#         case "gr":
+#            element_name = "graph"
+#         case "fc":
+#            element_name = "flow-chart"
+#         case "bd":
+#            element_name = "block-diagram"
+#     return element_name
 
 def get_element_type(prompt_line):
-    elements = ['table', 'equation', 'bar-chart', 'line-chart', 'pie-chart', '3d-plot', 'plot', 'tree', 'graph', 'flow-chart', 'block-diagram']
+    elements = ['table', 'equation', 'bar-chart', 'line-chart', 'pie-chart', '3d-plot', 'plot', 'architecture-diagram', 'sequence-diagram', 'flow-chart', 'class-diagram']
     for element in elements:
         if element in prompt_line:
             if element == 'table' or element == 'equation':
@@ -137,7 +137,7 @@ def generate_struct_content(prompt, model, presentation_ID):
         struct_type = get_element_type(prompt_line)
         # print(struct_type)
         if struct_type == 'tables':
-            if random.random() > 0:
+            if random.random() > 0.25:
                 ### DECODE ER
                 matrix = latex_to_matrix(tex_code)
                 tab_dir = f'code/buffer/structs/{struct_type}'

@@ -12,7 +12,10 @@ from random_generator import (generate_random_style_obj,
                               generate_contrasting_font_color,
                               generate_random_date,
                               pick_random_presenter,
-                              generate_title_slide_obj
+                              generate_title_slide_obj,
+                              generate_random_phrases,
+                              modify_url_prefix,
+                              random_logo_pos
                               )
 
 
@@ -103,8 +106,8 @@ def insert_title_slide(data, style_obj, course_code):
                     "font_size": style_obj['title_font_attr']["font_size"],
                     "font_color": style_obj['title_font_dark'],
                     "bold": style_obj["title_font_bold"],
-                    "italics": False,
-                    "underlined": False
+                    "italics": random.random() > 0.8,
+                    "underlined": random.random() > 0.1
                 }
             }]
         if 'DT' in obj.keys():
@@ -186,7 +189,8 @@ def generate_random_slide(slide_number, data, style_obj, footer_obj, course_code
               style_obj["title_font_bold"], style_obj["title_font_attr"], style_obj['title_align'], style_obj["desc_font_family"],\
                   style_obj["desc_font_attr"], style_obj["date"], style_obj["template"]
     tmp_path, isDark = tmp_list
-    logo_path, logo_width, logo_height, pos = style_obj['logo']
+    logo_path, logo_width, logo_height= style_obj['logo']
+    url_font_color = style_obj['url_font_color']
     n_elements_list = count_body_elements(data, slide_number)
     total_body_elements = sum(n_elements_list)
     topic = data["topic"]
@@ -227,7 +231,8 @@ def generate_random_slide(slide_number, data, style_obj, footer_obj, course_code
                 "bold": title_font_bold,
                 "italics": False,
                 "underlined": False,
-                "h_align": title_align
+                "h_align": title_align,
+                "v_align": random.choice(['top', 'middle', 'bottom'])
             }
         }]
         return slide
@@ -249,41 +254,37 @@ def generate_random_slide(slide_number, data, style_obj, footer_obj, course_code
         slide["bg_color"] = bg_color
     
     if logo_path != '':
-        if pos == 1:
-            xmin = 0
-            ymin = 0
-        else:
-            xmin = (11.333 + (2 - logo_width))
-            ymin = 0
-
+        bbox_logo = random_logo_pos(footer_obj)
             
         slide["elements"]["graphic"] = [{
             "label": "logo",
             "value": logo_path,
-            "xmin": xmin,
-            "ymin": ymin,
+            "xmin": bbox_logo['left'],
+            "ymin": bbox_logo['top'],
             "width": logo_width,
-            "height": logo_height,
+            "height": min(logo_height, 7.5 - bbox_logo['top']),
         }]
 
     ## Putting it together for the title object
-    slide['elements']['title'] = [{
-            "label": "title",
-            "value": title_content,
-            "xmin": all_dims['title']['left'],
-            "ymin": all_dims['title']['top'],
-            "width": all_dims['title']['width'],
-            "height": all_dims['title']['height'],
-            "style": {
-                "font_name": title_font_family,
-                "font_size": title_font_attr["font_size"],
-                "font_color": title_font,
-                "bold": title_font_bold,
-                "italics": False,
-                "underlined": False,
-                "h_align": title_align
-            }
-        }]    
+    if random.random() > 0.20:
+        slide['elements']['title'] = [{
+                "label": "title",
+                "value": title_content,
+                "xmin": all_dims['title']['left'],
+                "ymin": all_dims['title']['top'],
+                "width": all_dims['title']['width'],
+                "height": all_dims['title']['height'],
+                "style": {
+                    "font_name": title_font_family,
+                    "font_size": title_font_attr["font_size"],
+                    "font_color": title_font,
+                    "bold": title_font_bold,
+                    "italics": random.random() > 0.75,
+                    "underlined": random.random() > 0.75,
+                    "h_align": title_align,
+                    "v_align": random.choice(['top', 'middle', 'bottom'])
+                }
+            }]    
        
     if total_body_elements != 0:
         # Body Generation
@@ -296,6 +297,7 @@ def generate_random_slide(slide_number, data, style_obj, footer_obj, course_code
         for _ in range(n_elements_list[0]):
             font_obj = generate_random_font("description")
             desc = data["slides"][slide_number - 1]["description"]
+            styled_phrases = generate_random_phrases(desc)
             desc_instance = {
             "label": "text",
             "value": desc,
@@ -311,21 +313,28 @@ def generate_random_slide(slide_number, data, style_obj, footer_obj, course_code
                 "italics": False,
                 "underlined": False,
                 "h_align": h_desc_align,
-                "v_align": v_desc_align
+                "v_align": v_desc_align,
+                "phrases": styled_phrases
                }
             } 
             slide['elements']['text'].append(desc_instance)
             element_index += 1
 
         ## Generate Enumerations
-        P_H = 1
+        P_H = 0.25
+        hasHeading = P_H > random.random()
         h_enum_align, v_enum_align = pick_random("alignments")
-        for _ in range(n_elements_list[1]):
+        for i in range(n_elements_list[1]):
             font_obj = generate_random_font("enumeration")
-            enum = data["slides"][slide_number - 1]["enumeration"]
+            enum = data["slides"][slide_number - 1]["enumeration"][i]
+            enum_phrases = []
+            for pt in enum[1:]:
+                styled_phrases = generate_random_phrases(pt)
+                enum_phrases.append(styled_phrases)
+
             enum_instance = {
             "label": "enumeration",
-            "value": enum[1:],
+            "value": enum[1:] if hasHeading else enum,
             "xmin": all_dims['body'][element_index]['left'],
             "ymin": all_dims['body'][element_index]['top'] + 0.5,
             "width": all_dims['body'][element_index]['width'],
@@ -338,10 +347,11 @@ def generate_random_slide(slide_number, data, style_obj, footer_obj, course_code
                 "italics": font_obj["italics"],
                 "underlined": font_obj["underline"],
                 "h_align": 'left',
-                "v_align": 'top'
+                "v_align": 'top',
+                "phrases": enum_phrases
                }
             }
-            if (P_H > random.random()):
+            if (hasHeading):
                 enum_instance['heading'] = {
                 "label": 'heading',
                 "value": enum[0],
@@ -349,6 +359,14 @@ def generate_random_slide(slide_number, data, style_obj, footer_obj, course_code
                 "ymin": all_dims['body'][element_index]['top'],
                 "width": all_dims['body'][element_index]['width'],
                 "height": 0.5,
+                "style": {
+                    "font_name": desc_font_family,
+                    "font_size": desc_font_attr["font_size"] + random.randint(0, 2),
+                    "font_color": font_color,
+                    "bold": random.random() > 0.5,
+                    "italics": font_obj["italics"],
+                    "underlined": random.random() > 0.5
+                }
                 }
             
             slide['elements']['text'].append(enum_instance)
@@ -361,8 +379,12 @@ def generate_random_slide(slide_number, data, style_obj, footer_obj, course_code
         for _ in range(1):
             font_obj = generate_random_font("url")
             desc = data["slides"][slide_number - 1]["url"]
+            prefix = ""
+            if desc != "" and random.random() > 0.5:
+                prefix = modify_url_prefix(desc)
             desc_instance = {
-            "value": desc,
+            "label": "url",
+            "value": prefix + desc,
             "xmin": 0.5 if random.random() > 0.5 else 5*1.333,
             "ymin": 6.5 if random.random() > 0.5 else 1.5,
             "width": 4.5*1.333,
@@ -370,7 +392,7 @@ def generate_random_slide(slide_number, data, style_obj, footer_obj, course_code
             "style": {
                 "font_name": desc_font_family,
                 "font_size": font_obj['font_size'],
-                "font_color": {"r": 0, "g": 0, "b": 238},
+                "font_color": {"r": 0, "g": 0, "b": 238} if random.random() > 0.75 else url_font_color,
                 "bold": False,
                 "italics": True,
                 "underlined": True,
@@ -383,7 +405,7 @@ def generate_random_slide(slide_number, data, style_obj, footer_obj, course_code
         # Render Equations
        
 
-        P_E = 1
+        P_E = 0.25
         slide['elements']['equations'] = []
         for i in range(n_elements_list[3]):
             ele_ymin = all_dims['body'][element_index]['top']
@@ -430,7 +452,7 @@ def generate_random_slide(slide_number, data, style_obj, footer_obj, course_code
 
         # Render Table
 
-        P_T = 1
+        P_T = 0.5
         slide['elements']['tables'] = []
         for i in range(n_elements_list[4]):
             ele_ymin = all_dims['body'][element_index]['top']
@@ -483,7 +505,7 @@ def generate_random_slide(slide_number, data, style_obj, footer_obj, course_code
             remove_tmp_files()
 
         # Render Figures
-        P_F = 1
+        P_F = 0.5
         slide['elements']['figures'] = []
         for i in range(n_elements_list[5]):
             font_obj = generate_random_font("enumeration")
@@ -555,8 +577,8 @@ def generate_random_slide(slide_number, data, style_obj, footer_obj, course_code
             "style": {
                 "font_name": 'Courier New',
                 "font_size": font_obj['font_size'],
-                "font_color": font_color,
-                "bold": False,
+                "font_color": font_color if random.random() > 0.25 else url_font_color ,
+                "bold": random.random() > 0.5,
                 "italics": False,
                 "underlined": False,
                 "h_align": 'left',
@@ -594,8 +616,8 @@ def generate_random_slide(slide_number, data, style_obj, footer_obj, course_code
                 "height": footer_dim['height'],
                 "style": {
                     "font_name": desc_font_family,
-                    "font_size": desc_font_attr["font_size"],
-                    "font_color": font_color,
+                    "font_size": desc_font_attr["font_size"] - random.randint(0, 2),
+                    "font_color": font_color if random.random() > 0.5 else url_font_color,
                     "bold": False,
                     "italics": False,
                     "underlined": False

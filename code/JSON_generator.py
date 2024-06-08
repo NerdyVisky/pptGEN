@@ -17,70 +17,10 @@ from random_generator import (generate_random_style_obj,
                               modify_url_prefix,
                               random_logo_pos
                               )
+from utils.os_helpers import count_body_elements, count_footer_elements, remove_tmp_files
 
 
-def count_footer_elements(date, showFN, showSN):
-    footer_elements = []
-    if date != None:
-        footer_elements.append("date")
-    if showSN == True:
-        footer_elements.append("slideNr")
-    if showFN == True:
-        footer_elements.append("footnote")
-    return footer_elements
 
-def count_body_elements(data, slide_number):
-    ttl_desc = 0
-    ttl_enum = 0
-    ttl_url = 0
-    ttl_eq = 0
-    ttl_tb = 0
-    ttl_fig = 0
-    ttl_cd = 0
-    for k, v in data["slides"][slide_number - 1].items():
-        if k == 'description' and v != "":
-            ttl_desc = 1
-        elif k == 'enumeration' and v:
-            ttl_enum = 1
-        # elif k == 'url' and v != "":
-        #     ttl_url = 1
-        elif k == 'equations' and v:
-            ttl_eq = len(v)
-        elif k == 'tables' and v:
-            ttl_tb = len(v)
-        elif k == 'figures' and v:
-            ttl_fig = len(v)
-        elif k == 'code' and v:
-            ttl_cd = len(v)
-    # return [ttl_desc, ttl_enum, ttl_url, ttl_eq, ttl_tb, ttl_fig, ttl_cd]
-    return [ttl_desc, ttl_enum, 0, ttl_eq, ttl_tb, ttl_fig, ttl_cd]
-
-def remove_tmp_files():
-    tmp_files = ['tmp.tex', 'tmp.aux', 'tmp.log', 'tmp.pdf']
-    for f in tmp_files:
-        if os.path.exists(f):
-            os.remove(f)
-    # os.remove(f'tmp.tex')
-    # os.remove(f'tmp.aux')
-    # os.remove(f'tmp.log')
-    # os.remove(f'tmp.pdf')
-    # tmp_eqs = 'code\\buffer\\equations'
-    # for filename in os.listdir(tmp_eqs):
-    #         file_path = os.path.join(tmp_eqs, filename)
-    #         if os.path.isfile(file_path):
-    #             os.remove(file_path)
-                
-    # tmp_tabs = 'code\\buffer\\tables'
-    # for filename in os.listdir(tmp_tabs):
-    #         file_path = os.path.join(tmp_tabs, filename)
-    #         if os.path.isfile(file_path):
-    #             os.remove(file_path)
-            
-    # tmp_figs = 'code\\buffer\\figures'
-    # for filename in os.listdir(tmp_figs):
-    #         file_path = os.path.join(tmp_figs, filename)
-    #         if os.path.isfile(file_path):
-    #             os.remove(file_path)
 
 def insert_title_slide(data, style_obj, course_code):
     slide = {
@@ -586,6 +526,22 @@ def generate_random_slide(slide_number, data, style_obj, footer_obj, course_code
                }
             } 
             slide['elements']['code'].append(code_instance)
+            element_index += 1
+
+
+        if not 'graphic' in slide['elements'].keys():
+            slide['elements']['graphic']  = []
+        for i in range(n_elements_list[7]):
+            img_instance = {
+                "label": data["slides"][slide_number - 1]["images"][i]['label'],
+                "value": data["slides"][slide_number - 1]["images"][i]['path'],
+                "xmin": all_dims['body'][element_index]['left'],
+                "ymin": all_dims['body'][element_index]['top'],
+                "width": all_dims['body'][element_index]['width'],
+                "height": all_dims['body'][element_index]['height']
+            }
+
+            slide['elements']['graphic'].append(img_instance)
             element_index += 1
         
 

@@ -1,8 +1,16 @@
 import random
+import os
+import shutil
+import requests
 from datetime import datetime
 from utils.os_helpers import resize_image
 from langchain_core.prompts import (ChatPromptTemplate)
 from itertools import combinations
+from utils.os_helpers import count_body_elements
+from dotenv import load_dotenv, find_dotenv
+
+
+load_dotenv(find_dotenv())
 
 FONT_STYLES = [
     "Arial",
@@ -45,6 +53,9 @@ TITLE_COLORS_LIGHT = [
     {"r": 255, "g": 69, "b": 0},       # Red-Orange
     {"r": 255, "g": 192, "b": 203}     # Pink
 ]
+X_API_KEY = os.environ['X-API-KEY']
+
+NATURAL_IMAGE_CATS = ['nature', 'city', 'technology', 'food', 'still_life', 'abstract', 'wildlife']
 
 H_ALIGNMENTS = [
     'left',
@@ -330,6 +341,37 @@ def generate_title_slide_obj():
         i+=1
 
     return title_inds
+
+def add_random_images(data):
+    _id_ = 0
+    presentation_ID = data["presentation_ID"]
+    n_slides = len(data["slides"])
+    for i in range(n_slides):
+        data["slides"][i]["images"] = []
+        n_body = sum(count_body_elements(data, i+1))
+        if n_body == 1:
+            img_path = get_random_image(presentation_ID, _id_)
+            obj = {
+                "label": "natural-image",
+                "path": img_path
+            }
+            data["slides"][i]["images"].append(obj)
+            print(data["slides"][i]["images"])
+    
+    return data
+
+def get_random_image(presentation_ID, _id_) -> str:
+    category = random.choice(NATURAL_IMAGE_CATS)
+    api_url = f'https://api.api-ninjas.com/v1/randomimage?category={category}'
+    response = requests.get(api_url, headers={'X-Api-Key': f'{X_API_KEY}', 'Accept': 'image/jpg'}, stream=True)
+    os.makedirs(os.path.join('code\\buffer\graphics', f'{presentation_ID}'), exist_ok=True)
+    img_path = os.path.join('code\\buffer\graphics', f'{presentation_ID}', f'{_id_ + 1}.jpg')
+    if response.status_code == requests.codes.ok:
+        with open(img_path, 'wb') as out_file:
+            shutil.copyfileobj(response.raw, out_file)
+    else:
+        print("Error:", response.status_code, response.text)
+    return img_path
 
 def randomize_table_styling(content, model, tbl_prompt):
     prompt = ChatPromptTemplate.from_messages(tbl_prompt)

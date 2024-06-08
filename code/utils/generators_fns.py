@@ -12,7 +12,7 @@ from utils.data_validation import PPTContentJSON
 from langchain.output_parsers.openai_functions import JsonOutputFunctionsParser
 from langchain_core.utils.function_calling import convert_to_openai_function
 from utils.prompts import tbl_var_prompt
-from random_generator import randomize_table_styling
+from random_generator import randomize_table_styling, add_random_images
 from langchain_openai import ChatOpenAI
 
 def configure_llm(TEMPERATURE=0,LLM_MODEL='gpt-3.5-turbo'):
@@ -361,7 +361,8 @@ def assemble_elements(text_json, struct_imgs, plot_imgs, figure_imgs, code_files
         }
         text_json["slides"][slide_number - 1]['code'].append(obj)
 
-    return text_json
+    final_json = add_random_images(text_json)
+    return final_json
 
 
 def get_struct_img_path(tex_code, num, presentation_ID, struct_type):

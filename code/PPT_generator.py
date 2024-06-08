@@ -468,7 +468,7 @@ class PresentationGenerator:
             for element_type, elements in slide_info['elements'].items():
                 for element_info in elements:
                     if element_type == 'graphic':
-                        if element_info['label'] == 'logo':
+                        if element_info['label'] == 'logo' or element_info['label'] == 'natural-image':
                             element = Graphic(element_info['value'], None, (element_info['xmin'], element_info['ymin'], element_info['width'], element_info['height']))
                     elif element_type == 'figures':
                         if 'caption' in element_info.keys():

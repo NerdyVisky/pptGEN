@@ -4,10 +4,13 @@ import random
 
 def resize_image(input_image_path, box_width, box_height):
         dpi = 96
-        box_width_pixels = int(box_width) * dpi
-        box_height_pixels = int(box_height * dpi)
+        
         with Image.open(input_image_path) as img:
             img_width, img_height = img.size
+            if img_width / img_height == 2:
+                box_width = 2
+            box_width_pixels = int(box_width) * dpi
+            box_height_pixels = int(box_height * dpi)
             img_aspect_ratio = img_width / img_height
             box_aspect_ratio = box_width_pixels / box_height_pixels
             if img_aspect_ratio > box_aspect_ratio:

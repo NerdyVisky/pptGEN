@@ -1,5 +1,8 @@
 import random
 from datetime import datetime
+from utils.os_helpers import resize_image
+from langchain_core.prompts import (ChatPromptTemplate)
+from itertools import combinations
 
 FONT_STYLES = [
     "Arial",
@@ -89,9 +92,135 @@ PRESENTERS = [
     "Dr. Jasmine Khan",
     "Prof. Oliver Martin"
 ]
+TEMPLATES = {
+    1: ["code\\assets\\ppt_templates\\1.png", 0],
+    2: ["code\\assets\\ppt_templates\\2.png", 0],
+    3: ["code\\assets\\ppt_templates\\3.png", 1],
+    4: ["code\\assets\\ppt_templates\\4.png", 0],
+    5: ["code\\assets\\ppt_templates\\5.png", 0],
+    6: ["code\\assets\\ppt_templates\\6.png", 0],
+    7: ["code\\assets\\ppt_templates\\7.png", 1],
+    8: ["code\\assets\\ppt_templates\\8.png", 0],
+    9: ["code\\assets\\ppt_templates\\9.png", 1],
+    10: ["code\\assets\\ppt_templates\\10.png", 1],
+    11: ["code\\assets\\ppt_templates\\11.png", 1],
+    12: ["code\\assets\\ppt_templates\\12.png", 1],
+    13: ["code\\assets\\ppt_templates\\13.png", 1],
+    14: ["code\\assets\\ppt_templates\\14.png", 0],
+    15: ["code\\assets\\ppt_templates\\15.png", 1],
+    16: ["code\\assets\\ppt_templates\\16.png", 0],
+    17: ["code\\assets\\ppt_templates\\17.png", 1],
+    18: ["code\\assets\\ppt_templates\\18.png", 0],
+}
+LOGO_URLS = [
+    'code\\assets\\logos\\01.png',
+    'code\\assets\\logos\\02.png',
+    'code\\assets\\logos\\03.png',
+    'code\\assets\\logos\\04.png',
+    'code\\assets\\logos\\05.png',
+    'code\\assets\\logos\\06.png',
+    'code\\assets\\logos\\07.png',
+    'code\\assets\\logos\\08.png',
+    'code\\assets\\logos\\09.png',
+    'code\\assets\\logos\\10.png',
+    'code\\assets\\logos\\11.png',
+    'code\\assets\\logos\\12.png',
+    'code\\assets\\logos\\13.png',
+    'code\\assets\\logos\\14.png',
+    'code\\assets\\logos\\15.png'
+]
+MUL_FAC = 1.333
+LOGO_ALL_POS = {
+    0: {
+       'left': 0.25, 'top': 7
+    },
+    1: {
+       'left': 5, 'top': 7
+    },
+    2:{
+        'left': 11.333, 'top': 7
+    },
+    3:{
+        'left': 0.25, 'top': 0.25
+    },
+    4:{
+        'left': 11.333, 'top': 0.25
+    }
+}
+
+PROG_LANGS=[
+    'Python',
+    'Javascript',
+    'C++',
+    'Java',
+    'C'
+]
+PRIMARY_COLORS = [
+    'red',
+    'blue',
+    'grey'
+]
+BACKGROUNDS = [
+    'transparent'
+]
+TBL_BORDER_TYPES = [
+    # 'all horizontal and vertical borders',
+    'only vertical borders',
+    'only horizontal borders',
+    'no horizontal or vertical borders',
+    'only horizontal header borders'
+]
+URL_PREFIXES = [
+    'Source:',
+    'Visit for more:',
+    'Know more here:',
+]
+
+def random_logo_pos(footer_obj):
+    logo_pos = LOGO_ALL_POS
+    for ele in footer_obj:
+        for p_i in ele.values():
+            if p_i in logo_pos.keys():
+                logo_pos.pop(p_i)
+    
+    avl_pos = list(logo_pos.keys())
+    random_choice = random.choice(avl_pos)
+    bbox_logo = logo_pos[random_choice]
+    return bbox_logo
 
 
-def generate_random_color(PROB=0.6):
+
+def pick_random(list_name):
+    if list_name == 'alignments':
+        return [random.choice(H_ALIGNMENTS), random.choice(V_ALIGNMENTS)]
+    elif list_name == 'prog_langs':
+        return random.choice(PROG_LANGS)
+    else:
+        return random.choice(list_name)
+
+FONT_SIZE = random.randint(4, 8)*2
+FONT_COLOR = pick_random(PRIMARY_COLORS) if random.random() > 0 else 'black'
+BACKGROUND_COLOR = pick_random(BACKGROUNDS) if random.random() > 0 else 'white'
+BORDERS = pick_random(TBL_BORDER_TYPES) if random.random() > 0 else 'all horizontal and vertical borders'
+
+def pick_random_logo(PROB=0.5):
+    path = ''
+    n_w = 0
+    n_h = 0
+    if PROB > random.random():
+        path = LOGO_URLS[random.randint(0, len(LOGO_URLS) - 1)]
+        path, n_w, n_h = resize_image(path, 1, 1)
+    return path, n_w, n_h
+
+def pick_random_template(PROB=0.15) -> list:
+    path = ''
+    isDark = -1
+    if PROB > random.random():
+        path, isDark = TEMPLATES.get(random.randint(1, len(TEMPLATES)))
+    return [path, isDark]
+    
+
+def generate_random_color(PROB=0.85):
     if random.random() > PROB:
         return {"r": random.randint(0, 255), "g": random.randint(0, 255), "b": random.randint(0, 255)}
     else:
@@ -167,14 +296,66 @@ def generate_footer_obj():
         footer_inds.append({"date": inds[i]})
         i+=1
     if showFN:
-        footer_inds.append({"footnote": inds[i]})
+        if random.random() > 0.5:
+            footer_inds.append({"affiliation": inds[i]})
+        else:
+            footer_inds.append({"course_code": inds[i]})
         i+=1
     return footer_inds
 
+def generate_title_slide_obj():
+    showPT = True
+    showLg = random.random() > 0.5
+    showCC = random.random() > 0.5 
+    showDt = random.random() > 0.75
+    showIs = random.random() > 0.5
+    total_slide_elements = 0
+    if showPT:
+        total_slide_elements += 1
+    if showLg:
+        total_slide_elements += 1
+    if showCC:
+        total_slide_elements += 1
+    if showDt:
+        total_slide_elements += 1
+    if showIs:
+        total_slide_elements += 1
+    # inds = random.sample(range(9), total_slide_elements)
+    inds = random.sample(range(5), total_slide_elements)
+    i = 0
+    title_inds = []
+    if showPT:
+        title_inds.append({"PT": inds[i]})
+        i+=1
+    if showDt:
+        title_inds.append({"DT": inds[i]})
+        i+=1
+    if showCC:
+        title_inds.append({"CC": inds[i]})
+        i+=1
+    if showLg:
+        title_inds.append({"Lg": inds[i]})
+        i+=1
+    if showIs:
+        title_inds.append({"Is": inds[i]})
+        i+=1
 
+    return title_inds
+
+def randomize_table_styling(content, model, tbl_prompt):
+    prompt = ChatPromptTemplate.from_messages(tbl_prompt)
+    chain = prompt | model
+    tbl_output = chain.invoke({"FONT_SIZE": FONT_SIZE, "FONT_COLOR": FONT_COLOR, "BACKGROUND": BACKGROUND_COLOR, "BORDERS": BORDERS, "input": content})
+    return tbl_output.content
+
+def modify_url_prefix(desc):
+    prefix = pick_random(URL_PREFIXES)
+    return prefix
+    
     
 def generate_random_style_obj():
     style_obj = {}
+    style_obj["template"] = pick_random_template(0.70)
     style_obj["bg_color"] = generate_random_color(0.6)
     style_obj["title_font_family"] = pick_random(FONT_STYLES) 
     style_obj["title_font_bold"] = random.random() > 0.75
@@ -184,14 +365,44 @@ def generate_random_style_obj():
     style_obj['title_font_light'] = pick_random(TITLE_COLORS_LIGHT)
     style_obj["desc_font_family"] = pick_random(FONT_STYLES)
     style_obj["desc_font_attr"] = generate_random_font("description")
+    style_obj["url_font_color"] = pick_random(TITLE_COLORS_DARK)
     style_obj["date"] = generate_random_date()
+    style_obj['logo'] = pick_random_logo(0.6)
+    style_obj["instructor"] = pick_random_presenter()
     return style_obj
-
-def pick_random(list_name):
-    if list_name == 'alignments':
-        return [random.choice(H_ALIGNMENTS), random.choice(V_ALIGNMENTS)]
+    
+def modify_style(style):
+    if style["font_color"]["r"] == 0:
+        new_font_color = pick_random(TITLE_COLORS_DARK)
     else:
-        return random.choice(list_name)
+        new_font_color = pick_random(TITLE_COLORS_LIGHT)
+
+    special_style = {
+    "font_name": style["font_name"],
+    "font_size": style["font_size"] + random.randint(0, 2),
+    "font_color": new_font_color,
+    "bold": random.random() > 0.5,
+    "italics": random.random() > 0.5,
+    "underlined": random.random() > 0.5,
+    }
+    return special_style
+
+def generate_random_phrases(desc):
+    words = desc.split()
+    n = len(words)
+    
+    ab_pairs = [(a, b) for a in range(n) for b in range(a+1, min(a+3, n))]
+    
+    cd_pairs = [(c, d) for c in range(n) for d in range(c+1, min(c+3, n))]
+
+    valid_sets = [(a, b, c, d) for a, b in ab_pairs for c, d in cd_pairs if b < c]
+    
+
+    if valid_sets:
+        a, b, c, d = random.choice(valid_sets)
+        return [list(range(a, b + 1)), list(range(c, d + 1))]
+    else:
+        return None  
 
 def generate_random_layout(total_body_elements):
     layout_mapping = {

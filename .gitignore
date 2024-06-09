@@ -12,14 +12,17 @@ code/data/
 code/json/
 code/buffer/
 code/temp/
+code/assets/
 
 
 code/test.py
 code/code.py
 code/plot_test.py
+code/code_debug.py
 
 demo_20.zip
 desired_struct.json
+books.txt
 
 dataset_svnitEval/
 past_data/

@@ -8,7 +8,65 @@ from pptx.dml.color import RGBColor
 import json
 import os
 from utils.os_helpers import resize_image
+from random_generator import modify_style
 import shutil
+import ast
+import random
+
+
+def add_style_pertubations(textbox, text, style_indexes, default_style, special_style):
+    tf = textbox.text_frame
+    words = text.split()
+    tf.auto_size = True
+    tf.word_wrap = True
+    current_index = 0
+    current_run = None
+    para = tf.add_paragraph()
+    for i, word in enumerate(words):
+        word += ' '
+        for index in style_indexes:
+            start = index[0]
+            end = index[-1]
+            if i >= start and i <= end:
+                current_run = None
+                if current_run != None:
+                    current_run = para.add_run()
+                    current_run.text = word
+                else:
+                    current_run = para.add_run()
+                    current_run.text = word
+                    current_run.font.bold = special_style.get('bold', False)
+                    current_run.font.color.rgb = RGBColor(special_style['font_color']['r'], special_style['font_color']['g'], special_style['font_color']['b'])                    
+                    current_run.font.italic = special_style.get('italics', False)
+                    current_run.font.underline = special_style.get('underlined', False)
+                    current_run.font.size = Pt(special_style.get('font_size', 16))
+                    current_run.font.name = special_style.get('font_name', 'Arial')
+                break
+        else:
+            current_run = para.add_run()
+            current_run.text = word
+            current_run.font.color.rgb = RGBColor(default_style['font_color']['r'], default_style['font_color']['g'], default_style['font_color']['b'])                    
+            current_run.font.bold = default_style.get('bold', False)
+            current_run.font.italic = default_style.get('italics', False)
+            current_run.font.underline = default_style.get('underlined', False)
+            current_run.font.size = Pt(default_style.get('font_size', 16))
+            current_run.font.name = default_style.get('font_name', 'Arial')
+                
+        current_index += len(word) + 1  
+        
+    current_index += len(word) + 1  # Account for spaces between words
+
+# Ensure the last part of the text is added
+    if current_index < len(text):
+        current_run.text += text[current_index:]
+        current_run = None
+# Reset the font properties for the last run
+    current_run.font.bold = default_style.get('bold', False)
+    current_run.font.italic = default_style.get('italic', False)
+    current_run.font.underline = default_style.get('underlined', False)
+    current_run.font.size = Pt(default_style.get('font_size', 16))
+    current_run.font.name = default_style.get('font_name', 'Arial')
+
 
 class Element:
     def __init__(self, content, style, bounding_box):
@@ -116,9 +174,20 @@ class Title(Element):
         pass
 
 class Description(Element):
+    def __init__(self, content, style, bounding_box, phrases):
+        super().__init__(content, style, bounding_box)
+        self.phrases = phrases
+        self.special_style = modify_style(style)
+
+    def render(self, slide):
+        left, top, width, height = self.bounding_box
+        textbox = slide.shapes.add_textbox(Inches(left), Inches(top), Inches(width), Inches(height))
+        add_style_pertubations(textbox, self.content, self.phrases, self.style, self.special_style)
+        self.textbox = textbox
+
+class Reference(Element):
     def __init__(self, content, style, bounding_box):
         super().__init__(content, style, bounding_box)
-
     def render(self, slide):
         left, top, width, height = self.bounding_box
         textbox = slide.shapes.add_textbox(Inches(left), Inches(top), Inches(width), Inches(height))
@@ -130,8 +199,8 @@ class Description(Element):
         self.textbox = textbox
 
 class Enumeration(Description):
-    def __init__(self, content, style, bounding_box, heading):
-        super().__init__(content, style, bounding_box)
+    def __init__(self, content, style, bounding_box, heading, phrases):
+        super().__init__(content, style, bounding_box, phrases)
         self.heading = heading
 
     def render(self, slide):
@@ -140,6 +209,9 @@ class Enumeration(Description):
             enum_heading = slide.shapes.add_textbox(Inches(left), Inches(top), Inches(width), Inches(height))
             enum_heading.text = self.heading['value']
             self.apply_font_style(enum_heading)
+            enum_heading.text_frame.paragraphs[0].font.size = Pt(self.heading['style']['font_size'])
+            enum_heading.text_frame.paragraphs[0].font.bold = self.heading['style']['bold']
+            enum_heading.text_frame.paragraphs[0].font.underline = self.heading['style']['underlined']
             enum_heading.text_frame.auto_size = True
             enum_heading.text_frame.word_wrap = True
             # enum_heading.text_frame.paragraphs[0].alignment = PP_ALIGN.JUSTIFY
@@ -156,24 +228,36 @@ class Enumeration(Description):
                         run = p.add_run()
                         run.text = pt_text
                         self.apply_font_style_on_run(run)
+                        if random.random() > 0.5:
+                            p.level = 1
+                            run.font.size = Pt(self.style['font_size'] - random.randint(0, 2))
+                            if self.style['font_color']['r'] == 0:
+                                run.font.color.rgb = RGBColor(169, 169, 169)
+                            else:
+                                run.font.color.rgb = RGBColor(211, 211, 211)
 
-                    elif isinstance(pt_text, list):
-                        for sub_pt in pt_text:
-                            s_p = enum_tf.add_paragraph()
-                            s_p.level = 1
-                            sub_run = s_p.add_run()
-                            sub_run.text = sub_pt
-                            self.apply_font_style_on_run(run)
+                    # elif isinstance(pt_text, list):
+                    #     for sub_pt in pt_text:
+                    #         s_p = enum_tf.add_paragraph()
+                    #         sub_run = s_p.add_run()
+                    #         sub_run.text = sub_pt
+                    #         s_p.level = 1
+                    #         self.apply_font_style_on_run(sub_run)
                             # s_p.paragraph_format.alignment = MSO_ANCHOR.JUSTIFY
                     else:
                         raise Exception("Invalid Enumeration format")
                 
         enum_tf.auto_size = True
         enum_tf.word_wrap = True
-        MAX_LINES = 5
+        MAX_LINES = 6
+        MAX_WORDS = 13
         if len(enum_tf.paragraphs) > MAX_LINES:
-            for paragraph in enum_tf.paragraphs[MAX_LINES:]:
-                paragraph.text = paragraph.text[:paragraph.text.rfind(' ')] + "..."
+            enum_tf.paragraphs = enum_tf.paragraphs[:MAX_LINES]
+        else:
+            for paragraph in enum_tf.paragraphs:
+                word_count = len(paragraph.text.split())  # Count words in the paragraph
+                if word_count > MAX_WORDS:
+                    paragraph.text = paragraph.text[:paragraph.text.rfind(' ', 0, MAX_WORDS)] + "..."
         self.position_element(enum_shape)
         self.enum_tf = enum_tf
             
@@ -185,40 +269,84 @@ class Figure(Element):
         self.content = content
         
     def render(self, slide):
+        left, top, width, height = self.bounding_box
+        resized_img_path, n_w, n_h = resize_image(self.content, width, height)
         if self.caption != None:
             left_c, top_c, width_c, height_c = self.caption['xmin'], self.caption['ymin'], self.caption['width'], self.caption['height']
-            cap_shape = slide.shapes.add_textbox(Inches(left_c), Inches(top_c - (height - n_h)/2), Inches(width_c), Inches(height_c))
+            if top_c > top:
+                cap_shape = slide.shapes.add_textbox(Inches(left_c), Inches(top_c - (height - n_h)/2), Inches(width_c), Inches(height_c))
+            else:
+                cap_shape = slide.shapes.add_textbox(Inches(left_c), Inches(top_c + (height - n_h)/2), Inches(width_c), Inches(height_c))
             cap_shape.text = self.caption['value']
             self.apply_font_style(cap_shape)
             cap_shape.text_frame.auto_size = True
             cap_shape.text_frame.word_wrap = True
             cap_shape.text_frame.paragraphs[0].alignment = PP_ALIGN.CENTER
-        left, top, width, height = self.bounding_box
-        resized_img_path, n_w, n_h = resize_image(self.content, width, height)
         img = slide.shapes.add_picture(resized_img_path, Inches(left - (n_w - width)/2), Inches(top - (n_h - height)/2), Inches(n_w), Inches(n_h))
         
         self.image = img 
 
 class Equation(Element):
-    def __init__(self, content, style, bounding_box):
+    def __init__(self, content, style, bounding_box, caption):
         super().__init__(content, style, bounding_box)
+        self.caption = caption
+        self.content = content
 
     def render(self, slide):
         left, top, width, height = self.bounding_box
         resized_img_path, n_w, n_h = resize_image(self.content, width, height)
+        if self.caption != None:
+            left_c, top_c, width_c, height_c = self.caption['xmin'], self.caption['ymin'], self.caption['width'], self.caption['height']
+            if top_c > top:
+                cap_shape = slide.shapes.add_textbox(Inches(left_c), Inches(top_c - (height - n_h)/2), Inches(width_c), Inches(height_c))
+            else:
+                cap_shape = slide.shapes.add_textbox(Inches(left_c), Inches(top_c + (height - n_h)/2), Inches(width_c), Inches(height_c))
+            cap_shape.text = self.caption['value']
+            self.apply_font_style(cap_shape)
+            cap_shape.text_frame.auto_size = True
+            cap_shape.text_frame.word_wrap = True
+            cap_shape.text_frame.paragraphs[0].alignment = PP_ALIGN.CENTER
         img = slide.shapes.add_picture(resized_img_path, Inches(left - (n_w - width)/2), Inches(top - (n_h - height)/2), Inches(n_w), Inches(n_h))
         self.image = img 
 
 
 class Table(Element):
-    def __init__(self, content, style, bounding_box):
+    def __init__(self, content, style, bounding_box, caption, tbl_cnt):
         super().__init__(content, style, bounding_box)
+        self.caption = caption
+        self.content = content
+        if tbl_cnt:
+            self.tbl_cnt = ast.literal_eval(tbl_cnt)
 
     def render(self, slide):
         left, top, width, height = self.bounding_box
-        resized_img_path, n_w, n_h = resize_image(self.content, width, height)
-        img = slide.shapes.add_picture(resized_img_path, Inches(left - (n_w - width)/2), Inches(top - (n_h - height)/2), Inches(n_w), Inches(n_h))
-        self.image = img 
+        if not self.content is None:
+            resized_img_path, n_w, n_h = resize_image(self.content, width, height)
+            if self.caption != None:
+                left_c, top_c, width_c, height_c = self.caption['xmin'], self.caption['ymin'], self.caption['width'], self.caption['height']
+                if top_c > top:
+                    cap_shape = slide.shapes.add_textbox(Inches(left_c), Inches(top_c - (height - n_h)/2), Inches(width_c), Inches(height_c))
+                else:
+                    cap_shape = slide.shapes.add_textbox(Inches(left_c), Inches(top_c + (height - n_h)/2), Inches(width_c), Inches(height_c))
+                cap_shape.text = self.caption['value']
+                self.apply_font_style(cap_shape)
+                cap_shape.text_frame.auto_size = True
+                cap_shape.text_frame.word_wrap = True
+                cap_shape.text_frame.paragraphs[0].alignment = PP_ALIGN.CENTER
+            img = slide.shapes.add_picture(resized_img_path, Inches(left - (n_w - width)/2), Inches(top - (n_h - height)/2), Inches(n_w), Inches(n_h))
+            self.image = img 
+        else:
+            rows = len(self.tbl_cnt)
+            columns = len(self.tbl_cnt[0])
+            x, y, cx, cy = Inches(left), Inches(top), Inches(width), Inches(height)
+            shape = slide.shapes.add_table(rows, columns, x, y, cx, cy)
+            table = shape.table
+            for i in range(rows):
+                for j in range(columns):
+                    cell = table.cell(i, j)
+                    cell.text = self.tbl_cnt[i][j]
+            self.table = table
+            
         
 class Footer(Element):
     def __init__(self, content, style, bounding_box, location):
@@ -241,6 +369,57 @@ class Footer(Element):
         self.position_element(textbox)
         self.textbox = textbox
 
+class CodeSnippet(Element):
+    def __init__(self, content, style, bounding_box):
+        super().__init__(content, style, bounding_box)
+
+    def render(self, slide):
+        left, top, width, height = self.bounding_box
+        code_shape = slide.shapes.add_textbox(Inches(left), Inches(top), Inches(width), Inches(height))
+        code_tf = code_shape.text_frame
+        if self.content != []:            
+            code_tf.text = self.content[0]
+            self.apply_font_style(code_shape)
+            # enum_tf.paragraphs[0].paragraph_format.alignment = MSO_ANCHOR.JUSTIFY
+            code_lines = self.content.split('\n')
+            for i, pt_text in enumerate(code_lines):
+                if i>0:
+                    if isinstance(pt_text, str):
+                        p = code_tf.add_paragraph()
+                        run = p.add_run()
+                        run.text = pt_text
+                        self.apply_font_style_on_run(run)
+                    else:
+                        raise Exception("Invalid Code lines format")
+                
+        code_tf.auto_size = True
+        code_tf.word_wrap = True
+        MAX_LINES = 10
+        if len(code_tf.paragraphs) > MAX_LINES:
+            for paragraph in code_tf.paragraphs[MAX_LINES:]:
+                paragraph.text = paragraph.text[:paragraph.text.rfind(' ')] + "..."
+        self.position_element(code_shape)
+        self.enum_tf = code_tf
+
+class Graphic(Element):
+    def __init__(self, content, style, bounding_box):
+        super().__init__(content, style, bounding_box)
+    
+    def render(self, slide):
+        left, top, width, height = self.bounding_box
+        img = slide.shapes.add_picture(self.content, Inches(left), Inches(top), Inches(width), Inches(height))
+        # slide.shapes._spTree.remove(img._element)
+        # slide.shapes._spTree.insert(1, img._element)
+        self.image = img 
+
+class Template():
+    def __init__(self, content):
+        self.content = content
+    def render(self, slide):
+        img = slide.shapes.add_picture(self.content, Inches(0), Inches(0), Inches(13.333), Inches(7.5))
+        slide.shapes._spTree.remove(img._element)
+        slide.shapes._spTree.insert(2, img._element)  
+        self.image = img
 
 class PresentationGenerator:
     def __init__(self, json_payload, subject_name, slide_id, version):
@@ -277,44 +456,95 @@ class PresentationGenerator:
         self.presentation.slide_width = Inches(13.333)
         self.presentation.slide_height = Inches(7.5)
         MUL_FAC = 1.33
-        self.insert_title_slide(MUL_FAC)
+        # self.insert_title_slide(MUL_FAC)
         for slide_info in self.json_payload['slides']:
             slide_layout = self.presentation.slide_layouts[1]
             slide = self.presentation.slides.add_slide(slide_layout)
             slide.background.fill.solid()
-            if slide_info['bg_color']:
+            if 'bg_color' in slide_info.keys():
                 slide.background.fill.fore_color.rgb = RGBColor(slide_info['bg_color']['r'], slide_info['bg_color']['g'], slide_info['bg_color']['b'])
             else:
-                slide.background.fill.fore_color.rgb = RGBColor(255, 255, 255)
+                slide.background.fill.fore_color.rgb = RGBColor(255, 255, 255)                
+            
+            if 'template' in slide_info.keys():
+                element = Template(slide_info['template'])
+                element.render(slide)
+            
+            slide_no = slide_info['pg_no']
 
             for element_type, elements in slide_info['elements'].items():
-                for element_info in elements:
-                    if element_type == 'figures':
+                for element_info in elements:         
+                    title_pos = ''           
+                    if element_type == 'title':
+                        element = Title(element_info['value'], element_info['style'], (element_info['xmin'], element_info['ymin'], element_info['width'], element_info['height']))
+                        if 'h_align' in element_info['style']:
+                            title_pos = element_info['style']['h_align']
+                    
+                    elif element_type == 'graphic':
+                        if element_info['label'] == 'logo':
+                            if slide_no == 0:
+                                element = Graphic(element_info['value'], None, (element_info['xmin'], element_info['ymin'], element_info['width'], element_info['height']))
+                            else:
+                                # get the logo position, left or right of the slide center
+                                logo_pos = ''
+                                if element_info['ymin'] > 3.75:
+                                    if element_info['xmin'] > 6.666:
+                                        logo_pos = 'right'
+                                    else:
+                                        logo_pos = 'left'
+                                # if title_pos is left  and the logo is also on left, render the logo at mirror position on right
+                                if title_pos == 'left' and logo_pos == 'left':
+                                    n_xmin = 13.333 - element_info['xmin'] - element_info['width']
+                                    element = Graphic(element_info['value'], None, (n_xmin, element_info['ymin'], element_info['width'], element_info['height']))
+                                # if title_pos is right and the logo is also on right, render the logo at mirror position on left
+                                elif title_pos == 'right' and logo_pos == 'right':
+                                    n_xmin = 13.333 - element_info['xmin'] - element_info['width']
+                                    element = Graphic(element_info['value'], None, (n_xmin, element_info['ymin'], element_info['width'], element_info['height']))
+                                else:
+                                    element = Graphic(element_info['value'], None, (element_info['xmin'], element_info['ymin'], element_info['width'], element_info['height']))
+                                
+                    elif element_type == 'refs':
+                        element = Reference(element_info['value'], element_info['style'], (element_info['xmin'], element_info['ymin'], element_info['width'], element_info['height']))
+                    
+                    elif element_type == 'footer':
+                        element = Footer(element_info['value'], element_info['style'], (element_info['xmin'], element_info['ymin'], element_info['width'], element_info['height']), element_info['location'])
+                                        
+                    elif element_type == 'text':
+                        if element_info['label'] == "enumeration":
+                            if 'heading' in element_info.keys():
+                                element = Enumeration(element_info['value'], element_info['style'], (element_info['xmin'], element_info['ymin'], element_info['width'], element_info['height']), element_info['heading'], None)
+                            else:
+                                element = Enumeration(element_info['value'], element_info['style'], (element_info['xmin'], element_info['ymin'], element_info['width'], element_info['height']), None, None)                             
+                        else:
+                            element = Description(element_info['value'], element_info['style'], (element_info['xmin'], element_info['ymin'], element_info['width'], element_info['height']), element_info["style"]["phrases"])
+                    
+                    elif element_type == 'figures':
                         if 'caption' in element_info.keys():
                             element = Figure(element_info['path'], element_info['caption']['style'], (element_info['xmin'], element_info['ymin'], element_info['width'], element_info['height']), element_info['caption'])
                         else:
                             element = Figure(element_info['path'], None, (element_info['xmin'], element_info['ymin'], element_info['width'], element_info['height']), None)
 
                     elif element_type == 'equations':
-                        element = Equation(element_info['path'], None, (element_info['xmin'], element_info['ymin'], element_info['width'], element_info['height']))
-                    elif element_type == 'tables':
-                        element = Table(element_info['path'], None, (element_info['xmin'], element_info['ymin'], element_info['width'], element_info['height']))
-                    elif element_type == 'url':
-                        element = Description(element_info['value'], element_info['style'], (element_info['xmin'], element_info['ymin'], element_info['width'], element_info['height']))
-                    elif element_type == 'description':
-                        if element_info['label'] == "enumeration":
-                            if 'heading' in element_info.keys():
-                                element = Enumeration(element_info['value'], element_info['style'], (element_info['xmin'], element_info['ymin'], element_info['width'], element_info['height']), element_info['heading'])
-                            else:
-                                element = Enumeration(element_info['value'], element_info['style'], (element_info['xmin'], element_info['ymin'], element_info['width'], element_info['height']), None)
-
-                                
+                        if 'caption' in element_info.keys():
+                            element = Equation(element_info['path'], element_info['caption']['style'], (element_info['xmin'], element_info['ymin'], element_info['width'], element_info['height']), element_info['caption'])
                         else:
-                            element = Description(element_info['value'], element_info['style'], (element_info['xmin'], element_info['ymin'], element_info['width'], element_info['height']))
-                    elif element_type == 'title':
-                        element = Title(element_info['value'], element_info['style'], (element_info['xmin'], element_info['ymin'], element_info['width'], element_info['height']))
-                    elif element_type == 'footer':
-                        element = Footer(element_info['value'], element_info['style'], (element_info['xmin'], element_info['ymin'], element_info['width'], element_info['height']), element_info['location'])
+                            element = Equation(element_info['path'], None, (element_info['xmin'], element_info['ymin'], element_info['width'], element_info['height']), None)
+                    
+                    elif element_type == 'tables':
+                        path = None
+                        content = None
+                        if 'path' in element_info.keys():
+                            path = element_info['path']
+                        else:
+                            content = element_info['content']
+                        if 'caption' in element_info.keys():
+                            element = Table(path, element_info['caption']['style'], (element_info['xmin'], element_info['ymin'], element_info['width'], element_info['height']), element_info['caption'], content)
+                        else:
+                            element = Table(path, None, (element_info['xmin'], element_info['ymin'], element_info['width'], element_info['height']), None, content)
+                    
+                    elif element_type == 'code':
+                        element = CodeSnippet(element_info['value'], element_info['style'], (element_info['xmin'], element_info['ymin'], element_info['width'], element_info['height']))
+                    
                     else:
                         raise ValueError(f"Unsupported element type: {element_type}")
 
@@ -388,9 +618,10 @@ def main():
         json_payload = load_json_payload(json_file)
 
         #Generate Presentation from JSON file and save it
+        print(f"Generating : {slide_id} - {version}.")
         presentation_generator = PresentationGenerator(json_payload, subject_name, slide_id, version)
         presentation_generator.generate_presentation()
-        # print(f"Presentation generated successfully for {slide_id}.")
+        print(f"Presentation generated successfully.")
 
     final_json_path = f"code/json/final"
     for i, json_file in enumerate(json_file_paths):
@@ -406,7 +637,11 @@ def main():
         final_json_file = os.path.join(final_json_path, subject_name, slide_id, f'{version}.json')
         
         if os.path.exists(json_file):
-            os.rename(json_file, final_json_file)
+            try:
+                os.rename(json_file, final_json_file)
+                print(f"File {json_file} moved.")
+            except:
+                print(f"File {json_file} already exists.")
     
     shutil.rmtree(f"code/buffer/temp")
     

@@ -24,9 +24,6 @@ def main():
         if ppt.endswith('.pptx'):
           convert(f"{ppt_dir}{subject}/{topic}/{ppt}", f"{pdf_dir}{subject}/{topic}/")
           a += 1
-          if a == 10:
-            break
-    break
 
   print(f"🟢 (1/5) {a} PPT files converted to PDF for processing")
 
@@ -48,10 +45,8 @@ def main():
               id = '0' + str(i)
             else:
               id = str(i)
-            if id == '00':
-              continue
             image_name = image_path + '/' + id + pdf[:-4] + topic + '.png'
-            print(image_name)
+            # print(image_name)
             image_resized.save(image_name, 'PNG')
             a += 1
   print(f"🟢 (2/5) {a} images generated and saved to dataset/images")

@@ -1,5 +1,6 @@
 import re
 import subprocess
+import random
 import os
 import fitz
 import graphviz
@@ -10,37 +11,67 @@ from utils.prompts import text_generation_example, text_generation_ex_prompt
 from utils.data_validation import PPTContentJSON
 from langchain.output_parsers.openai_functions import JsonOutputFunctionsParser
 from langchain_core.utils.function_calling import convert_to_openai_function
+from utils.prompts import tbl_var_prompt
+from random_generator import randomize_table_styling
+from langchain_openai import ChatOpenAI
+import pickle
 
+def configure_llm(TEMPERATURE=0,LLM_MODEL='gpt-3.5-turbo'):
+     model = ChatOpenAI(
+       model_name=LLM_MODEL, 
+       temperature=TEMPERATURE,
+       )
+     return model
 
+def latex_to_matrix(latex_code):
+    # Remove LaTeX table and tabular environment markers
+    latex_code = re.sub(r'\\begin{table}.*?\\begin{tabular}{.*?}', '', latex_code, flags=re.DOTALL)
+    latex_code = re.sub(r'\\end{tabular}.*?\\end{table}', '', latex_code, flags=re.DOTALL)
+    
+    # Replace \hline with a unique marker
+    latex_code = latex_code.replace('\\hline', '|')
 
-def get_full_element_name(im_par):
-    match im_par:
-        case "tb":
-           element_name = "table"
-        case "eq":
-           element_name = "equation"
-        case "bc":
-           element_name = "bar-chart"
-        case "lc":
-           element_name = "line-chart"
-        case "pc":
-           element_name = "pie-chart"
-        case "3p":
-           element_name = "3d-plot"
-        case "pt":
-           element_name = "plot"
-        case "tr":
-           element_name = "tree"
-        case "gr":
-           element_name = "graph"
-        case "fc":
-           element_name = "flow-chart"
-        case "bd":
-           element_name = "block-diagram"
-    return element_name
+    # Split rows by the marker and clean up each row
+    rows = [row.strip() for row in latex_code.split('|') if row.strip()]
+
+    # Split columns by & and clean up each cell
+    matrix = []
+    for row in rows:
+        columns = [re.sub(r'\\textbf{(.*?)}', r'\1', col).strip() for col in row.split('&')]
+        # Remove extra trailing \\ from cells
+        columns = [col.replace('\\\\', '').strip() for col in columns]
+        matrix.append(columns)
+    
+    return matrix
+
+# def get_full_element_name(im_par):
+#     match im_par:
+#         case "tb":
+#            element_name = "table"
+#         case "eq":
+#            element_name = "equation"
+#         case "bc":
+#            element_name = "bar-chart"
+#         case "lc":
+#            element_name = "line-chart"
+#         case "pc":
+#            element_name = "pie-chart"
+#         case "3p":
+#            element_name = "3d-plot"
+#         case "pt":
+#            element_name = "plot"
+#         case "tr":
+#            element_name = "tree"
+#         case "gr":
+#            element_name = "graph"
+#         case "fc":
+#            element_name = "flow-chart"
+#         case "bd":
+#            element_name = "block-diagram"
+#     return element_name
 
 def get_element_type(prompt_line):
-    elements = ['table', 'equation', 'bar-chart', 'line-chart', 'pie-chart', '3d-plot', 'plot', 'tree', 'graph', 'flow-chart', 'block-diagram']
+    elements = ['table', 'equation', 'bar-chart', 'line-chart', 'pie-chart', '3d-plot', 'plot', 'architecture-diagram', 'sequence-diagram', 'flow-chart', 'class-diagram']
     for element in elements:
         if element in prompt_line:
             if element == 'table' or element == 'equation':
@@ -106,12 +137,33 @@ def generate_struct_content(prompt, model, presentation_ID):
         prompt_line = prompt.split('\n')[i+1]
         struct_type = get_element_type(prompt_line)
         # print(struct_type)
-        try:
-            img_path = get_struct_img_path(tex_code, i, presentation_ID, struct_type)
-            struct_img_paths.append(img_path)
-        except Exception as e:
-            print(f"\t 🟠 Error rendering struct: {e}. Continuing generation for other images.")
-            continue
+        if struct_type == 'tables':
+            if random.random() > 0.25:
+                ### DECODE ER
+                matrix = latex_to_matrix(tex_code)
+                tab_dir = f'code/buffer/structs/{struct_type}'
+                os.makedirs(os.path.join(tab_dir, str(presentation_ID)), exist_ok=True)
+                txt_path = os.path.join(tab_dir, presentation_ID, f'{i+1}.txt')
+                with open(txt_path, 'w') as f:
+                    f.write(str(matrix))
+                struct_img_paths.append(txt_path)
+            else:
+                model = configure_llm(TEMPERATURE=0, LLM_MODEL='gpt-4-turbo')
+                var_tex_code = randomize_table_styling(tex_code, model, tbl_var_prompt)
+                try:
+                    img_path = get_struct_img_path(var_tex_code, i, presentation_ID, struct_type)
+                    struct_img_paths.append(img_path)
+                except Exception as e:
+                    print(f"\t 🟠 Error rendering struct: {e}. Continuing generation for other images.")
+                    continue
+        else:
+            try:
+                img_path = get_struct_img_path(tex_code, i, presentation_ID, struct_type)
+                struct_img_paths.append(img_path)
+            except Exception as e:
+                print(f"\t 🟠 Error rendering struct: {e}. Continuing generation for other images.")
+                continue
+
     
     dir_path = 'code/buffer/vis_dump'
     if not os.path.exists(os.path.join(dir_path, presentation_ID)):
@@ -152,6 +204,9 @@ def generate_figure_content(prompt, model, presentation_ID):
             print(f"\t 🟠 Error rendering figure: {e}. Continuing generation for other images.")
             continue
     dir_path = 'code/buffer/vis_dump'
+    if not os.path.exists(os.path.join(dir_path, presentation_ID)):
+        os.mkdir(os.path.join(dir_path, presentation_ID))
+        
     os.rename(dot_code_dump, os.path.join(dir_path, presentation_ID, 'figure_code.txt'))
     return fig_img_paths
 
@@ -213,17 +268,56 @@ def generate_plot_content(prompt, model, presentation_ID):
             plot_img_paths.append(new_file_path)
     
     dir_path = 'code/buffer/vis_dump'
+    if not os.path.exists(os.path.join(dir_path, presentation_ID)):
+        os.mkdir(os.path.join(dir_path, presentation_ID))
+        
     os.rename(py_code_dump, os.path.join(dir_path, presentation_ID, 'plots_code.txt'))
     return plot_img_paths
 
+@traceable(name='Code Snippets')
+def generate_code_snippets(prompt, model, presentation_ID):
+    gen_code = model.invoke(prompt).content
+    # gen_plot = generate_content(prompt, model).content
+    code_dump = f"code/buffer/{presentation_ID}_cd.txt"
+    with open(code_dump, 'w') as file:
+        file.write(gen_code)
 
-def assemble_elements(text_json, struct_imgs, plot_imgs, figure_imgs, positions, prompts, captions):
+    with open(code_dump, 'r') as file:
+        content = file.read()
+
+    pattern = r'```code(.*?)```'
+    matches = re.findall(pattern, content, re.DOTALL)
+    code_dir = 'code/buffer/code'
+    code_snip_paths = []
+    for i, match in enumerate(matches):
+        code_content = match.strip() # Remove leading/trailing whitespace
+        # Filter out blank lines and comments using list comprehension
+        lines = [line.strip() for line in code_content.splitlines() if not line.startswith('#') and line.strip()]
+        # Filter out lines starting with "import" (case-insensitive)
+        clean_lines = [line for line in lines if not line.lower().startswith('import')]
+        # Join the cleaned lines back into a string and take first 6 lines
+        code_snippet = '\n'.join(clean_lines)[:6]
+        os.makedirs(os.path.join(code_dir, presentation_ID), exist_ok=True)
+        code_file_path = os.path.join(code_dir, presentation_ID, f'{i+1}') + '.txt'
+        with open(code_file_path, 'w') as file:
+            file.write(code_snippet)
+        code_snip_paths.append(code_file_path)
+    dir_path = 'code/buffer/vis_dump'
+    os.rename(code_dump, os.path.join(dir_path, presentation_ID, 'code_snips.txt'))
+    return code_snip_paths
+
+def assemble_elements(text_json, struct_imgs, plot_imgs, figure_imgs, code_files, positions, prompts, captions):
     # text_json = json.loads(text_json)
     vis_eles = [struct_imgs, plot_imgs, figure_imgs]
+    # print(' _________________________________________________________________')
+    # print(len(text_json["slides"]))
+    
+    # print(' _________________________________________________________________')
     for slide in text_json["slides"]:
         slide["equations"] = []
         slide["tables"] = []
         slide["figures"] = []
+        slide['code'] = []
     for ind, imgs in enumerate(vis_eles):
         # prompt_lines = prompts[ind].split('\n')
         for i, img_path in enumerate(imgs):
@@ -232,17 +326,27 @@ def assemble_elements(text_json, struct_imgs, plot_imgs, figure_imgs, positions,
             element_name = os.path.basename(second_parent_dir)
             # element_name = get_full_element_name(im_par)
             file_name = os.path.basename(img_path)
-            name = file_name.split('.')[0]
+            name, ext = file_name.split('.')
             if int(name) in positions[ind][element_name].keys():
                 slide_number = positions[ind][element_name][int(name)]
+                # print(slide_number)
                 caption = captions[ind][element_name][int(name)]
                 
             # presentation_id = int(parts[1].replace('.png', ''))
             # caption = prompt_lines[i+1].split(':')[1].strip()
-            obj = {
-                'desc': caption,
-                'path': img_path
-            }
+            if ext == 'png':
+                obj = {
+                    'desc': caption,
+                    'path': img_path
+                }
+            else:
+                print(f'{dir_name}/{file_name}')
+                with open(img_path, 'r') as f:
+                    content = f.read()
+                obj = {
+                    'desc': caption,
+                    'content': content
+                }
             if ind == 0:
                 if element_name == 'table':
                     element_name = 'tables'
@@ -252,7 +356,24 @@ def assemble_elements(text_json, struct_imgs, plot_imgs, figure_imgs, positions,
             else:
                 obj['label'] = element_name
                 text_json["slides"][slide_number - 1]["figures"].append(obj)
+            
     
+    
+    for i, file_path in enumerate(code_files):
+        file_name = os.path.basename(file_path)
+        name = file_name.split('.')[0]
+        if int(name) in positions[3]['code'].keys():
+            slide_number = positions[3]['code'][int(name)]
+            caption = captions[3]['code'][int(name)]
+        with open(file_path, 'r', encoding='utf-8') as f:
+            code_snip = f.read()
+        obj = {
+            'desc': caption,
+            'value': code_snip,
+            'label': 'code'
+        }
+        text_json["slides"][slide_number - 1]['code'].append(obj)
+
     return text_json
 
 

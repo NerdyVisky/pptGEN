@@ -12,9 +12,8 @@ from utils.data_validation import PPTContentJSON
 from langchain.output_parsers.openai_functions import JsonOutputFunctionsParser
 from langchain_core.utils.function_calling import convert_to_openai_function
 from utils.prompts import tbl_var_prompt
-from random_generator import randomize_table_styling
+from random_generator import randomize_table_styling, add_random_images
 from langchain_openai import ChatOpenAI
-import pickle
 
 def configure_llm(TEMPERATURE=0,LLM_MODEL='gpt-3.5-turbo'):
      model = ChatOpenAI(
@@ -290,13 +289,7 @@ def generate_code_snippets(prompt, model, presentation_ID):
     code_dir = 'code/buffer/code'
     code_snip_paths = []
     for i, match in enumerate(matches):
-        code_content = match.strip() # Remove leading/trailing whitespace
-        # Filter out blank lines and comments using list comprehension
-        lines = [line.strip() for line in code_content.splitlines() if not line.startswith('#') and line.strip()]
-        # Filter out lines starting with "import" (case-insensitive)
-        clean_lines = [line for line in lines if not line.lower().startswith('import')]
-        # Join the cleaned lines back into a string and take first 6 lines
-        code_snippet = '\n'.join(clean_lines[:6])
+        code_snippet = match.strip() # Remove leading/trailing whitespace
         os.makedirs(os.path.join(code_dir, presentation_ID), exist_ok=True)
         code_file_path = os.path.join(code_dir, presentation_ID, f'{i+1}') + '.txt'
         with open(code_file_path, 'w') as file:
@@ -309,10 +302,6 @@ def generate_code_snippets(prompt, model, presentation_ID):
 def assemble_elements(text_json, struct_imgs, plot_imgs, figure_imgs, code_files, positions, prompts, captions):
     # text_json = json.loads(text_json)
     vis_eles = [struct_imgs, plot_imgs, figure_imgs]
-    # print(' _________________________________________________________________')
-    # print(len(text_json["slides"]))
-    
-    # print(' _________________________________________________________________')
     for slide in text_json["slides"]:
         slide["equations"] = []
         slide["tables"] = []
@@ -329,7 +318,6 @@ def assemble_elements(text_json, struct_imgs, plot_imgs, figure_imgs, code_files
             name, ext = file_name.split('.')
             if int(name) in positions[ind][element_name].keys():
                 slide_number = positions[ind][element_name][int(name)]
-                # print(slide_number)
                 caption = captions[ind][element_name][int(name)]
                 
             # presentation_id = int(parts[1].replace('.png', ''))
@@ -374,7 +362,8 @@ def assemble_elements(text_json, struct_imgs, plot_imgs, figure_imgs, code_files
         }
         text_json["slides"][slide_number - 1]['code'].append(obj)
 
-    return text_json
+    final_json = add_random_images(text_json)
+    return final_json
 
 
 def get_struct_img_path(tex_code, num, presentation_ID, struct_type):

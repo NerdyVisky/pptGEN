@@ -18,66 +18,7 @@ from random_generator import (generate_random_style_obj,
                               modify_url_prefix,
                               random_logo_pos
                               )
-
-
-def count_footer_elements(date, showFN, showSN):
-    footer_elements = []
-    if date != None:
-        footer_elements.append("date")
-    if showSN == True:
-        footer_elements.append("slideNr")
-    if showFN == True:
-        footer_elements.append("footnote")
-    return footer_elements
-
-def count_body_elements(data, slide_number):
-    ttl_desc = 0
-    ttl_enum = 0
-    ttl_url = 0
-    ttl_eq = 0
-    ttl_tb = 0
-    ttl_fig = 0
-    ttl_cd = 0
-    for k, v in data["slides"][slide_number - 1].items():
-        if k == 'description' and v != "":
-            ttl_desc = 1
-        elif k == 'enumeration' and v:
-            ttl_enum = 1
-        # elif k == 'url' and v != "":
-        #     ttl_url = 1
-        elif k == 'equations' and v:
-            ttl_eq = len(v)
-        elif k == 'tables' and v:
-            ttl_tb = len(v)
-        elif k == 'figures' and v:
-            ttl_fig = len(v)
-        elif k == 'code' and v:
-            ttl_cd = len(v)
-    # return [ttl_desc, ttl_enum, ttl_url, ttl_eq, ttl_tb, ttl_fig, ttl_cd]
-    return [ttl_desc, ttl_enum, 0, ttl_eq, ttl_tb, ttl_fig, ttl_cd]
-
-def remove_tmp_files():
-    tmp_files = ['tmp.tex', 'tmp.aux', 'tmp.log', 'tmp.pdf']
-    for f in tmp_files:
-        if os.path.exists(f):
-            os.remove(f)
-    # tmp_eqs = 'code\\buffer\\equations'
-    # for filename in os.listdir(tmp_eqs):
-    #         file_path = os.path.join(tmp_eqs, filename)
-    #         if os.path.isfile(file_path):
-    #             os.remove(file_path)
-                
-    # tmp_tabs = 'code\\buffer\\tables'
-    # for filename in os.listdir(tmp_tabs):
-    #         file_path = os.path.join(tmp_tabs, filename)
-    #         if os.path.isfile(file_path):
-    #             os.remove(file_path)
-            
-    # tmp_figs = 'code\\buffer\\figures'
-    # for filename in os.listdir(tmp_figs):
-    #         file_path = os.path.join(tmp_figs, filename)
-    #         if os.path.isfile(file_path):
-    #             os.remove(file_path)
+from utils.os_helpers import count_body_elements, count_footer_elements, remove_tmp_files
 
 def insert_title_slide(data, style_obj, course_code):
     slide = {

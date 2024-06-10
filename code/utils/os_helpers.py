@@ -31,3 +31,47 @@ def resize_image(input_image_path, box_width, box_height):
             new_width_inches = new_width / dpi
             new_height_inches = new_height / dpi
             return new_img_path, new_width_inches, new_height_inches
+
+def count_footer_elements(date, showFN, showSN):
+    footer_elements = []
+    if date != None:
+        footer_elements.append("date")
+    if showSN == True:
+        footer_elements.append("slideNr")
+    if showFN == True:
+        footer_elements.append("footnote")
+    return footer_elements
+
+def count_body_elements(data, slide_number):
+    ttl_desc = 0
+    ttl_enum = 0
+    ttl_img = 0
+    ttl_eq = 0
+    ttl_tb = 0
+    ttl_fig = 0
+    ttl_cd = 0
+    for k, v in data["slides"][slide_number - 1].items():
+        if k == 'description' and v != "":
+            ttl_desc = 1
+        elif k == 'enumeration' and v:
+            ttl_enum = 1
+        # elif k == 'url' and v != "":
+        #     ttl_url = 1
+        elif k == 'equations' and v:
+            ttl_eq = len(v)
+        elif k == 'tables' and v:
+            ttl_tb = len(v)
+        elif k == 'figures' and v:
+            ttl_fig = len(v)
+        elif k == 'code' and v:
+            ttl_cd = len(v)
+        elif k =='images' and v:
+            ttl_img = len(v)
+    # return [ttl_desc, ttl_enum, ttl_url, ttl_eq, ttl_tb, ttl_fig, ttl_cd]
+    return [ttl_desc, ttl_enum, 0, ttl_eq, ttl_tb, ttl_fig, ttl_cd, ttl_img]
+
+def remove_tmp_files():
+    tmp_files = ['tmp.tex', 'tmp.aux', 'tmp.log', 'tmp.pdf']
+    for f in tmp_files:
+        if os.path.exists(f):
+            os.remove(f)

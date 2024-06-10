@@ -22,9 +22,9 @@ FONT_STYLES = [
 ]
 
 TITLE_COLORS_DARK = [
-    {"r": 0, "g": 0, "b": 128},    # Navy Blue
     {"r": 220, "g": 20, "b": 60},   # Crimson
     {"r": 0, "g": 128, "b": 0},     # Emerald Green
+    {"r": 0, "g": 0, "b": 128},     # Navy Blue
     {"r": 218, "g": 165, "b": 32},  # Goldenrod
     {"r": 75, "g": 0, "b": 130},    # Royal Purple
     {"r": 0, "g": 128, "b": 128},   # Teal
@@ -34,9 +34,9 @@ TITLE_COLORS_DARK = [
     {"r": 255, "g": 0, "b": 255}    # Magenta
 ]
 TITLE_COLORS_LIGHT = [
-    {"r": 255, "g": 215, "b": 0},     # Gold
     {"r": 255, "g": 69, "b": 0},       # Orange-Red
     {"r": 65, "g": 105, "b": 225},     # Royal Blue
+    {"r": 255, "g": 215, "b": 0},      # Gold
     {"r": 0, "g": 206, "b": 209},      # Turquoise
     {"r": 255, "g": 165, "b": 0},      # Orange
     {"r": 255, "g": 140, "b": 0},      # Dark Orange
@@ -115,8 +115,6 @@ TEMPLATES = {
 LOGO_URLS = [
     'code\\assets\\logos\\01.png',
     'code\\assets\\logos\\02.png',
-    'code\\assets\\logos\\03.png',
-    'code\\assets\\logos\\04.png',
     'code\\assets\\logos\\05.png',
     'code\\assets\\logos\\06.png',
     'code\\assets\\logos\\07.png',
@@ -125,26 +123,25 @@ LOGO_URLS = [
     'code\\assets\\logos\\10.png',
     'code\\assets\\logos\\11.png',
     'code\\assets\\logos\\12.png',
-    'code\\assets\\logos\\13.png',
     'code\\assets\\logos\\14.png',
     'code\\assets\\logos\\15.png'
 ]
 MUL_FAC = 1.333
 LOGO_ALL_POS = {
     0: {
-       'left': 0.25, 'top': 7
+       'left': 0.25, 'top': 6.25    #bottom left
     },
     1: {
-       'left': 5, 'top': 7
+       'left': 6.616, 'top': 6.25   #bottom middle
     },
     2:{
-        'left': 11.333, 'top': 7
+        'left': 12.083, 'top': 6.25 #bottom right
     },
     3:{
-        'left': 0.25, 'top': 0.25
+        'left': 0.25, 'top': 0.25   #top left
     },
     4:{
-        'left': 11.333, 'top': 0.25
+        'left': 12.083, 'top': 0.25 #top right
     }
 }
 
@@ -203,13 +200,13 @@ FONT_COLOR = pick_random(PRIMARY_COLORS) if random.random() > 0 else 'black'
 BACKGROUND_COLOR = pick_random(BACKGROUNDS) if random.random() > 0 else 'white'
 BORDERS = pick_random(TBL_BORDER_TYPES) if random.random() > 0 else 'all horizontal and vertical borders'
 
-def pick_random_logo(PROB=0.5):
+def pick_random_logo(PROB=0.5, w = 1, h = 1):
     path = ''
     n_w = 0
     n_h = 0
     if PROB > random.random():
         path = LOGO_URLS[random.randint(0, len(LOGO_URLS) - 1)]
-        path, n_w, n_h = resize_image(path, 1, 1)
+        path, n_w, n_h = resize_image(path, w, h)
     return path, n_w, n_h
 
 def pick_random_template(PROB=0.15) -> list:
@@ -222,9 +219,9 @@ def pick_random_template(PROB=0.15) -> list:
 
 def generate_random_color(PROB=0.85):
     if random.random() > PROB:
-        return {"r": random.randint(0, 255), "g": random.randint(0, 255), "b": random.randint(0, 255)}
+        return {"r": random.randint(1, 254), "g": random.randint(1, 254), "b": random.randint(1, 254)}
     else:
-        return {"r": 255, "g": 255, "b": 255}   
+        return {"r": 255, "g": 255, "b": 254}   
 
 def generate_random_font(element):
     bold = False
@@ -306,9 +303,9 @@ def generate_footer_obj():
 def generate_title_slide_obj():
     showPT = True
     showLg = random.random() > 0.5
-    showCC = random.random() > 0.5 
-    showDt = random.random() > 0.75
-    showIs = random.random() > 0.5
+    showCC = random.random() > 0.4
+    showDt = random.random() > 0.5
+    showIs = random.random() > 0.6
     total_slide_elements = 0
     if showPT:
         total_slide_elements += 1
@@ -355,8 +352,8 @@ def modify_url_prefix(desc):
     
 def generate_random_style_obj():
     style_obj = {}
-    style_obj["template"] = pick_random_template(0.70)
-    style_obj["bg_color"] = generate_random_color(0.6)
+    style_obj["template"] = pick_random_template(0.60)
+    style_obj["bg_color"] = generate_random_color(0.85)
     style_obj["title_font_family"] = pick_random(FONT_STYLES) 
     style_obj["title_font_bold"] = random.random() > 0.75
     style_obj["title_font_attr"] = generate_random_font("title")
@@ -367,15 +364,15 @@ def generate_random_style_obj():
     style_obj["desc_font_attr"] = generate_random_font("description")
     style_obj["url_font_color"] = pick_random(TITLE_COLORS_DARK)
     style_obj["date"] = generate_random_date()
-    style_obj['logo'] = pick_random_logo(0.6)
+    style_obj['logo'] = pick_random_logo(0.5)
     style_obj["instructor"] = pick_random_presenter()
     return style_obj
     
 def modify_style(style):
     if style["font_color"]["r"] == 0:
-        new_font_color = pick_random(TITLE_COLORS_DARK)
+        new_font_color = pick_random(TITLE_COLORS_DARK[:2])
     else:
-        new_font_color = pick_random(TITLE_COLORS_LIGHT)
+        new_font_color = pick_random(TITLE_COLORS_LIGHT[:2])
 
     special_style = {
     "font_name": style["font_name"],
@@ -448,11 +445,11 @@ def generate_contrasting_font_color(bg_color, title_dark, title_light):
     # Choose a contrasting color based on the luminance
     if luminance > 0.5:
         # Background is light, use dark font color
-        font_color = {"r": 0, "g": 0, "b": 0} # Black
+        font_color = {"r": 0, "g": 0, "b": 1} # Black
         title_font = title_dark
     else:
         # Background is dark, use light font color
-        font_color = {"r": 255, "g": 255, "b": 255} # White
+        font_color = {"r": 255, "g": 255, "b": 254} # White
         title_font = title_light
         
     return title_font, font_color

@@ -249,15 +249,6 @@ class Enumeration(Description):
                 
         enum_tf.auto_size = True
         enum_tf.word_wrap = True
-        MAX_LINES = 6
-        MAX_WORDS = 13
-        if len(enum_tf.paragraphs) > MAX_LINES:
-            enum_tf.paragraphs = enum_tf.paragraphs[:MAX_LINES]
-        else:
-            for paragraph in enum_tf.paragraphs:
-                word_count = len(paragraph.text.split())  # Count words in the paragraph
-                if word_count > MAX_WORDS:
-                    paragraph.text = paragraph.text[:paragraph.text.rfind(' ', 0, MAX_WORDS)] + "..."
         self.position_element(enum_shape)
         self.enum_tf = enum_tf
             
@@ -394,10 +385,6 @@ class CodeSnippet(Element):
                 
         code_tf.auto_size = True
         code_tf.word_wrap = True
-        MAX_LINES = 10
-        if len(code_tf.paragraphs) > MAX_LINES:
-            for paragraph in code_tf.paragraphs[MAX_LINES:]:
-                paragraph.text = paragraph.text[:paragraph.text.rfind(' ')] + "..."
         self.position_element(code_shape)
         self.enum_tf = code_tf
 
@@ -473,51 +460,10 @@ class PresentationGenerator:
             slide_no = slide_info['pg_no']
 
             for element_type, elements in slide_info['elements'].items():
-                for element_info in elements:         
-                    title_pos = ''           
-                    if element_type == 'title':
-                        element = Title(element_info['value'], element_info['style'], (element_info['xmin'], element_info['ymin'], element_info['width'], element_info['height']))
-                        if 'h_align' in element_info['style']:
-                            title_pos = element_info['style']['h_align']
-                    
-                    elif element_type == 'graphic':
-                        if element_info['label'] == 'logo':
-                            if slide_no == 0:
-                                element = Graphic(element_info['value'], None, (element_info['xmin'], element_info['ymin'], element_info['width'], element_info['height']))
-                            else:
-                                # get the logo position, left or right of the slide center
-                                logo_pos = ''
-                                if element_info['ymin'] > 3.75:
-                                    if element_info['xmin'] > 6.666:
-                                        logo_pos = 'right'
-                                    else:
-                                        logo_pos = 'left'
-                                # if title_pos is left  and the logo is also on left, render the logo at mirror position on right
-                                if title_pos == 'left' and logo_pos == 'left':
-                                    n_xmin = 13.333 - element_info['xmin'] - element_info['width']
-                                    element = Graphic(element_info['value'], None, (n_xmin, element_info['ymin'], element_info['width'], element_info['height']))
-                                # if title_pos is right and the logo is also on right, render the logo at mirror position on left
-                                elif title_pos == 'right' and logo_pos == 'right':
-                                    n_xmin = 13.333 - element_info['xmin'] - element_info['width']
-                                    element = Graphic(element_info['value'], None, (n_xmin, element_info['ymin'], element_info['width'], element_info['height']))
-                                else:
-                                    element = Graphic(element_info['value'], None, (element_info['xmin'], element_info['ymin'], element_info['width'], element_info['height']))
-                                
-                    elif element_type == 'refs':
-                        element = Reference(element_info['value'], element_info['style'], (element_info['xmin'], element_info['ymin'], element_info['width'], element_info['height']))
-                    
-                    elif element_type == 'footer':
-                        element = Footer(element_info['value'], element_info['style'], (element_info['xmin'], element_info['ymin'], element_info['width'], element_info['height']), element_info['location'])
-                                        
-                    elif element_type == 'text':
-                        if element_info['label'] == "enumeration":
-                            if 'heading' in element_info.keys():
-                                element = Enumeration(element_info['value'], element_info['style'], (element_info['xmin'], element_info['ymin'], element_info['width'], element_info['height']), element_info['heading'], None)
-                            else:
-                                element = Enumeration(element_info['value'], element_info['style'], (element_info['xmin'], element_info['ymin'], element_info['width'], element_info['height']), None, None)                             
-                        else:
-                            element = Description(element_info['value'], element_info['style'], (element_info['xmin'], element_info['ymin'], element_info['width'], element_info['height']), element_info["style"]["phrases"])
-                    
+                for element_info in elements:
+                    if element_type == 'graphic':
+                        if element_info['label'] == 'logo' or element_info['label'] == 'natural-image':
+                            element = Graphic(element_info['value'], None, (element_info['xmin'], element_info['ymin'], element_info['width'], element_info['height']))
                     elif element_type == 'figures':
                         if 'caption' in element_info.keys():
                             element = Figure(element_info['path'], element_info['caption']['style'], (element_info['xmin'], element_info['ymin'], element_info['width'], element_info['height']), element_info['caption'])
@@ -529,7 +475,6 @@ class PresentationGenerator:
                             element = Equation(element_info['path'], element_info['caption']['style'], (element_info['xmin'], element_info['ymin'], element_info['width'], element_info['height']), element_info['caption'])
                         else:
                             element = Equation(element_info['path'], None, (element_info['xmin'], element_info['ymin'], element_info['width'], element_info['height']), None)
-                    
                     elif element_type == 'tables':
                         path = None
                         content = None
@@ -544,7 +489,20 @@ class PresentationGenerator:
                     
                     elif element_type == 'code':
                         element = CodeSnippet(element_info['value'], element_info['style'], (element_info['xmin'], element_info['ymin'], element_info['width'], element_info['height']))
-                    
+                    elif element_type == 'refs':
+                        element = Reference(element_info['value'], element_info['style'], (element_info['xmin'], element_info['ymin'], element_info['width'], element_info['height']))
+                    elif element_type == 'text':
+                        if element_info['label'] == "enumeration":
+                            if 'heading' in element_info.keys():
+                                element = Enumeration(element_info['value'], element_info['style'], (element_info['xmin'], element_info['ymin'], element_info['width'], element_info['height']), element_info['heading'], None)
+                            else:
+                                element = Enumeration(element_info['value'], element_info['style'], (element_info['xmin'], element_info['ymin'], element_info['width'], element_info['height']), None, None)                             
+                        else:
+                            element = Description(element_info['value'], element_info['style'], (element_info['xmin'], element_info['ymin'], element_info['width'], element_info['height']), element_info["style"]["phrases"])
+                    elif element_type == 'title':
+                        element = Title(element_info['value'], element_info['style'], (element_info['xmin'], element_info['ymin'], element_info['width'], element_info['height']))
+                    elif element_type == 'footer':
+                        element = Footer(element_info['value'], element_info['style'], (element_info['xmin'], element_info['ymin'], element_info['width'], element_info['height']), element_info['location'])
                     else:
                         raise ValueError(f"Unsupported element type: {element_type}")
 
@@ -580,11 +538,6 @@ def main():
     print("Running PPT generator module...")
     buffer_folder_path = f"./code/buffer/full"
     entries = os.listdir(buffer_folder_path)
-    # already generated presentations
-    created_files = []
-    for subject in os.listdir("dataset/json/"):
-        for topic in os.listdir(f"dataset/json/{subject}"):
-            created_files.append(topic)
     # Filter out directories
     directories = [entry for entry in entries if os.path.isdir(os.path.join(buffer_folder_path, entry))]
     json_file_paths = []
@@ -594,23 +547,11 @@ def main():
             for file in files:
                 if file.endswith('.json'):
                     json_file_paths.append(os.path.join(root, file))
-    # print(directories)
-    # for directory in directories:
-    #     ppt_dirs = os.listdir(os.path.join(buffer_folder_path, directory))
-    #     unique_ppt_dirs = [ppt_dir for ppt_dir in ppt_dirs if os.path.isdir(os.path.join(buffer_folder_path, directory, ppt_dir))]
-        
-    # json_file_paths = []
-    # for ppt_dir in unique_ppt_dirs:
-    #     json_files = [f for f in os.listdir(os.path.join(buffer_folder_path, directory)) if f.endswith('.json')]
-    #     json_file_paths.append(os.path.join(buffer_folder_path, directory, json_files[-1]))
-    
 
     base_topic_folder_path = f"./code/json"
 
 
     for i, json_file in enumerate(json_file_paths):
-        if json_file.split("\\")[-2] in created_files:
-            continue
         # Load JSON file from buffer
         subject_name = os.path.basename(os.path.dirname(os.path.dirname(json_file)))
         slide_id = os.path.basename(os.path.dirname(json_file))
@@ -618,15 +559,13 @@ def main():
         json_payload = load_json_payload(json_file)
 
         #Generate Presentation from JSON file and save it
-        print(f"Generating : {slide_id} - {version}.")
+        print(f"Generating : {subject_name} - {slide_id} - {version}.")
         presentation_generator = PresentationGenerator(json_payload, subject_name, slide_id, version)
         presentation_generator.generate_presentation()
         print(f"Presentation generated successfully.")
 
     final_json_path = f"code/json/final"
     for i, json_file in enumerate(json_file_paths):
-        if json_file.split("\\")[-2] in created_files:
-            continue
         subject_name = os.path.basename(os.path.dirname(os.path.dirname(json_file)))
         slide_id = os.path.basename(os.path.dirname(json_file))
         version , _ = os.path.splitext(os.path.basename(json_file))

@@ -296,7 +296,7 @@ def generate_code_snippets(prompt, model, presentation_ID):
         # Filter out lines starting with "import" (case-insensitive)
         clean_lines = [line for line in lines if not line.lower().startswith('import')]
         # Join the cleaned lines back into a string and take first 6 lines
-        code_snippet = '\n'.join(clean_lines)[:6]
+        code_snippet = '\n'.join(clean_lines[:6])
         os.makedirs(os.path.join(code_dir, presentation_ID), exist_ok=True)
         code_file_path = os.path.join(code_dir, presentation_ID, f'{i+1}') + '.txt'
         with open(code_file_path, 'w') as file:

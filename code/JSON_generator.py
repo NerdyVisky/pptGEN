@@ -212,7 +212,7 @@ def generate_random_slide(slide_number, data, style_obj, footer_obj, course_code
         }]
 
     ## Putting it together for the title object
-    if random.random() > 0.10:
+    if len(all_dims['title']) != 0:
         slide['elements']['title'] = [{
                 "label": "title",
                 "value": title_content,

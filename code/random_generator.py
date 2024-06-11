@@ -448,13 +448,26 @@ def generate_random_phrases(desc):
         return None  
 
 def generate_random_layout(total_body_elements):
+    PROB = 0.7 # Probability of title element
+    # layout_mapping = {
+    #     0: [0],
+    #     1: [1, 2], 
+    #     2: [3, 4, 5, 6],
+    #     3: [7, 8, 9, 10, 11, 12, 13, 14, 15, 16]
+    #     }
+    # All no title layouts except layout 0
     layout_mapping = {
         0: [0],
         1: [1], 
-        2: [2, 3],
-        3: [4, 5, 6, 7, 8]
+        2: [3, 5],
+        3: [7, 9, 11, 13, 15]
         }
-    return random.choice(layout_mapping[total_body_elements])
+    random_layout = random.choice(layout_mapping[total_body_elements])
+    if random_layout != 0 and PROB > random.random():
+        random_layout += 1
+
+    return random_layout
+
 
 def generate_n_numbers_with_sum(sum_value, n):
     numbers = [0] * n

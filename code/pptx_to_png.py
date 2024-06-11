@@ -17,15 +17,15 @@ def main():
   img_dir = f"dataset/images/"
 
   # PPTX to PDF
-  a = 0
-  for subject in os.listdir(ppt_dir):
-    for topic in os.listdir(f"{ppt_dir}{subject}"):
-      for ppt in os.listdir(f"{ppt_dir}{subject}/{topic}"):
-        if ppt.endswith('.pptx'):
-          convert(f"{ppt_dir}{subject}/{topic}/{ppt}", f"{pdf_dir}{subject}/{topic}/")
-          a += 1
+  # a = 0
+  # for subject in os.listdir(ppt_dir):
+  #   for topic in os.listdir(f"{ppt_dir}{subject}"):
+  #     for ppt in os.listdir(f"{ppt_dir}{subject}/{topic}"):
+  #       if ppt.endswith('.pptx'):
+  #         convert(f"{ppt_dir}{subject}/{topic}/{ppt}", f"{pdf_dir}{subject}/{topic}/")
+  #         a += 1
 
-  print(f"🟢 (1/5) {a} PPT files converted to PDF for processing")
+  # print(f"🟢 (1/5) {a} PPT files converted to PDF for processing")
 
   # PDF to Image
   a = 0

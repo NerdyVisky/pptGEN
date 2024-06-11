@@ -195,10 +195,11 @@ def generate_random_slide(slide_number, data, style_obj, footer_obj, course_code
         # any other alignment, the logo can be anywhere
         while True:
             bbox_logo = random_logo_pos(footer_obj)
-            if title_align == 'left' and bbox_logo['left'] == 0.25 and bbox_logo['top'] == 0.25:
-                continue
-            if title_align == 'right' and bbox_logo['left'] == 12.083 and bbox_logo['top'] == 0.25:
-                continue
+            if bbox_logo["top"] == 0.25:
+                if bbox_logo["left"] == 0.25 and title_align == 'left':
+                    continue
+                if bbox_logo["left"] == 12.083 and title_align == 'right':
+                    continue
             break
         
         slide["elements"]["graphic"] = [{
@@ -224,7 +225,7 @@ def generate_random_slide(slide_number, data, style_obj, footer_obj, course_code
                     "font_size": title_font_attr["font_size"],
                     "font_color": title_font,
                     "bold": title_font_bold,
-                    "italics": random.random() > 0.75,
+                    "italics": random.random() > 0.85,
                     "underlined": random.random() > 0.75,
                     "h_align": title_align,
                     "v_align": random.choice(['top', 'middle', 'bottom'])
@@ -276,10 +277,39 @@ def generate_random_slide(slide_number, data, style_obj, footer_obj, course_code
             for pt in enum[1:]:
                 styled_phrases = generate_random_phrases(pt)
                 enum_phrases.append(styled_phrases)
+                    
+            # code for row oriented enumeration is left
+            if (hasHeading):
+                # Limit the heading to 3 words if column oriented
+                heading_words = enum[0].split()
+                if len(heading_words) > 3:
+                    heading_content = ' '.join(heading_words[:3])
+                else:
+                    heading_content = ' '.join(heading_words)
+                    
+                enum_instance['heading'] = {
+                "label": 'heading',
+                "value": heading_content,
+                "xmin": all_dims['body'][element_index]['left'],
+                "ymin": all_dims['body'][element_index]['top'],
+                "width": all_dims['body'][element_index]['width'],
+                "height": 0.5,
+                "style": {
+                    "font_name": desc_font_family,
+                    "font_size": desc_font_attr["font_size"] + random.randint(0, 2),
+                    "font_color": font_color,
+                    "bold": random.random() > 0.5,
+                    "italics": font_obj["italics"],
+                    "underlined": random.random() > 0.5
+                    }
+                }
             
+            # below works for column oriented enumeration,
+            # for row oriented enumeration, size and no of points should be reduced
+            enum = enum[1:] if hasHeading else enum
             if len(enum) > 5:
-                enum = enum[:6]
-                # count the number of words in the first 6 elements
+                enum = enum[:5]
+                # count the number of words in the first 5 elements
                 n_words = sum([len(e.split()) for e in enum])
                 # if the number of words is greater than 12, then remove the last element
                 if n_words > 12:
@@ -287,7 +317,7 @@ def generate_random_slide(slide_number, data, style_obj, footer_obj, course_code
             
             enum_instance = {
             "label": "enumeration",
-            "value": enum[1:] if hasHeading else enum,
+            "value": enum,
             "xmin": all_dims['body'][element_index]['left'],
             "ymin": all_dims['body'][element_index]['top'] + 0.5,
             "width": all_dims['body'][element_index]['width'],
@@ -304,23 +334,6 @@ def generate_random_slide(slide_number, data, style_obj, footer_obj, course_code
                 "phrases": enum_phrases
                }
             }
-            if (hasHeading):
-                enum_instance['heading'] = {
-                "label": 'heading',
-                "value": enum[0],
-                "xmin": all_dims['body'][element_index]['left'],
-                "ymin": all_dims['body'][element_index]['top'],
-                "width": all_dims['body'][element_index]['width'],
-                "height": 0.5,
-                "style": {
-                    "font_name": desc_font_family,
-                    "font_size": desc_font_attr["font_size"] + random.randint(0, 2),
-                    "font_color": font_color,
-                    "bold": random.random() > 0.5,
-                    "italics": font_obj["italics"],
-                    "underlined": random.random() > 0.5
-                }
-                }
             
             slide['elements']['text'].append(enum_instance)
             element_index += 1
@@ -369,7 +382,7 @@ def generate_random_slide(slide_number, data, style_obj, footer_obj, course_code
                 ele_height =all_dims['body'][element_index]['height'] - 0.35 
                 if random.random() > 0.5:
                 # Caption below the visual element
-                    cap_ymin = all_dims['body'][element_index]['top'] + all_dims['body'][element_index]['height'] - 0.3
+                    cap_ymin = all_dims['body'][element_index]['top'] + all_dims['body'][element_index]['height'] - 0.35
                     ele_ymin = all_dims['body'][element_index]['top']
                 else:
                     # Caption above the visual element

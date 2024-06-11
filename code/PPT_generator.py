@@ -335,8 +335,13 @@ class Table(Element):
             for i in range(rows):
                 for j in range(columns):
                     cell = table.cell(i, j)
-                    cell.text = self.tbl_cnt[i][j]
-            self.table = table
+                    words = self.tbl_cnt[i][j].split(' ')
+                    if len(words) > 4:
+                        content = " ".join(words[:4])
+                        cell.text = content
+                    else:
+                        cell.text = self.tbl_cnt[i][j]
+                self.table = table
             
         
 class Footer(Element):
@@ -547,8 +552,6 @@ def main():
             for file in files:
                 if file.endswith('.json'):
                     json_file_paths.append(os.path.join(root, file))
-
-    base_topic_folder_path = f"./code/json"
 
 
     for i, json_file in enumerate(json_file_paths):

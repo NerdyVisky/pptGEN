@@ -63,19 +63,18 @@ H_ALIGNMENTS = [
     'right',
     'justify'
 ]
-
 V_ALIGNMENTS = [
     'top',
     'middle',
     'bottom'
 ]
+
 DAYS = list(range(1, 28))
 MONTHS = [
     "January", "February", "March", "April", "May", "June",
     "July", "August", "September", "October", "November", "December"
 ]
 YEARS = list(range(2014, 2024))
-
 ABBR_MONTHS = [
     "Jan.", "Feb.", "Mar.", "Apr.", "May", "Jun.",
     "Jul.", "Aug.", "Sep.", "Oct.", "Nov.", "Dec."
@@ -103,6 +102,7 @@ PRESENTERS = [
     "Dr. Jasmine Khan",
     "Prof. Oliver Martin"
 ]
+
 TEMPLATES = {
     1: ["code\\assets\\ppt_templates\\1.png", 0],
     2: ["code\\assets\\ppt_templates\\2.png", 0],
@@ -123,6 +123,7 @@ TEMPLATES = {
     17: ["code\\assets\\ppt_templates\\17.png", 1],
     18: ["code\\assets\\ppt_templates\\18.png", 0],
 }
+
 LOGO_URLS = [
     'code\\assets\\logos\\01.png',
     'code\\assets\\logos\\02.png',
@@ -137,7 +138,9 @@ LOGO_URLS = [
     'code\\assets\\logos\\14.png',
     'code\\assets\\logos\\15.png'
 ]
+
 MUL_FAC = 1.333
+
 LOGO_ALL_POS = {
     0: {
        'left': 0.25, 'top': 6.25    #bottom left
@@ -163,14 +166,17 @@ PROG_LANGS=[
     'Java',
     'C'
 ]
+
 PRIMARY_COLORS = [
     'red',
     'blue',
     'grey'
 ]
+
 BACKGROUNDS = [
     'transparent'
 ]
+
 TBL_BORDER_TYPES = [
     # 'all horizontal and vertical borders',
     'only vertical borders',
@@ -178,6 +184,7 @@ TBL_BORDER_TYPES = [
     'no horizontal or vertical borders',
     'only horizontal header borders'
 ]
+
 URL_PREFIXES = [
     'Source:',
     'Visit for more:',
@@ -195,8 +202,6 @@ def random_logo_pos(footer_obj):
     random_choice = random.choice(avl_pos)
     bbox_logo = logo_pos[random_choice]
     return bbox_logo
-
-
 
 def pick_random(list_name):
     if list_name == 'alignments':
@@ -220,19 +225,18 @@ def pick_random_logo(PROB=0.5, w = 1, h = 1):
         path, n_w, n_h = resize_image(path, w, h)
     return path, n_w, n_h
 
-def pick_random_template(PROB=0.15) -> list:
+def pick_random_template(PROB=0) -> list:
     path = ''
     isDark = -1
     if PROB > random.random():
         path, isDark = TEMPLATES.get(random.randint(1, len(TEMPLATES)))
     return [path, isDark]
     
-
-def generate_random_color(PROB=0.85):
+def generate_random_color(PROB=1):
     if random.random() > PROB:
         return {"r": random.randint(1, 254), "g": random.randint(1, 254), "b": random.randint(1, 254)}
     else:
-        return {"r": 255, "g": 255, "b": 254}   
+        return {"r": 255, "g": 255, "b": 255}   
 
 def generate_random_font(element):
     bold = False
@@ -372,8 +376,8 @@ def get_random_image(presentation_ID, _id_) -> str:
     category = random.choice(NATURAL_IMAGE_CATS)
     api_url = f'https://api.api-ninjas.com/v1/randomimage?category={category}'
     response = requests.get(api_url, headers={'X-Api-Key': f'{X_API_KEY}', 'Accept': 'image/jpg'}, stream=True)
-    os.makedirs(os.path.join('code\\buffer\graphics', f'{presentation_ID}'), exist_ok=True)
-    img_path = os.path.join('code\\buffer\graphics', f'{presentation_ID}', f'{_id_ + 1}.jpg')
+    os.makedirs(os.path.join('code\\buffer\\graphics', f'{presentation_ID}'), exist_ok=True)
+    img_path = os.path.join('code\\buffer\\graphics', f'{presentation_ID}', f'{_id_ + 1}.jpg')
     if response.status_code == requests.codes.ok:
         with open(img_path, 'wb') as out_file:
             shutil.copyfileobj(response.raw, out_file)
@@ -394,8 +398,8 @@ def modify_url_prefix(desc):
     
 def generate_random_style_obj():
     style_obj = {}
-    style_obj["template"] = pick_random_template(0.60)
-    style_obj["bg_color"] = generate_random_color(0.85)
+    style_obj["template"] = pick_random_template()
+    style_obj["bg_color"] = generate_random_color()
     style_obj["title_font_family"] = pick_random(FONT_STYLES) 
     style_obj["title_font_bold"] = random.random() > 0.75
     style_obj["title_font_attr"] = generate_random_font("title")

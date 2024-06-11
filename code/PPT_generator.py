@@ -249,10 +249,6 @@ class Enumeration(Description):
                 
         enum_tf.auto_size = True
         enum_tf.word_wrap = True
-        MAX_LINES = 5
-        if len(enum_tf.paragraphs) > MAX_LINES:
-            for paragraph in enum_tf.paragraphs[MAX_LINES:]:
-                paragraph.text = paragraph.text[:paragraph.text.rfind(' ')] + "..."
         self.position_element(enum_shape)
         self.enum_tf = enum_tf
             
@@ -339,8 +335,13 @@ class Table(Element):
             for i in range(rows):
                 for j in range(columns):
                     cell = table.cell(i, j)
-                    cell.text = self.tbl_cnt[i][j]
-            self.table = table
+                    words = self.tbl_cnt[i][j].split(' ')
+                    if len(words) > 4:
+                        content = " ".join(words[:4])
+                        cell.text = content
+                    else:
+                        cell.text = self.tbl_cnt[i][j]
+                self.table = table
             
         
 class Footer(Element):
@@ -389,10 +390,6 @@ class CodeSnippet(Element):
                 
         code_tf.auto_size = True
         code_tf.word_wrap = True
-        MAX_LINES = 10
-        if len(code_tf.paragraphs) > MAX_LINES:
-            for paragraph in code_tf.paragraphs[MAX_LINES:]:
-                paragraph.text = paragraph.text[:paragraph.text.rfind(' ')] + "..."
         self.position_element(code_shape)
         self.enum_tf = code_tf
 
@@ -464,6 +461,8 @@ class PresentationGenerator:
             if 'template' in slide_info.keys():
                 element = Template(slide_info['template'])
                 element.render(slide)
+            
+            slide_no = slide_info['pg_no']
 
             for element_type, elements in slide_info['elements'].items():
                 for element_info in elements:
@@ -544,11 +543,6 @@ def main():
     print("Running PPT generator module...")
     buffer_folder_path = f"./code/buffer/full"
     entries = os.listdir(buffer_folder_path)
-    # already generated presentations
-    created_files = []
-    for subject in os.listdir("dataset/json/"):
-        for topic in os.listdir(f"dataset/json/{subject}"):
-            created_files.append(topic)
     # Filter out directories
     directories = [entry for entry in entries if os.path.isdir(os.path.join(buffer_folder_path, entry))]
     json_file_paths = []
@@ -558,23 +552,9 @@ def main():
             for file in files:
                 if file.endswith('.json'):
                     json_file_paths.append(os.path.join(root, file))
-    # print(directories)
-    # for directory in directories:
-    #     ppt_dirs = os.listdir(os.path.join(buffer_folder_path, directory))
-    #     unique_ppt_dirs = [ppt_dir for ppt_dir in ppt_dirs if os.path.isdir(os.path.join(buffer_folder_path, directory, ppt_dir))]
-        
-    # json_file_paths = []
-    # for ppt_dir in unique_ppt_dirs:
-    #     json_files = [f for f in os.listdir(os.path.join(buffer_folder_path, directory)) if f.endswith('.json')]
-    #     json_file_paths.append(os.path.join(buffer_folder_path, directory, json_files[-1]))
-    
-
-    base_topic_folder_path = f"./code/json"
 
 
     for i, json_file in enumerate(json_file_paths):
-        if json_file.split("\\")[-2] in created_files:
-            continue
         # Load JSON file from buffer
         subject_name = os.path.basename(os.path.dirname(os.path.dirname(json_file)))
         slide_id = os.path.basename(os.path.dirname(json_file))
@@ -582,14 +562,13 @@ def main():
         json_payload = load_json_payload(json_file)
 
         #Generate Presentation from JSON file and save it
+        print(f"Generating : {subject_name} - {slide_id} - {version}.")
         presentation_generator = PresentationGenerator(json_payload, subject_name, slide_id, version)
         presentation_generator.generate_presentation()
-        # print(f"Presentation generated successfully for {slide_id}.")
+        print(f"Presentation generated successfully.")
 
     final_json_path = f"code/json/final"
     for i, json_file in enumerate(json_file_paths):
-        if json_file.split("\\")[-2] in created_files:
-            continue
         subject_name = os.path.basename(os.path.dirname(os.path.dirname(json_file)))
         slide_id = os.path.basename(os.path.dirname(json_file))
         version , _ = os.path.splitext(os.path.basename(json_file))
@@ -600,7 +579,11 @@ def main():
         final_json_file = os.path.join(final_json_path, subject_name, slide_id, f'{version}.json')
         
         if os.path.exists(json_file):
-            os.rename(json_file, final_json_file)
+            try:
+                os.rename(json_file, final_json_file)
+                print(f"File {json_file} moved.")
+            except:
+                print(f"File {json_file} already exists.")
     
     shutil.rmtree(f"code/buffer/temp")
     

@@ -9,7 +9,6 @@ from itertools import combinations
 from utils.os_helpers import count_body_elements
 from dotenv import load_dotenv, find_dotenv
 
-
 load_dotenv(find_dotenv())
 
 FONT_STYLES = [
@@ -53,6 +52,7 @@ TITLE_COLORS_LIGHT = [
     {"r": 255, "g": 69, "b": 0},       # Red-Orange
     {"r": 255, "g": 192, "b": 203}     # Pink
 ]
+
 X_API_KEY = os.environ['X-API-KEY']
 
 NATURAL_IMAGE_CATS = ['nature', 'city', 'technology', 'food', 'still_life', 'abstract', 'wildlife']
@@ -63,19 +63,18 @@ H_ALIGNMENTS = [
     'right',
     'justify'
 ]
-
 V_ALIGNMENTS = [
     'top',
     'middle',
     'bottom'
 ]
+
 DAYS = list(range(1, 28))
 MONTHS = [
     "January", "February", "March", "April", "May", "June",
     "July", "August", "September", "October", "November", "December"
 ]
 YEARS = list(range(2014, 2024))
-
 ABBR_MONTHS = [
     "Jan.", "Feb.", "Mar.", "Apr.", "May", "Jun.",
     "Jul.", "Aug.", "Sep.", "Oct.", "Nov.", "Dec."
@@ -103,48 +102,60 @@ PRESENTERS = [
     "Dr. Jasmine Khan",
     "Prof. Oliver Martin"
 ]
+
 TEMPLATES = {
-    1: ["code\\assets\ppt_templates\\1.png", 0],
-    2: ["code\\assets\ppt_templates\\2.png", 0],
-    3: ["code\\assets\ppt_templates\\3.png", 1],
-    4: ["code\\assets\ppt_templates\\4.png", 0],
-    5: ["code\\assets\ppt_templates\\5.png", 0],
-    6: ["code\\assets\ppt_templates\\6.png", 0],
-    7: ["code\\assets\ppt_templates\\7.png", 1],
-    8: ["code\\assets\ppt_templates\\8.png", 0],
-    9: ["code\\assets\ppt_templates\\9.png", 1],
-    10: ["code\\assets\ppt_templates\\10.png", 1],
-    11: ["code\\assets\ppt_templates\\11.png", 1],
-    12: ["code\\assets\ppt_templates\\12.png", 1],
-    13: ["code\\assets\ppt_templates\\13.png", 1],
-    14: ["code\\assets\ppt_templates\\14.png", 0],
-    15: ["code\\assets\ppt_templates\\15.png", 1],
-    16: ["code\\assets\ppt_templates\\16.png", 0],
-    17: ["code\\assets\ppt_templates\\17.png", 1],
-    18: ["code\\assets\ppt_templates\\18.png", 0],
+    1: ["code\\assets\\ppt_templates\\1.png", 0],
+    2: ["code\\assets\\ppt_templates\\2.png", 0],
+    3: ["code\\assets\\ppt_templates\\3.png", 1],
+    4: ["code\\assets\\ppt_templates\\4.png", 0],
+    5: ["code\\assets\\ppt_templates\\5.png", 0],
+    6: ["code\\assets\\ppt_templates\\6.png", 0],
+    7: ["code\\assets\\ppt_templates\\7.png", 1],
+    8: ["code\\assets\\ppt_templates\\8.png", 0],
+    9: ["code\\assets\\ppt_templates\\9.png", 1],
+    10: ["code\\assets\\ppt_templates\\10.png", 1],
+    11: ["code\\assets\\ppt_templates\\11.png", 1],
+    12: ["code\\assets\\ppt_templates\\12.png", 1],
+    13: ["code\\assets\\ppt_templates\\13.png", 1],
+    14: ["code\\assets\\ppt_templates\\14.png", 0],
+    15: ["code\\assets\\ppt_templates\\15.png", 1],
+    16: ["code\\assets\\ppt_templates\\16.png", 0],
+    17: ["code\\assets\\ppt_templates\\17.png", 1],
+    18: ["code\\assets\\ppt_templates\\18.png", 0],
 }
+
 LOGO_URLS = [
-    'code\\assets\logos\cvit_logo.jpg',
-    'code\\assets\logos\iiit_h_logo.jpg',
-    'code\\assets\logos\\nptel_logo.jpg',
-    'code\\assets\logos\\nyu_courant_logo_2.png'
+    'code\\assets\\logos\\01.png',
+    'code\\assets\\logos\\02.png',
+    'code\\assets\\logos\\05.png',
+    'code\\assets\\logos\\06.png',
+    'code\\assets\\logos\\07.png',
+    'code\\assets\\logos\\08.png',
+    'code\\assets\\logos\\09.png',
+    'code\\assets\\logos\\10.png',
+    'code\\assets\\logos\\11.png',
+    'code\\assets\\logos\\12.png',
+    'code\\assets\\logos\\14.png',
+    'code\\assets\\logos\\15.png'
 ]
+
 MUL_FAC = 1.333
+
 LOGO_ALL_POS = {
     0: {
-       'left': 0.25, 'top': 7
+       'left': 0.25, 'top': 6.25    #bottom left
     },
     1: {
-       'left': 5, 'top': 7
+       'left': 6.616, 'top': 6.25   #bottom middle
     },
     2:{
-        'left': 11.333, 'top': 7
+        'left': 12.083, 'top': 6.25 #bottom right
     },
     3:{
-        'left': 0.25, 'top': 0.25
+        'left': 0.25, 'top': 0.25   #top left
     },
     4:{
-        'left': 11.333, 'top': 0.25
+        'left': 12.083, 'top': 0.25 #top right
     }
 }
 
@@ -155,14 +166,17 @@ PROG_LANGS=[
     'Java',
     'C'
 ]
+
 PRIMARY_COLORS = [
     'red',
     'blue',
     'grey'
 ]
+
 BACKGROUNDS = [
     'transparent'
 ]
+
 TBL_BORDER_TYPES = [
     # 'all horizontal and vertical borders',
     'only vertical borders',
@@ -170,6 +184,7 @@ TBL_BORDER_TYPES = [
     'no horizontal or vertical borders',
     'only horizontal header borders'
 ]
+
 URL_PREFIXES = [
     'Source:',
     'Visit for more:',
@@ -188,8 +203,6 @@ def random_logo_pos(footer_obj):
     bbox_logo = logo_pos[random_choice]
     return bbox_logo
 
-
-
 def pick_random(list_name):
     if list_name == 'alignments':
         return [random.choice(H_ALIGNMENTS), random.choice(V_ALIGNMENTS)]
@@ -203,26 +216,25 @@ FONT_COLOR = pick_random(PRIMARY_COLORS) if random.random() > 0 else 'black'
 BACKGROUND_COLOR = pick_random(BACKGROUNDS) if random.random() > 0 else 'white'
 BORDERS = pick_random(TBL_BORDER_TYPES) if random.random() > 0 else 'all horizontal and vertical borders'
 
-def pick_random_logo(PROB=0.5):
+def pick_random_logo(PROB=0.5, w = 1, h = 1):
     path = ''
     n_w = 0
     n_h = 0
     if PROB > random.random():
         path = LOGO_URLS[random.randint(0, len(LOGO_URLS) - 1)]
-        path, n_w, n_h = resize_image(path, 2, 1)
+        path, n_w, n_h = resize_image(path, w, h)
     return path, n_w, n_h
 
-def pick_random_template(PROB=0.15) -> list:
+def pick_random_template(PROB=0) -> list:
     path = ''
     isDark = -1
     if PROB > random.random():
         path, isDark = TEMPLATES.get(random.randint(1, len(TEMPLATES)))
     return [path, isDark]
     
-
-def generate_random_color(PROB=0.85):
+def generate_random_color(PROB=1):
     if random.random() > PROB:
-        return {"r": random.randint(0, 255), "g": random.randint(0, 255), "b": random.randint(0, 255)}
+        return {"r": random.randint(1, 254), "g": random.randint(1, 254), "b": random.randint(1, 254)}
     else:
         return {"r": 255, "g": 255, "b": 255}   
 
@@ -304,11 +316,11 @@ def generate_footer_obj():
     return footer_inds
 
 def generate_title_slide_obj():
-    showPT = random.random() > 0.25
+    showPT = True
     showLg = random.random() > 0.5
-    showCC = random.random() > 0.5 
-    showDt = random.random() > 0.75 
-    showIs = random.random() > 0.75
+    showCC = random.random() > 0.4
+    showDt = random.random() > 0.5
+    showIs = random.random() > 0.6
     total_slide_elements = 0
     if showPT:
         total_slide_elements += 1
@@ -364,8 +376,8 @@ def get_random_image(presentation_ID, _id_) -> str:
     category = random.choice(NATURAL_IMAGE_CATS)
     api_url = f'https://api.api-ninjas.com/v1/randomimage?category={category}'
     response = requests.get(api_url, headers={'X-Api-Key': f'{X_API_KEY}', 'Accept': 'image/jpg'}, stream=True)
-    os.makedirs(os.path.join('code\\buffer\graphics', f'{presentation_ID}'), exist_ok=True)
-    img_path = os.path.join('code\\buffer\graphics', f'{presentation_ID}', f'{_id_ + 1}.jpg')
+    os.makedirs(os.path.join('code\\buffer\\graphics', f'{presentation_ID}'), exist_ok=True)
+    img_path = os.path.join('code\\buffer\\graphics', f'{presentation_ID}', f'{_id_ + 1}.jpg')
     if response.status_code == requests.codes.ok:
         with open(img_path, 'wb') as out_file:
             shutil.copyfileobj(response.raw, out_file)
@@ -387,7 +399,7 @@ def modify_url_prefix(desc):
 def generate_random_style_obj():
     style_obj = {}
     style_obj["template"] = pick_random_template()
-    style_obj["bg_color"] = generate_random_color(0.6)
+    style_obj["bg_color"] = generate_random_color()
     style_obj["title_font_family"] = pick_random(FONT_STYLES) 
     style_obj["title_font_bold"] = random.random() > 0.75
     style_obj["title_font_attr"] = generate_random_font("title")
@@ -398,15 +410,15 @@ def generate_random_style_obj():
     style_obj["desc_font_attr"] = generate_random_font("description")
     style_obj["url_font_color"] = pick_random(TITLE_COLORS_DARK)
     style_obj["date"] = generate_random_date()
-    style_obj['logo'] = pick_random_logo()
+    style_obj['logo'] = pick_random_logo(0.5)
     style_obj["instructor"] = pick_random_presenter()
     return style_obj
     
 def modify_style(style):
     if style["font_color"]["r"] == 0:
-        new_font_color = pick_random(TITLE_COLORS_DARK)
+        new_font_color = pick_random(TITLE_COLORS_DARK[:2])
     else:
-        new_font_color = pick_random(TITLE_COLORS_LIGHT)
+        new_font_color = pick_random(TITLE_COLORS_LIGHT[:2])
 
     special_style = {
     "font_name": style["font_name"],
@@ -479,12 +491,11 @@ def generate_contrasting_font_color(bg_color, title_dark, title_light):
     # Choose a contrasting color based on the luminance
     if luminance > 0.5:
         # Background is light, use dark font color
-        font_color = {"r": 0, "g": 0, "b": 0} # Black
+        font_color = {"r": 0, "g": 0, "b": 1} # Black
         title_font = title_dark
     else:
         # Background is dark, use light font color
-        font_color = {"r": 255, "g": 255, "b": 255} # White
+        font_color = {"r": 255, "g": 255, "b": 254} # White
         title_font = title_light
         
     return title_font, font_color
-

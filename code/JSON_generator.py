@@ -12,15 +12,13 @@ from random_generator import (generate_random_style_obj,
                               generate_contrasting_font_color,
                               generate_random_date,
                               pick_random_presenter,
+                              pick_random_logo,
                               generate_title_slide_obj,
                               generate_random_phrases,
                               modify_url_prefix,
                               random_logo_pos
                               )
 from utils.os_helpers import count_body_elements, count_footer_elements, remove_tmp_files
-
-
-
 
 def insert_title_slide(data, style_obj, course_code):
     slide = {
@@ -31,6 +29,7 @@ def insert_title_slide(data, style_obj, course_code):
     title_obj = generate_title_slide_obj()
     layouts = CustomLayouts()
     all_dims = layouts.get_layout_dimensions(0)
+    path, logo_w, logo_h = pick_random_logo(1, 2, 2)
     slide['elements']['footer'] = []
     for i, obj in enumerate(title_obj):
         if 'PT' in obj.keys():
@@ -69,8 +68,6 @@ def insert_title_slide(data, style_obj, course_code):
                 }
             }
             slide['elements']['footer'].append(footer_instance)
-
-
         if 'CC' in obj.keys():
             footer_instance = {
                 "label": 'course_code',
@@ -90,15 +87,14 @@ def insert_title_slide(data, style_obj, course_code):
                 }
             }
             slide['elements']['footer'].append(footer_instance)
-
         if 'Lg' in obj.keys():
             slide['elements']['graphic'] = [{
                 "label": 'logo',
-                "value": 'code\\assets\logos\iiit_h_logo.jpg',
+                "value": path,
                 "xmin": all_dims['topic_slide'][obj['Lg']]['left'],
                 "ymin": all_dims['topic_slide'][obj['Lg']]['top'],
-                "width": all_dims['topic_slide'][obj['Lg']]['width'],
-                "height": all_dims['topic_slide'][obj['Lg']]['height']
+                "width": logo_w,
+                "height": logo_h
             }]
         if 'Is' in obj.keys():
             footer_instance = {
@@ -140,10 +136,10 @@ def generate_random_slide(slide_number, data, style_obj, footer_obj, course_code
     if(tmp_path != ''):
         if isDark == 0:
             title_font = title_dark
-            font_color = {"r": 0, "g": 0, "b": 0}
+            font_color = {"r": 0, "g": 0, "b": 1}
         elif isDark == 1:
             title_font = title_light
-            font_color = {"r": 255, "g": 255, "b": 255}
+            font_color = {"r": 255, "g": 255, "b": 254}
         else:
             raise Exception('Invalid template list')
     else:
@@ -194,19 +190,29 @@ def generate_random_slide(slide_number, data, style_obj, footer_obj, course_code
         slide["bg_color"] = bg_color
     
     if logo_path != '':
-        bbox_logo = random_logo_pos(footer_obj)
-            
+        # if title_align is left, then the logo should not be on the top left side, i.e. left = 0.25 and top = 0.25
+        # if title_align is right, then the logo should not be on the top right side, i.e. left = 12.083 and top = 0.25
+        # any other alignment, the logo can be anywhere
+        while True:
+            bbox_logo = random_logo_pos(footer_obj)
+            if bbox_logo["top"] == 0.25:
+                if bbox_logo["left"] == 0.25 and title_align == 'left':
+                    continue
+                if bbox_logo["left"] == 12.083 and title_align == 'right':
+                    continue
+            break
+        
         slide["elements"]["graphic"] = [{
             "label": "logo",
             "value": logo_path,
             "xmin": bbox_logo['left'],
             "ymin": bbox_logo['top'],
             "width": logo_width,
-            "height": min(logo_height, 7.5 - bbox_logo['top']),
+            "height": logo_height,
         }]
 
     ## Putting it together for the title object
-    if random.random() > 0.20:
+    if random.random() > 0.10:
         slide['elements']['title'] = [{
                 "label": "title",
                 "value": title_content,
@@ -219,7 +225,7 @@ def generate_random_slide(slide_number, data, style_obj, footer_obj, course_code
                     "font_size": title_font_attr["font_size"],
                     "font_color": title_font,
                     "bold": title_font_bold,
-                    "italics": random.random() > 0.75,
+                    "italics": random.random() > 0.85,
                     "underlined": random.random() > 0.75,
                     "h_align": title_align,
                     "v_align": random.choice(['top', 'middle', 'bottom'])
@@ -261,7 +267,7 @@ def generate_random_slide(slide_number, data, style_obj, footer_obj, course_code
             element_index += 1
 
         ## Generate Enumerations
-        P_H = 0.25
+        P_H = 0.33
         hasHeading = P_H > random.random()
         h_enum_align, v_enum_align = pick_random("alignments")
         for i in range(n_elements_list[1]):
@@ -271,10 +277,47 @@ def generate_random_slide(slide_number, data, style_obj, footer_obj, course_code
             for pt in enum[1:]:
                 styled_phrases = generate_random_phrases(pt)
                 enum_phrases.append(styled_phrases)
-
-            enum_instance = {
+            enum_instance = {}       
+            # code for row oriented enumeration is left
+            if (hasHeading):
+                # Limit the heading to 3 words if column oriented
+                heading_words = enum[0].split()
+                if len(heading_words) > 3:
+                    heading_content = ' '.join(heading_words[:3])
+                else:
+                    heading_content = ' '.join(heading_words)
+                    
+                enum_instance['heading'] = {
+                "label": 'heading',
+                "value": heading_content,
+                "xmin": all_dims['body'][element_index]['left'],
+                "ymin": all_dims['body'][element_index]['top'],
+                "width": all_dims['body'][element_index]['width'],
+                "height": 0.5,
+                "style": {
+                    "font_name": desc_font_family,
+                    "font_size": desc_font_attr["font_size"] + random.randint(0, 2),
+                    "font_color": font_color,
+                    "bold": random.random() > 0.5,
+                    "italics": font_obj["italics"],
+                    "underlined": random.random() > 0.5
+                    }
+                }
+            
+            # below works for column oriented enumeration,
+            # for row oriented enumeration, size and no of points should be reduced
+            enum = enum[1:] if hasHeading else enum
+            if len(enum) > 5:
+                enum = enum[:5]
+                # count the number of words in the first 5 elements
+                n_words = sum([len(e.split()) for e in enum])
+                # if the number of words is greater than 12, then remove the last element
+                if n_words > 12:
+                    enum = enum[:-1]
+            
+            enum_instance = {**enum_instance, **{
             "label": "enumeration",
-            "value": enum[1:] if hasHeading else enum,
+            "value": enum,
             "xmin": all_dims['body'][element_index]['left'],
             "ymin": all_dims['body'][element_index]['top'] + 0.5,
             "width": all_dims['body'][element_index]['width'],
@@ -290,24 +333,7 @@ def generate_random_slide(slide_number, data, style_obj, footer_obj, course_code
                 "v_align": 'top',
                 "phrases": enum_phrases
                }
-            }
-            if (hasHeading):
-                enum_instance['heading'] = {
-                "label": 'heading',
-                "value": enum[0],
-                "xmin": all_dims['body'][element_index]['left'],
-                "ymin": all_dims['body'][element_index]['top'],
-                "width": all_dims['body'][element_index]['width'],
-                "height": 0.5,
-                "style": {
-                    "font_name": desc_font_family,
-                    "font_size": desc_font_attr["font_size"] + random.randint(0, 2),
-                    "font_color": font_color,
-                    "bold": random.random() > 0.5,
-                    "italics": font_obj["italics"],
-                    "underlined": random.random() > 0.5
-                }
-                }
+            }}
             
             slide['elements']['text'].append(enum_instance)
             element_index += 1
@@ -322,9 +348,12 @@ def generate_random_slide(slide_number, data, style_obj, footer_obj, course_code
             prefix = ""
             if desc != "" and random.random() > 0.5:
                 prefix = modify_url_prefix(desc)
+            url_value = prefix + desc
+            if url_value == "":
+                break
             desc_instance = {
             "label": "url",
-            "value": prefix + desc,
+            "value": url_value,
             "xmin": 0.5 if random.random() > 0.5 else 5*1.333,
             "ymin": 6.5 if random.random() > 0.5 else 1.5,
             "width": 4.5*1.333,
@@ -343,8 +372,6 @@ def generate_random_slide(slide_number, data, style_obj, footer_obj, course_code
             slide['elements']['refs'].append(desc_instance)
        
         # Render Equations
-       
-
         P_E = 0.25
         slide['elements']['equations'] = []
         for i in range(n_elements_list[3]):
@@ -355,7 +382,8 @@ def generate_random_slide(slide_number, data, style_obj, footer_obj, course_code
                 ele_height =all_dims['body'][element_index]['height'] - 0.35 
                 if random.random() > 0.5:
                 # Caption below the visual element
-                    cap_ymin = all_dims['body'][element_index]['top'] + all_dims['body'][element_index]['height'] - 0.35 
+                    cap_ymin = all_dims['body'][element_index]['top'] + all_dims['body'][element_index]['height'] - 0.35
+                    ele_ymin = all_dims['body'][element_index]['top']
                 else:
                     # Caption above the visual element
                     ele_ymin = all_dims['body'][element_index]['top'] + 0.35
@@ -380,7 +408,7 @@ def generate_random_slide(slide_number, data, style_obj, footer_obj, course_code
             eq_instance = {**eq_instance, **{
             "label": "equation",
             "xmin": all_dims['body'][element_index]['left'],
-            "ymin": ele_height,
+            "ymin": ele_ymin,
             "width": all_dims['body'][element_index]['width'],
             "height": ele_height,
             "desc": data["slides"][slide_number - 1]["equations"][i]["desc"],
@@ -391,7 +419,6 @@ def generate_random_slide(slide_number, data, style_obj, footer_obj, course_code
             remove_tmp_files()
 
         # Render Table
-
         P_T = 0.5
         slide['elements']['tables'] = []
         for i in range(n_elements_list[4]):
@@ -403,6 +430,7 @@ def generate_random_slide(slide_number, data, style_obj, footer_obj, course_code
                 if random.random() > 0.5:
                 # Caption below the visual element
                     cap_ymin = all_dims['body'][element_index]['top'] + all_dims['body'][element_index]['height'] - 0.35 
+                    ele_ymin = all_dims['body'][element_index]['top']
                 else:
                     # Caption above the visual element
                     ele_ymin = all_dims['body'][element_index]['top'] + 0.35
@@ -437,8 +465,6 @@ def generate_random_slide(slide_number, data, style_obj, footer_obj, course_code
                 tab_instance['path'] = data["slides"][slide_number - 1]["tables"][i]['path']
             elif 'content' in data["slides"][slide_number - 1]['tables'][i]:
                 tab_instance['content'] = data["slides"][slide_number - 1]['tables'][i]['content']
-                   
-          
             
             slide['elements']['tables'].append(tab_instance)
             element_index += 1
@@ -458,17 +484,24 @@ def generate_random_slide(slide_number, data, style_obj, footer_obj, course_code
             ele_ymin = all_dims['body'][element_index]['top']
             ele_height =  all_dims['body'][element_index]['height']
             if (P_F > random.random()):
+                # take only the first 6 words of the description
+                caption_value = data["slides"][slide_number - 1]["figures"][i]["desc"]
+                # take only the first 6 words of the description
+                caption_value = ' '.join(caption_value.split()[:6])
+                
                 ele_height =  all_dims['body'][element_index]['height'] - 0.35
                 if random.random() > 0.5:
                 # Caption below the visual element
                     cap_ymin = all_dims['body'][element_index]['top'] + all_dims['body'][element_index]['height'] - 0.35 
+                    ele_ymin = all_dims['body'][element_index]['top']
                 else:
-                    # Caption above the visual element
                     ele_ymin = all_dims['body'][element_index]['top'] + 0.35
                     cap_ymin = all_dims['body'][element_index]['top']
+                
+                
                 fig_instance["caption"] = {
                     "label": "figure_caption",
-                    "value": data["slides"][slide_number - 1]["figures"][i]["desc"],
+                    "value": caption_value,
                     "xmin": all_dims['body'][element_index]['left'],
                     "ymin": cap_ymin,
                     "width": all_dims['body'][element_index]['width'],
@@ -480,13 +513,8 @@ def generate_random_slide(slide_number, data, style_obj, footer_obj, course_code
                         "bold": random.random() > 0.5,
                         "italics": random.random() > 0.25,
                         "underlined": random.random() > 0.75
+                    }
                 }
-                }
-            
-            # if label == 'graph' or label == 'tree' or label == 'flow-chart' or label == 'block-diagram':
-            #     superlabel = 'diagram'
-            # else:
-            #     superlabel = 'graph'
             fig_instance = {**fig_instance, **{
             "label": label,
             "xmin": all_dims['body'][element_index]['left'],
@@ -527,22 +555,6 @@ def generate_random_slide(slide_number, data, style_obj, footer_obj, course_code
             } 
             slide['elements']['code'].append(code_instance)
             element_index += 1
-
-
-        if not 'graphic' in slide['elements'].keys():
-            slide['elements']['graphic']  = []
-        for i in range(n_elements_list[7]):
-            img_instance = {
-                "label": data["slides"][slide_number - 1]["images"][i]['label'],
-                "value": data["slides"][slide_number - 1]["images"][i]['path'],
-                "xmin": all_dims['body'][element_index]['left'],
-                "ymin": all_dims['body'][element_index]['top'],
-                "width": all_dims['body'][element_index]['width'],
-                "height": all_dims['body'][element_index]['height']
-            }
-
-            slide['elements']['graphic'].append(img_instance)
-            element_index += 1
         
 
     ##Footer generation
@@ -572,7 +584,7 @@ def generate_random_slide(slide_number, data, style_obj, footer_obj, course_code
                 "height": footer_dim['height'],
                 "style": {
                     "font_name": desc_font_family,
-                    "font_size": desc_font_attr["font_size"] - random.randint(0, 2),
+                    "font_size": random.randint(12, 22),
                     "font_color": font_color if random.random() > 0.5 else url_font_color,
                     "bold": False,
                     "italics": False,
@@ -598,7 +610,7 @@ if __name__ == "__main__":
     directories = [entry for entry in entries if os.path.isdir(os.path.join(temp_dir, entry))]
     DUP_FAC = 2
     for directory in directories:
-        json_files = [f for f in os.listdir(os.path.join(temp_dir,directory)) if f.endswith('.json')]
+        json_files = [f for f in os.listdir(os.path.join(temp_dir,directory)) if f.endswith('.json')][:25]
         json_files = [f for f in json_files if f.split('.')[0] not in created_files]
         n_json_files = len(json_files)
         for i, json_file in enumerate(json_files): 
@@ -632,6 +644,5 @@ if __name__ == "__main__":
                 with open(f"code/buffer/full/{directory}/{presentation_ID}/{ver + 1}.json", 'w') as json_file:
                     json.dump(new_data, json_file, indent=3)
 
-            print(f"🟢 ({i+1}/{n_json_files}): generated {DUP_FAC} layouts for {presentation_ID}")
+            print(f"🟢 ({i+1}/{n_json_files}): generated {DUP_FAC} layouts for {subject}/{presentation_ID}")
     print('\n')
-

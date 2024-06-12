@@ -97,7 +97,7 @@ def generate_slide_content(slide_id, arg_topic, subject, book):
         print(f"\t🟢 (7/{STEPS}) No code snippets for {slide_id}")
 
     try:
-        final_content = assemble_elements(text_content, struct_imgs, plot_imgs, figure_imgs, code_snippets, positions, prompts, captions)
+        final_content = assemble_elements(text_content, struct_imgs, plot_imgs, figure_imgs, code_snippets, positions, prompts, captions, slide_id)
         print(f"\t🟢 (8/{STEPS}) Assembled content for {slide_id}")
     except:
         final_content = {"error": "Error in assembling content"}
@@ -119,7 +119,7 @@ def generate_slide_content(slide_id, arg_topic, subject, book):
 def main():
     print("Running content generation module...")
     load_dotenv(find_dotenv())
-    SEED_PATH = "code\data\\topics.json"
+    SEED_PATH = "code\\data\\topics.json"
     slide_seeds = fetch_seed_content(SEED_PATH)
     for subject, ppts in slide_seeds.items():
         n_ppts = len(ppts)

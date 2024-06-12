@@ -128,11 +128,11 @@ def show_annotations():
 # Cover the images on SLide
 def cover_images(annotations, image):
   for item in annotations:
-    xmin = item["xmin"] - 5
-    ymin = item["ymin"] - 5
-    xmax = xmin + item["width"] + 10
-    ymax = ymin + item["height"] + 10
-    image[ymin:ymax, xmin:xmax] = 255
+      xmin = item["xmin"] - 2
+      ymin = item["ymin"] - 2
+      xmax = xmin + item["width"] + 4
+      ymax = ymin + item["height"] + 4
+      image[ymin:ymax, xmin:xmax] = 255
   return image
 
 def correction_calc(annotations, image):
@@ -198,9 +198,12 @@ def correction_mask(annotations, image):
       
       
     # url will always be in blue color, ie, (255, 0, 0) in BGR, use this to mask the image
-    if label == 'refs':
+    if label == 'url':
       image1 = image[ymin:ymax, xmin:xmax]
-      image1 = 255 if np.any(image1 != [255, 0, 0]) else 0
+      for i in range(image1.shape[0]):
+        for j in range(image1.shape[1]):
+          if (image1[i, j] == [255, 0, 0]).all():
+            image1[i, j] = [0, 0, 0]
     else:
       image1 = gray[ymin:ymax, xmin:xmax]
     threshold = cv2.threshold(image1, 254, 255, cv2.THRESH_BINARY)[1]
@@ -222,12 +225,13 @@ def correction_mask(annotations, image):
       ymax_n = ymin + y2
   
       new_annotations = {
+          "label": label,
           "xmin": int(xmin_n),
           "ymin": int(ymin_n),
           "width": int(xmax_n - xmin_n),
           "height": int(ymax_n - ymin_n)
       }
-      print(new_annotations)
+      # print(new_annotations)
       return new_annotations
     return annotations
 
@@ -260,11 +264,16 @@ def correction():
               image1 = image.copy()
               cover_coordinates_images = []
               
+              if 'graphic' in elements.keys():
+                for items in elements["graphic"]:
+                  cover_coordinates_images.append(items)
+              
+              # Cover Images, and URLs to annotate Text
+              image_for_images = cover_images(cover_coordinates_images, image)
               for element_type, element_list in elements.items():
-                # Cover Images, and URLs to annotate Text
                 for items in element_list:
                   if element_type == 'equations':
-                    new_annotations = correction_mask(items, image)
+                    new_annotations = correction_mask(items, image_for_images)
                     items["xmin"] = new_annotations["xmin"]
                     items["ymin"] = new_annotations["ymin"]
                     items["width"] = new_annotations["width"]
@@ -272,7 +281,7 @@ def correction():
                     cover_coordinates_images.append(new_annotations)
                     
                   if element_type == 'figures' or element_type == 'tables':
-                    new_annotations = correction_calc(items, image)
+                    new_annotations = correction_calc(items, image_for_images)
                     items["xmin"] = new_annotations["xmin"]
                     items["ymin"] = new_annotations["ymin"]
                     items["width"] = new_annotations["width"]
@@ -280,21 +289,14 @@ def correction():
                     cover_coordinates_images.append(new_annotations)
                   
                   if element_type == 'refs':
-                    new_annotations = correction_mask(items, image)
+                    new_annotations = correction_mask(items, image_for_images)
                     items["xmin"] = new_annotations["xmin"]
                     items["ymin"] = new_annotations["ymin"]
                     items["width"] = new_annotations["width"]
                     items["height"] = new_annotations["height"]
                     cover_coordinates_images.append(new_annotations)
                   
-                  if element_type == 'graphic':
-                    cover_coordinates_images.append(items)
-                
-              image_for_text = cover_images(cover_coordinates_images, image)
-              # cv2.imshow("image", image_for_text)
-              # cv2.waitKey(0)
-              # cv2.destroyAllWindows()
-              
+              image_for_text = cover_images(cover_coordinates_images, image)              
               for element_type, element_list in elements.items():
                 for items in element_list:
                   
@@ -322,36 +324,34 @@ def correction():
                     items["caption"]["width"] = new_annotations["width"]
                     items["caption"]["height"] = new_annotations["height"]
 
-                    
+              # for element_type, element_list in elements.items():
+              #   for items in element_list:
+              #     # draw bounding box
+              #     cv2.rectangle(image1, (items.get("xmin", 0), items.get("ymin", 0)), (items.get("xmin", 0) + items.get("width", 0), items.get("ymin", 0) + items.get("height", 0)), (255, 0, 0), 1)
+              #     cv2.putText(image1, items.get("label", ""), (items.get("xmin", 0), items.get("ymin", 0)), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 1)
                   
-              for element_type, element_list in elements.items():
-                for items in element_list:
-                  # draw bounding box
-                  cv2.rectangle(image1, (items.get("xmin", 0), items.get("ymin", 0)), (items.get("xmin", 0) + items.get("width", 0), items.get("ymin", 0) + items.get("height", 0)), (255, 0, 0), 1)
-                  cv2.putText(image1, items.get("label", ""), (items.get("xmin", 0), items.get("ymin", 0)), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 1)
+              #     if 'caption' in items.keys():                   
+              #       cv2.rectangle(image1, (items["caption"].get("xmin", 0), items["caption"].get("ymin", 0)), (items["caption"].get("xmin", 0) + items["caption"].get("width", 0), items["caption"].get("ymin", 0) + items["caption"].get("height", 0)), (255, 0, 0), 1)
+              #       cv2.putText(image1, items["caption"].get("label", ""), (items["caption"].get("xmin", 0), items["caption"].get("ymin", 0)), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 1)
+              #     if 'heading' in items.keys():
+              #       cv2.rectangle(image1, (items["heading"].get("xmin", 0), items["heading"].get("ymin", 0)), (items["heading"].get("xmin", 0) + items["heading"].get("width", 0), items["heading"].get("ymin", 0) + items["heading"].get("height", 0)), (255, 0, 0), 1)
+              #       cv2.putText(image1, items["heading"].get("label", ""), (items["heading"].get("xmin", 0), items["heading"].get("ymin", 0)), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 1)
                   
-                  if 'caption' in items.keys():                   
-                    cv2.rectangle(image1, (items["caption"].get("xmin", 0), items["caption"].get("ymin", 0)), (items["caption"].get("xmin", 0) + items["caption"].get("width", 0), items["caption"].get("ymin", 0) + items["caption"].get("height", 0)), (255, 0, 0), 1)
-                    cv2.putText(image1, items["caption"].get("label", ""), (items["caption"].get("xmin", 0), items["caption"].get("ymin", 0)), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 1)
-                  if 'heading' in items.keys():
-                    cv2.rectangle(image1, (items["heading"].get("xmin", 0), items["heading"].get("ymin", 0)), (items["heading"].get("xmin", 0) + items["heading"].get("width", 0), items["heading"].get("ymin", 0) + items["heading"].get("height", 0)), (255, 0, 0), 1)
-                    cv2.putText(image1, items["heading"].get("label", ""), (items["heading"].get("xmin", 0), items["heading"].get("ymin", 0)), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 1)
-                  
-              cv2.imshow("image", image1)
-              cv2.waitKey(0)
-              cv2.destroyAllWindows()     
+              # cv2.imshow("image", image1)
+              # cv2.waitKey(0)
+              # cv2.destroyAllWindows()     
             
             # print(data)   
-            # if not os.path.exists(f"dataset/json/{subject}/{topic}/"):
-            #   os.makedirs(f"dataset/json/{subject}/{topic}/")
-            # with open(f"dataset/json/{subject}/{topic}/{json_file}", "w") as f:
-            #   json.dump(data, f, indent=3)
+            if not os.path.exists(f"dataset/json/{subject}/{topic}/"):
+              os.makedirs(f"dataset/json/{subject}/{topic}/")
+            with open(f"dataset/json/{subject}/{topic}/{json_file}", "w") as f:
+              json.dump(data, f, indent=3)
             # if a == 5:
             #   return
               
   print(f"🟢 (4/5) Annotations corrected for {a} images.")
 
 if __name__ == "__main__":
-    move_files()
+    # move_files()
     correction()
     # show_annotations()

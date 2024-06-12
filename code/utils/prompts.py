@@ -191,6 +191,7 @@ text_generation_example = [
 ]
 }
         """,
+        "n_slide": 5,
         "topic": "Tree Data Structure",
         "presentation_ID": 12451,
         "subject": "CS",
@@ -268,8 +269,9 @@ The original latex code is as follows:\n
 """)]
 text_generation_ex_prompt = [
                 ("human", """I am providing you with some instructions given to generate content for a presentation on {topic} of the subject {subject}\n
-The instructions have Slide Title as key and the value is a list of object describing what text/visual elements are required to explain that concept\n
+The instructions are for {n_slide} slides. The instructions have Slide Title as key and the value is a list of object describing what text/visual elements are required to explain that concept\n
 I want you to focus on generating the actual content for only the text elements, i.e. description, enumeration, and url.\n
+Make sure the that the content is generated for each of the {n_slide} slides.\n
 Following are the instructions:\n
 {instructions}\n
 While generating content keep the following in mind:\n

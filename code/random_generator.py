@@ -216,9 +216,9 @@ def pick_random(list_name):
         return random.choice(list_name)
 
 FONT_SIZE = random.randint(4, 8)*2
-FONT_COLOR = pick_random(PRIMARY_COLORS) if random.random() > 0 else 'black'
+FONT_COLOR = pick_random(PRIMARY_COLORS) if random.random() > 0.75 else 'black'
 BACKGROUND_COLOR = pick_random(BACKGROUNDS) if random.random() > 0 else 'white'
-BORDERS = pick_random(TBL_BORDER_TYPES) if random.random() > 0 else 'all horizontal and vertical borders'
+BORDERS = pick_random(TBL_BORDER_TYPES) if random.random() > 0.5 else 'all horizontal and vertical borders'
 
 def pick_random_logo(PROB=0.5, w = 1, h = 1):
     path = ''
@@ -358,21 +358,20 @@ def generate_title_slide_obj():
 
     return title_inds
 
-def add_random_images(data):
+def add_random_images(data, slide_id):
     _id_ = 0
-    presentation_ID = data["presentation_ID"]
     n_slides = len(data["slides"])
     for i in range(n_slides):
         data["slides"][i]["images"] = []
         n_body = sum(count_body_elements(data, i+1))
         if n_body == 1:
-            img_path = get_random_image(presentation_ID, _id_)
+            img_path = get_random_image(slide_id, _id_)
             obj = {
                 "label": "natural-image",
                 "path": img_path
             }
             data["slides"][i]["images"].append(obj)
-            print(data["slides"][i]["images"])
+            # print(data["slides"][i]["images"])
     
     return data
 

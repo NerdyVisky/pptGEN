@@ -242,6 +242,9 @@ def generate_random_slide(slide_number, data, style_obj, footer_obj, course_code
         for _ in range(n_elements_list[0]):
             font_obj = generate_random_font("description")
             desc = data["slides"][slide_number - 1]["description"]
+            n_words = len(desc.split())
+            if n_words < 15 and random.random() > 0:
+                desc = desc + ' ' + desc
             styled_phrases = generate_random_phrases(desc)
             desc_instance = {
             "label": "text",
@@ -314,7 +317,10 @@ def generate_random_slide(slide_number, data, style_obj, footer_obj, course_code
                 # if the number of words is greater than 12, then remove the last element
                 if n_words > 12:
                     enum = enum[:-1]
-            
+            if len(enum) > 2:
+                if all_dims['body'][element_index]['type'] == 4 or all_dims['body'][element_index]['type'] == 2:
+                    enum = enum[:2]
+                    
             enum_instance = {**enum_instance, **{
             "label": "enumeration",
             "value": enum,
@@ -379,6 +385,10 @@ def generate_random_slide(slide_number, data, style_obj, footer_obj, course_code
             ele_height = all_dims['body'][element_index]['height']
             eq_instance = {}
             if (P_E > random.random()):
+                # take only the first 6 words of the description
+                caption_value = data["slides"][slide_number - 1]["figures"][i]["desc"]
+                # take only the first 6 words of the description
+                caption_value = ' '.join(caption_value.split()[:5])
                 ele_height =all_dims['body'][element_index]['height'] - 0.45 
                 if random.random() > 0.5:
                 # Caption below the visual element
@@ -390,7 +400,7 @@ def generate_random_slide(slide_number, data, style_obj, footer_obj, course_code
                     cap_ymin = all_dims['body'][element_index]['top']
                 eq_instance["caption"] = {
                     "label": "equation_caption",
-                    "value": data["slides"][slide_number - 1]["equations"][i]["desc"],
+                    "value": caption_value,
                     "xmin": all_dims['body'][element_index]['left'],
                     "ymin": cap_ymin,
                     "width": all_dims['body'][element_index]['width'],
@@ -426,6 +436,10 @@ def generate_random_slide(slide_number, data, style_obj, footer_obj, course_code
             ele_height = all_dims['body'][element_index]['height']
             tab_instance = {}
             if (P_T > random.random()):
+                # take only the first 6 words of the description
+                caption_value = data["slides"][slide_number - 1]["figures"][i]["desc"]
+                # take only the first 6 words of the description
+                caption_value = ' '.join(caption_value.split()[:5])
                 ele_height =all_dims['body'][element_index]['height'] - 0.45 
                 if random.random() > 0.5:
                 # Caption below the visual element
@@ -437,7 +451,7 @@ def generate_random_slide(slide_number, data, style_obj, footer_obj, course_code
                     cap_ymin = all_dims['body'][element_index]['top']
                 tab_instance["caption"] = {
                     "label": "table_caption",
-                    "value": data["slides"][slide_number - 1]["tables"][i]["desc"],
+                    "value": caption_value,
                     "xmin": all_dims['body'][element_index]['left'],
                     "ymin": cap_ymin,
                     "width": all_dims['body'][element_index]['width'],

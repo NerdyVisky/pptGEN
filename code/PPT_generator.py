@@ -369,6 +369,8 @@ class CodeSnippet(Element):
             self.apply_font_style(code_shape)
             # enum_tf.paragraphs[0].paragraph_format.alignment = MSO_ANCHOR.JUSTIFY
             code_lines = self.content.split('\n')
+            if len(code_lines) > 5:
+                code_lines = code_lines[len(code_lines)-5:]
             for i, pt_text in enumerate(code_lines):
                 if i>0:
                     if isinstance(pt_text, str):

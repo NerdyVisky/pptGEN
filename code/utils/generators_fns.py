@@ -141,7 +141,7 @@ def generate_struct_content(prompt, model, presentation_ID):
                 ### DECODE ER
                 matrix = latex_to_matrix(tex_code)
                 tab_dir = f'code/buffer/structs/{struct_type}'
-                os.makedirs(os.path.join(tab_dir, presentation_ID), exist_ok=True)
+                os.makedirs(os.path.join(tab_dir, str(presentation_ID)), exist_ok=True)
                 txt_path = os.path.join(tab_dir, presentation_ID, f'{i+1}.txt')
                 with open(txt_path, 'w') as f:
                     f.write(str(matrix))
@@ -290,6 +290,7 @@ def generate_code_snippets(prompt, model, presentation_ID):
     code_snip_paths = []
     for i, match in enumerate(matches):
         code_snippet = match.strip() # Remove leading/trailing whitespace
+        print(code_snippet)
         os.makedirs(os.path.join(code_dir, presentation_ID), exist_ok=True)
         code_file_path = os.path.join(code_dir, presentation_ID, f'{i+1}') + '.txt'
         with open(code_file_path, 'w') as file:
@@ -344,6 +345,7 @@ def assemble_elements(text_json, struct_imgs, plot_imgs, figure_imgs, code_files
             else:
                 obj['label'] = element_name
                 text_json["slides"][slide_number - 1]["figures"].append(obj)
+            
     
     
     for i, file_path in enumerate(code_files):
@@ -388,5 +390,4 @@ def get_struct_img_path(tex_code, num, presentation_ID, struct_type):
     img_path = os.path.join(img_dir, presentation_ID, img_name)
     os.rename(img_name, img_path)
     return img_path
-
 

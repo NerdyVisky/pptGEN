@@ -265,9 +265,10 @@ class Figure(Element):
         if self.caption != None:
             left_c, top_c, width_c, height_c = self.caption['xmin'], self.caption['ymin'], self.caption['width'], self.caption['height']
             if top_c > top:
-                cap_shape = slide.shapes.add_textbox(Inches(left_c), Inches(top_c - (height - n_h)/2), Inches(width_c), Inches(height_c))
+                cap_shape = slide.shapes.add_textbox(Inches(left_c), Inches(top_c + (n_h - height)/2), Inches(width_c), Inches(height_c))
             else:
-                cap_shape = slide.shapes.add_textbox(Inches(left_c), Inches(top_c + (height - n_h)/2), Inches(width_c), Inches(height_c))
+                cap_shape = slide.shapes.add_textbox(Inches(left_c), Inches(top_c - (n_h - height)/2), Inches(width_c), Inches(height_c))
+            cap_shape = slide.shapes.add_textbox(Inches(left_c), Inches(top_c), Inches(width_c), Inches(height_c))
             cap_shape.text = self.caption['value']
             self.apply_font_style(cap_shape)
             cap_shape.text_frame.auto_size = True
@@ -289,9 +290,10 @@ class Equation(Element):
         if self.caption != None:
             left_c, top_c, width_c, height_c = self.caption['xmin'], self.caption['ymin'], self.caption['width'], self.caption['height']
             if top_c > top:
-                cap_shape = slide.shapes.add_textbox(Inches(left_c), Inches(top_c - (height - n_h)/2), Inches(width_c), Inches(height_c))
+                cap_shape = slide.shapes.add_textbox(Inches(left_c), Inches(top_c + (n_h - height)/2), Inches(width_c), Inches(height_c))
             else:
-                cap_shape = slide.shapes.add_textbox(Inches(left_c), Inches(top_c + (height - n_h)/2), Inches(width_c), Inches(height_c))
+                cap_shape = slide.shapes.add_textbox(Inches(left_c), Inches(top_c - (n_h - height)/2), Inches(width_c), Inches(height_c))
+            cap_shape = slide.shapes.add_textbox(Inches(left_c), Inches(top_c), Inches(width_c), Inches(height_c))
             cap_shape.text = self.caption['value']
             self.apply_font_style(cap_shape)
             cap_shape.text_frame.auto_size = True
@@ -316,9 +318,10 @@ class Table(Element):
             if self.caption != None:
                 left_c, top_c, width_c, height_c = self.caption['xmin'], self.caption['ymin'], self.caption['width'], self.caption['height']
                 if top_c > top:
-                    cap_shape = slide.shapes.add_textbox(Inches(left_c), Inches(top_c - (height - n_h)/2), Inches(width_c), Inches(height_c))
+                    cap_shape = slide.shapes.add_textbox(Inches(left_c), Inches(top_c + (n_h - height)/2), Inches(width_c), Inches(height_c))
                 else:
-                    cap_shape = slide.shapes.add_textbox(Inches(left_c), Inches(top_c + (height - n_h)/2), Inches(width_c), Inches(height_c))
+                    cap_shape = slide.shapes.add_textbox(Inches(left_c), Inches(top_c - (n_h - height)/2), Inches(width_c), Inches(height_c))
+
                 cap_shape.text = self.caption['value']
                 self.apply_font_style(cap_shape)
                 cap_shape.text_frame.auto_size = True
@@ -378,6 +381,8 @@ class CodeSnippet(Element):
             self.apply_font_style(code_shape)
             # enum_tf.paragraphs[0].paragraph_format.alignment = MSO_ANCHOR.JUSTIFY
             code_lines = self.content.split('\n')
+            if len(code_lines) > 5:
+                code_lines = code_lines[len(code_lines) - 5:]
             for i, pt_text in enumerate(code_lines):
                 if i>0:
                     if isinstance(pt_text, str):

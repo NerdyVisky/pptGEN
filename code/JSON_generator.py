@@ -177,7 +177,6 @@ def generate_random_slide(slide_number, data, style_obj, footer_obj, course_code
     layout_id = generate_random_layout(total_body_elements)
     layouts = CustomLayouts()
     all_dims = layouts.get_layout_dimensions(layout_id)
-
     ## Skeleton Slide object with Slide-level metadata
     slide = {
         "pg_no": slide_number,
@@ -230,7 +229,7 @@ def generate_random_slide(slide_number, data, style_obj, footer_obj, course_code
                     "h_align": title_align,
                     "v_align": random.choice(['top', 'middle', 'bottom'])
                 }
-            }]    
+            }]        
        
     if total_body_elements != 0:
         # Body Generation
@@ -243,6 +242,9 @@ def generate_random_slide(slide_number, data, style_obj, footer_obj, course_code
         for _ in range(n_elements_list[0]):
             font_obj = generate_random_font("description")
             desc = data["slides"][slide_number - 1]["description"]
+            n_words = len(desc.split())
+            if n_words < 15 and random.random() > 0:
+                desc = desc + ' ' + desc
             styled_phrases = generate_random_phrases(desc)
             desc_instance = {
             "label": "text",
@@ -277,6 +279,7 @@ def generate_random_slide(slide_number, data, style_obj, footer_obj, course_code
             for pt in enum[1:]:
                 styled_phrases = generate_random_phrases(pt)
                 enum_phrases.append(styled_phrases)
+
             enum_instance = {}       
             # code for row oriented enumeration is left
             if (hasHeading):
@@ -314,7 +317,10 @@ def generate_random_slide(slide_number, data, style_obj, footer_obj, course_code
                 # if the number of words is greater than 12, then remove the last element
                 if n_words > 12:
                     enum = enum[:-1]
-            
+            if len(enum) > 2:
+                if all_dims['body'][element_index]['type'] == 4 or all_dims['body'][element_index]['type'] == 2:
+                    enum = enum[:2]
+
             enum_instance = {**enum_instance, **{
             "label": "enumeration",
             "value": enum,
@@ -357,11 +363,11 @@ def generate_random_slide(slide_number, data, style_obj, footer_obj, course_code
             "xmin": 0.5 if random.random() > 0.5 else 5*1.333,
             "ymin": 6.5 if random.random() > 0.5 else 1.5,
             "width": 4.5*1.333,
-            "height": 0.5,
+            "height": 0.75,
             "style": {
                 "font_name": desc_font_family,
                 "font_size": font_obj['font_size'],
-                "font_color": {"r": 0, "g": 0, "b": 238} if random.random() > 0.75 else url_font_color,
+                "font_color": {"r": 0, "g": 0, "b": 225}, # if random.random() > 0.75 else url_font_color,
                 "bold": False,
                 "italics": True,
                 "underlined": True,
@@ -379,14 +385,14 @@ def generate_random_slide(slide_number, data, style_obj, footer_obj, course_code
             ele_height = all_dims['body'][element_index]['height']
             eq_instance = {}
             if (P_E > random.random()):
-                ele_height =all_dims['body'][element_index]['height'] - 0.35 
+                ele_height =all_dims['body'][element_index]['height'] - 0.45 
                 if random.random() > 0.5:
                 # Caption below the visual element
                     cap_ymin = all_dims['body'][element_index]['top'] + all_dims['body'][element_index]['height'] - 0.35
                     ele_ymin = all_dims['body'][element_index]['top']
                 else:
                     # Caption above the visual element
-                    ele_ymin = all_dims['body'][element_index]['top'] + 0.35
+                    ele_ymin = all_dims['body'][element_index]['top'] + 0.45
                     cap_ymin = all_dims['body'][element_index]['top']
                 eq_instance["caption"] = {
                     "label": "equation_caption",
@@ -426,14 +432,14 @@ def generate_random_slide(slide_number, data, style_obj, footer_obj, course_code
             ele_height = all_dims['body'][element_index]['height']
             tab_instance = {}
             if (P_T > random.random()):
-                ele_height =all_dims['body'][element_index]['height'] - 0.35 
+                ele_height =all_dims['body'][element_index]['height'] - 0.45 
                 if random.random() > 0.5:
                 # Caption below the visual element
                     cap_ymin = all_dims['body'][element_index]['top'] + all_dims['body'][element_index]['height'] - 0.35 
                     ele_ymin = all_dims['body'][element_index]['top']
                 else:
                     # Caption above the visual element
-                    ele_ymin = all_dims['body'][element_index]['top'] + 0.35
+                    ele_ymin = all_dims['body'][element_index]['top'] + 0.45
                     cap_ymin = all_dims['body'][element_index]['top']
                 tab_instance["caption"] = {
                     "label": "table_caption",
@@ -487,15 +493,15 @@ def generate_random_slide(slide_number, data, style_obj, footer_obj, course_code
                 # take only the first 6 words of the description
                 caption_value = data["slides"][slide_number - 1]["figures"][i]["desc"]
                 # take only the first 6 words of the description
-                caption_value = ' '.join(caption_value.split()[:6])
+                caption_value = ' '.join(caption_value.split()[:5])
                 
-                ele_height =  all_dims['body'][element_index]['height'] - 0.35
+                ele_height =  all_dims['body'][element_index]['height'] - 0.45
                 if random.random() > 0.5:
                 # Caption below the visual element
                     cap_ymin = all_dims['body'][element_index]['top'] + all_dims['body'][element_index]['height'] - 0.35 
                     ele_ymin = all_dims['body'][element_index]['top']
                 else:
-                    ele_ymin = all_dims['body'][element_index]['top'] + 0.35
+                    ele_ymin = all_dims['body'][element_index]['top'] + 0.45
                     cap_ymin = all_dims['body'][element_index]['top']
                 
                 

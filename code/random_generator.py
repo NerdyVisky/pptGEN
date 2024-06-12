@@ -52,6 +52,10 @@ TITLE_COLORS_LIGHT = [
     {"r": 255, "g": 69, "b": 0},       # Red-Orange
     {"r": 255, "g": 192, "b": 203}     # Pink
 ]
+URL_FONT_COLORS = [
+    {"r": 0, "g": 128, "b": 0},    # Green
+    {"r": 128, "g": 128, "b": 128} # Gray
+]
 
 X_API_KEY = os.environ['X-API-KEY']
 
@@ -186,9 +190,9 @@ TBL_BORDER_TYPES = [
 ]
 
 URL_PREFIXES = [
-    'Source:',
-    'Visit for more:',
-    'Know more here:',
+    'Source: ',
+    'Visit for more: ',
+    'Know more here: ',
 ]
 
 def random_logo_pos(footer_obj):
@@ -212,9 +216,9 @@ def pick_random(list_name):
         return random.choice(list_name)
 
 FONT_SIZE = random.randint(4, 8)*2
-FONT_COLOR = pick_random(PRIMARY_COLORS) if random.random() > 0 else 'black'
+FONT_COLOR = pick_random(PRIMARY_COLORS) if random.random() > 0.75 else 'black'
 BACKGROUND_COLOR = pick_random(BACKGROUNDS) if random.random() > 0 else 'white'
-BORDERS = pick_random(TBL_BORDER_TYPES) if random.random() > 0 else 'all horizontal and vertical borders'
+BORDERS = pick_random(TBL_BORDER_TYPES) if random.random() > 0.5 else 'all horizontal and vertical borders'
 
 def pick_random_logo(PROB=0.5, w = 1, h = 1):
     path = ''
@@ -416,9 +420,9 @@ def generate_random_style_obj():
     
 def modify_style(style):
     if style["font_color"]["r"] == 0:
-        new_font_color = pick_random(TITLE_COLORS_DARK[:2])
+        new_font_color = pick_random(TITLE_COLORS_DARK)
     else:
-        new_font_color = pick_random(TITLE_COLORS_LIGHT[:2])
+        new_font_color = pick_random(TITLE_COLORS_LIGHT)
 
     special_style = {
     "font_name": style["font_name"],

@@ -52,6 +52,10 @@ TITLE_COLORS_LIGHT = [
     {"r": 255, "g": 69, "b": 0},       # Red-Orange
     {"r": 255, "g": 192, "b": 203}     # Pink
 ]
+URL_FONT_COLORS = [
+    {"r": 0, "g": 128, "b": 0},    # Green
+    {"r": 128, "g": 128, "b": 128} # Gray
+]
 
 X_API_KEY = os.environ['X-API-KEY']
 
@@ -186,9 +190,9 @@ TBL_BORDER_TYPES = [
 ]
 
 URL_PREFIXES = [
-    'Source:',
-    'Visit for more:',
-    'Know more here:',
+    'Source: ',
+    'Visit for more: ',
+    'Know more here: ',
 ]
 
 def random_logo_pos(footer_obj):
@@ -416,9 +420,9 @@ def generate_random_style_obj():
     
 def modify_style(style):
     if style["font_color"]["r"] == 0:
-        new_font_color = pick_random(TITLE_COLORS_DARK[:2])
+        new_font_color = pick_random(TITLE_COLORS_DARK)
     else:
-        new_font_color = pick_random(TITLE_COLORS_LIGHT[:2])
+        new_font_color = pick_random(TITLE_COLORS_LIGHT)
 
     special_style = {
     "font_name": style["font_name"],
@@ -448,13 +452,26 @@ def generate_random_phrases(desc):
         return None  
 
 def generate_random_layout(total_body_elements):
+    PROB = 0.7 # Probability of title element
+    # layout_mapping = {
+    #     0: [0],
+    #     1: [1, 2], 
+    #     2: [3, 4, 5, 6],
+    #     3: [7, 8, 9, 10, 11, 12, 13, 14, 15, 16]
+    #     }
+    # All no title layouts except layout 0
     layout_mapping = {
         0: [0],
         1: [1], 
-        2: [2, 3],
-        3: [4, 5, 6, 7, 8]
+        2: [3, 5],
+        3: [7, 9, 11, 13, 15]
         }
-    return random.choice(layout_mapping[total_body_elements])
+    random_layout = random.choice(layout_mapping[total_body_elements])
+    if random_layout != 0 and PROB > random.random():
+        random_layout += 1
+
+    return random_layout
+
 
 def generate_n_numbers_with_sum(sum_value, n):
     numbers = [0] * n

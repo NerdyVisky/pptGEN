@@ -9,8 +9,8 @@ print("Running topic generation module...")
 LLM_MODEL = 'gpt-4-turbo'
 TEMPERATURE = 0
 SUBJECT = 'CS'
-BOOK = 'Textbook of Engineering Physics'
-AUTHOR = 'M. N. Avadhanulu'
+BOOK = 'Deep Learning (Adaptive Computation and Machine Learning series)'
+AUTHOR = 'Ian Goodfellow, Yoshua Bengio, Aaron Courville'
 
 model = ChatOpenAI(
        model_name=LLM_MODEL, 

@@ -290,6 +290,7 @@ def generate_code_snippets(prompt, model, presentation_ID):
     code_snip_paths = []
     for i, match in enumerate(matches):
         code_snippet = match.strip() # Remove leading/trailing whitespace
+        print(code_snippet)
         os.makedirs(os.path.join(code_dir, presentation_ID), exist_ok=True)
         code_file_path = os.path.join(code_dir, presentation_ID, f'{i+1}') + '.txt'
         with open(code_file_path, 'w') as file:

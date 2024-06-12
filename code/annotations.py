@@ -115,7 +115,7 @@ def show_annotations():
                   if element_type == 'figures' or element_type == 'tables' or element_type == 'equations':
                     if 'caption' in items.keys():
                       cv2.rectangle(image, (items["caption"].get("xmin", 0), items["caption"].get("ymin", 0)), (items["caption"].get("xmin", 0) + items["caption"].get("width", 0), items["caption"].get("ymin", 0) + items["caption"].get("height", 0)), (255, 0, 0), 1)
-                  if element_type == 'description' and items["label"] == 'enumeration':
+                  if element_type == 'text' and items["label"] == 'enumeration':
                     if 'heading' in items.keys():
                       cv2.rectangle(image, (items["heading"].get("xmin", 0), items["heading"].get("ymin", 0)), (items["heading"].get("xmin", 0) + items["heading"].get("width", 0), items["heading"].get("ymin", 0) + items["heading"].get("height", 0)), (255, 0, 0), 1)
                   cv2.rectangle(image, (items.get("xmin", 0), items.get("ymin", 0)), (items.get("xmin", 0) + items.get("width", 0), items.get("ymin", 0) + items.get("height", 0)), (255, 0, 0), 1)
@@ -125,168 +125,57 @@ def show_annotations():
               cv2.waitKey(0)
               cv2.destroyAllWindows()
 
-# Expand or Shrink for title
-def correction_title(annotations, image):
-    # Initializing coordinates
-    xmin = annotations["xmin"]
-    ymin = annotations["ymin"]
-    xmax = xmin + annotations["width"]
-    ymax = ymin + annotations["height"]
-    
-    style = annotations["style"]
-    font_color = style["font_color"]
-    target_color = np.array([font_color["b"], font_color["g"], font_color["r"]])
-    image_height, image_width, _ = image.shape
-  
-    xmin = max(0, min(xmin, image_width - 1))
-    ymin = max(0, min(ymin, image_height - 1))
-    xmax = max(0, min(xmax, image_width - 1))
-    ymax = max(0, min(ymax, image_height - 1))
-    
-    if np.any(image[ymin, xmin:xmax] == target_color):
-        while ymin > 0 and np.any(image[ymin, xmin:xmax] == target_color):
-            ymin -= 1
-    else:
-        while ymin < image_height - 1 and not np.any(image[ymin, xmin:xmax] == target_color):
-            ymin += 1
-            
-    if np.any(image[ymax, xmin:xmax] == target_color):
-        while ymax < image_height - 1 and np.any(image[ymax, xmin:xmax] == target_color):
-            ymax += 1
-    else:
-        while ymax > 0 and not np.any(image[ymax, xmin:xmax] == target_color):
-            ymax -= 1
-            
-    if np.any(image[ymin:ymax, xmin] == target_color):
-        while xmin > 0 and np.any(image[ymin:ymax, xmin] == target_color):
-            xmin -= 1
-    else:
-        while xmin < image_width - 1 and not np.any(image[ymin:ymax, xmin] == target_color):
-            xmin += 1
-    
-    if np.any(image[ymin:ymax, xmax] == target_color):
-        while xmax < image_width - 1 and np.any(image[ymin:ymax, xmax] == target_color):
-            xmax += 1
-    else:
-        while xmax > 0 and not np.any(image[ymin:ymax, xmax] == target_color):
-            xmax -= 1
-          
-    new_annotations = {
-      "xmin": int(xmin),
-      "ymin": int(ymin),
-      "width": int(xmax - xmin),
-      "height": int(ymax - ymin)
-    }
-    return new_annotations
-  
-# Shrink till target color is found
-def correction_shrink(annotations, image):
-    # Initializing coordinates
-    xmin = annotations["xmin"]
-    ymin = annotations["ymin"]
-    xmax = xmin + annotations["width"]
-    ymax = ymin + annotations["height"]
-    
-    style = annotations["style"]
-    font_color = style["font_color"]
-    target_color = np.array([font_color["b"], font_color["g"], font_color["r"]])
+# Cover the images on SLide
+def cover_images(annotations, image):
+  for item in annotations:
+    xmin = item["xmin"] - 5
+    ymin = item["ymin"] - 5
+    xmax = xmin + item["width"] + 10
+    ymax = ymin + item["height"] + 10
+    image[ymin:ymax, xmin:xmax] = 255
+  return image
 
-    image_height, image_width, _ = image.shape
-  
-    xmin = max(0, min(xmin, image_width - 1))
-    ymin = max(0, min(ymin, image_height - 1))
-    xmax = max(0, min(xmax, image_width - 1))
-    ymax = max(0, min(ymax, image_height - 1))
-    
-    while ymin < ymax and not np.any(image[ymin, xmin:xmax] == target_color):
-        ymin += 1
-    while ymax > ymin and not np.any(image[ymax, xmin:xmax] == target_color):
-        ymax -= 1
-    while xmin < xmax and not np.any(image[ymin:ymax, xmin] == target_color):
-        xmin += 1
-    while xmax > xmin and not np.any(image[ymin:ymax, xmax] == target_color):
-        xmax -= 1
-      
-    new_annotations = {
-        "xmin": int(xmin),
-        "ymin": int(ymin),
-        "width": int(xmax - xmin),
-        "height": int(ymax - ymin)
-    }
-    return new_annotations
-
-# Mask black color and find the bounding box
-def correction_unimask(annotations, image):
-    # Initializing coordinates
-    xmin = annotations["xmin"]
-    ymin = annotations["ymin"]
-    xmax = xmin + annotations["width"]
-    ymax = ymin + annotations["height"]
-    
-    # image1 = image.copy()
-    image1 = image[ymin:ymax, xmin:xmax]
-    
-    target_color_1 = np.array([0, 0, 0])
-    target_color_2 = np.array([100, 100, 100])
-  
-    hsv = cv2.cvtColor(image1, cv2.COLOR_BGR2HSV)
-    
-    mask = cv2.inRange(hsv, target_color_1, target_color_2)
-    
-    kernel = np.ones((5, 5), np.uint8)
-    
-    gradient = cv2.morphologyEx(mask, cv2.MORPH_GRADIENT, kernel)
-    
-    where_white = np.where(gradient == 255)
-    if where_white[0].size > 0:
-      x1 = min(where_white[1])
-      y1 = min(where_white[0])
-      x2 = max(where_white[1])
-      y2 = max(where_white[0])
-    
-      xmin_n = xmin + x1
-      ymin_n = ymin + y1
-      xmax_n = xmin + x2
-      ymax_n = ymin + y2
-    
-      new_annotations = {
-          "xmin": int(xmin_n),
-          "ymin": int(ymin_n),
-          "width": int(xmax_n - xmin_n),
-          "height": int(ymax_n - ymin_n)
-      }
-      return new_annotations
-    return annotations
-
-# Simple Maths to correct the bounding box
 def correction_calc(annotations, image):
-  path = annotations["path"]
+  if 'path' in annotations.keys():
+    path = annotations["path"]
+    og_img = cv2.imread(path)
+    apect_ratio = og_img.shape[1] / og_img.shape[0]
   
-  og_img = cv2.imread(path)
-  
-  apect_ratio = og_img.shape[1] / og_img.shape[0]
-  
-  xmin = annotations["xmin"]
-  ymin = annotations["ymin"]
-  height = annotations["height"]
-  width = annotations["width"]
-  
-  new_height = height
-  new_width = height * apect_ratio
-  
-  if new_width > width: 
-    return correction_unimask(annotations, image)
-  else:
-    new_annotations = {
-      "xmin": int(xmin + (width - new_width) / 2),
-      "ymin": ymin,
-      "width": int(new_width),
-      "height": new_height
+    xmin = annotations["xmin"]
+    ymin = annotations["ymin"]
+    height = annotations["height"]
+    width = annotations["width"]
+    
+    new_height = height
+    new_width = height * apect_ratio
+    
+    if new_width > width: 
+      new_width = width
+      new_height = width / apect_ratio
+      new_annotations = {
+        "label": "figures",
+        "xmin": xmin,
+        "ymin": int(ymin + (height - new_height) / 2),
+        "width": new_width,
+        "height": int(new_height)
       }
-    return new_annotations
+      newer_annotations = correction_mask(new_annotations, image)
+      return newer_annotations
+    else:
+      new_annotations = {
+        "label": "figures",
+        "xmin": int(xmin + (width - new_width) / 2),
+        "ymin": ymin,
+        "width": int(new_width),
+        "height": new_height
+        }
+      newer_annotations = correction_mask(new_annotations, image)
+      return newer_annotations
+  return annotations
 
 # Mask any color except white and find the bounding box
 def correction_mask(annotations, image):
+    label = annotations.get("label", "")
     xmin = annotations["xmin"]
     ymin = annotations["ymin"]
     xmax = xmin + annotations["width"]
@@ -294,54 +183,60 @@ def correction_mask(annotations, image):
     
     image_height, image_width, _ = image.shape
 
-    xmin = max(0, min(xmin, image_width - 1))
-    ymin = max(0, min(ymin, image_height - 1))
-    xmax = max(0, min(xmax, image_width - 1))
-    ymax = max(0, min(ymax, image_height - 1))
+    xmin = max(0, min(xmin, image_width - 1)) + 2
+    ymin = max(0, min(ymin, image_height - 1)) + 2
+    xmax = max(0, min(xmax, image_width - 1)) - 2
+    ymax = max(0, min(ymax, image_height - 1)) - 2
     
-    # image1 = image.copy()
-    image1 = image[ymin:ymax, xmin:xmax]
-  
-    hsv = cv2.cvtColor(image1, cv2.COLOR_BGR2HSV)
-   
-    mask = cv2.inRange(hsv, np.array([0, 0, 0]), np.array([50, 50, 50]))
-
-    kernel = np.ones((3, 3), np.uint8)
+    gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
     
-    gradient1 = cv2.morphologyEx(mask, cv2.MORPH_GRADIENT, kernel)
-
-    where_white = np.where(gradient1 == 255)
-    if where_white[0].size > 0:
-      x1 = min(where_white[1])
-      y1 = min(where_white[0])
-      x2 = max(where_white[1])
-      y2 = max(where_white[0])
+    if label == 'title' and np.any(gray[ymax, xmin:xmax] != 255):
+      xmin = 0
+      ymin = 0
+      xmax = 1189
+      ymax = 198
+      
+      
+    # url will always be in blue color, ie, (255, 0, 0) in BGR, use this to mask the image
+    if label == 'refs':
+      image1 = image[ymin:ymax, xmin:xmax]
+      image1 = 255 if np.any(image1 != [255, 0, 0]) else 0
+    else:
+      image1 = gray[ymin:ymax, xmin:xmax]
+    threshold = cv2.threshold(image1, 254, 255, cv2.THRESH_BINARY)[1]
+    
+    # cv2.imshow("image", threshold)
+    # cv2.waitKey(0)
+    # cv2.destroyAllWindows()
+    
+    where_black = np.where(threshold == 0)      
+    if where_black[0].size > 0:
+      x1 = min(where_black[1])
+      y1 = min(where_black[0])
+      x2 = max(where_black[1])
+      y2 = max(where_black[0])
     
       xmin_n = xmin + x1
       ymin_n = ymin + y1
       xmax_n = xmin + x2
       ymax_n = ymin + y2
-    
+  
       new_annotations = {
           "xmin": int(xmin_n),
           "ymin": int(ymin_n),
           "width": int(xmax_n - xmin_n),
           "height": int(ymax_n - ymin_n)
       }
+      print(new_annotations)
       return new_annotations
     return annotations
-
-
-
-
-    
 
 def correction():
   a = 0
   json_path = f"dataset/json/"
   for subject in os.listdir(json_path):
     topics = os.listdir(json_path + subject)
-    # np.random.shuffle(topics)
+    np.random.shuffle(topics)
     for topic in topics:
       for json_file in os.listdir(f"{json_path}{subject}/{topic}"):
         if json_file.endswith(".json"):
@@ -358,83 +253,90 @@ def correction():
                 img_path = f"{folder_name}/{i}{json_file.split('.')[0]}{topic}.png"
               print(img_path)
               image = cv2.imread(img_path)
-              image1 = cv2.imread(img_path)
               a += 1
               
               elements = slide["elements"]
               
+              image1 = image.copy()
+              cover_coordinates_images = []
+              
               for element_type, element_list in elements.items():
+                # Cover Images, and URLs to annotate Text
                 for items in element_list:
-                  print(items["label"])
-                              
-                  # Title - corrected (expand)      
-                  if element_type == 'title':
-                    new_annotations = correction_title(items, image)
-                    items["xmin"] = new_annotations["xmin"]
-                    items["ymin"] = new_annotations["ymin"]
-                    items["width"] = new_annotations["width"]
-                    items["height"] = new_annotations["height"]
-                  
-                  # Footer, Refs, Code - corrected (shrink)
-                  if element_type == 'footer' or element_type == 'refs' or element_type == 'code':
-                    new_annotations = correction_shrink(items, image)
-                    items["xmin"] = new_annotations["xmin"]
-                    items["ymin"] = new_annotations["ymin"]
-                    items["width"] = new_annotations["width"]
-                    items["height"] = new_annotations["height"]
-                  
-                  # Enum Heading - corrected (shrink)  
-                  if 'heading' in items.keys():
-                    new_annotations = correction_shrink(items["heading"], image)
-                    items["heading"]["xmin"] = new_annotations["xmin"]
-                    items["heading"]["ymin"] = new_annotations["ymin"]
-                    items["heading"]["width"] = new_annotations["width"]
-                    items["heading"]["height"] = new_annotations["height"]
-                  
-                  # Captions - corrected (shrink)
-                  if 'caption' in items.keys():
-                    new_annotations = correction_shrink(items["caption"], image)
-                    items["caption"]["xmin"] = new_annotations["xmin"]
-                    items["caption"]["ymin"] = new_annotations["ymin"]
-                    items["caption"]["width"] = new_annotations["width"]
-                    items["caption"]["height"] = new_annotations["height"]
-                      
-                  # Equations - corrected (unimask)
                   if element_type == 'equations':
-                    new_annotations = correction_unimask(items, image)
+                    new_annotations = correction_mask(items, image)
                     items["xmin"] = new_annotations["xmin"]
                     items["ymin"] = new_annotations["ymin"]
                     items["width"] = new_annotations["width"]
                     items["height"] = new_annotations["height"]
+                    cover_coordinates_images.append(new_annotations)
                     
-                  # Diagrams and Plots - corrected (calc)
-                  if element_type == 'figures':
+                  if element_type == 'figures' or element_type == 'tables':
                     new_annotations = correction_calc(items, image)
                     items["xmin"] = new_annotations["xmin"]
                     items["ymin"] = new_annotations["ymin"]
                     items["width"] = new_annotations["width"]
                     items["height"] = new_annotations["height"]
-                                       
-                  # Text Content: Enumeration - corrected
-                  if element_type == 'text' and items["label"] == 'enumeration':
+                    cover_coordinates_images.append(new_annotations)
+                  
+                  if element_type == 'refs':
                     new_annotations = correction_mask(items, image)
                     items["xmin"] = new_annotations["xmin"]
                     items["ymin"] = new_annotations["ymin"]
                     items["width"] = new_annotations["width"]
                     items["height"] = new_annotations["height"]
-                    if items["label"] == 'enumeration':
-                      
-                        
-                  # Text Content: Description - corrected
-                  if element_type == 'text' and items["label"] == 'text':
-                    new_annotations = correction_mask(items, image)
+                    cover_coordinates_images.append(new_annotations)
+                  
+                  if element_type == 'graphic':
+                    cover_coordinates_images.append(items)
+                
+              image_for_text = cover_images(cover_coordinates_images, image)
+              # cv2.imshow("image", image_for_text)
+              # cv2.waitKey(0)
+              # cv2.destroyAllWindows()
+              
+              for element_type, element_list in elements.items():
+                for items in element_list:
+                  
+                  # Title, Footer, Refs, Code - corrected
+                  if element_type == 'footer' or element_type == 'title' or element_type == 'code' or element_type == 'text':
+                    new_annotations = correction_mask(items, image_for_text)
                     items["xmin"] = new_annotations["xmin"]
                     items["ymin"] = new_annotations["ymin"]
                     items["width"] = new_annotations["width"]
                     items["height"] = new_annotations["height"]
                   
+                  # Enum Heading
+                  if 'heading' in items.keys():
+                    new_annotations = correction_mask(items["heading"], image_for_text)
+                    items["heading"]["xmin"] = new_annotations["xmin"]
+                    items["heading"]["ymin"] = new_annotations["ymin"]
+                    items["heading"]["width"] = new_annotations["width"]
+                    items["heading"]["height"] = new_annotations["height"]
                   
+                  # Captions
+                  if 'caption' in items.keys():
+                    new_annotations = correction_mask(items["caption"], image_for_text)
+                    items["caption"]["xmin"] = new_annotations["xmin"]
+                    items["caption"]["ymin"] = new_annotations["ymin"]
+                    items["caption"]["width"] = new_annotations["width"]
+                    items["caption"]["height"] = new_annotations["height"]
+
                     
+                  
+              for element_type, element_list in elements.items():
+                for items in element_list:
+                  # draw bounding box
+                  cv2.rectangle(image1, (items.get("xmin", 0), items.get("ymin", 0)), (items.get("xmin", 0) + items.get("width", 0), items.get("ymin", 0) + items.get("height", 0)), (255, 0, 0), 1)
+                  cv2.putText(image1, items.get("label", ""), (items.get("xmin", 0), items.get("ymin", 0)), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 1)
+                  
+                  if 'caption' in items.keys():                   
+                    cv2.rectangle(image1, (items["caption"].get("xmin", 0), items["caption"].get("ymin", 0)), (items["caption"].get("xmin", 0) + items["caption"].get("width", 0), items["caption"].get("ymin", 0) + items["caption"].get("height", 0)), (255, 0, 0), 1)
+                    cv2.putText(image1, items["caption"].get("label", ""), (items["caption"].get("xmin", 0), items["caption"].get("ymin", 0)), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 1)
+                  if 'heading' in items.keys():
+                    cv2.rectangle(image1, (items["heading"].get("xmin", 0), items["heading"].get("ymin", 0)), (items["heading"].get("xmin", 0) + items["heading"].get("width", 0), items["heading"].get("ymin", 0) + items["heading"].get("height", 0)), (255, 0, 0), 1)
+                    cv2.putText(image1, items["heading"].get("label", ""), (items["heading"].get("xmin", 0), items["heading"].get("ymin", 0)), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 1)
+                  
               cv2.imshow("image", image1)
               cv2.waitKey(0)
               cv2.destroyAllWindows()     
@@ -450,6 +352,6 @@ def correction():
   print(f"🟢 (4/5) Annotations corrected for {a} images.")
 
 if __name__ == "__main__":
-    # move_files()
+    move_files()
     correction()
     # show_annotations()

@@ -264,10 +264,7 @@ class Figure(Element):
         resized_img_path, n_w, n_h = resize_image(self.content, width, height)
         if self.caption != None:
             left_c, top_c, width_c, height_c = self.caption['xmin'], self.caption['ymin'], self.caption['width'], self.caption['height']
-            if top_c > top:
-                cap_shape = slide.shapes.add_textbox(Inches(left_c), Inches(top_c - (height - n_h)/2), Inches(width_c), Inches(height_c))
-            else:
-                cap_shape = slide.shapes.add_textbox(Inches(left_c), Inches(top_c + (height - n_h)/2), Inches(width_c), Inches(height_c))
+            cap_shape = slide.shapes.add_textbox(Inches(left_c), Inches(top_c), Inches(width_c), Inches(height_c))
             cap_shape.text = self.caption['value']
             self.apply_font_style(cap_shape)
             cap_shape.text_frame.auto_size = True
@@ -288,10 +285,7 @@ class Equation(Element):
         resized_img_path, n_w, n_h = resize_image(self.content, width, height)
         if self.caption != None:
             left_c, top_c, width_c, height_c = self.caption['xmin'], self.caption['ymin'], self.caption['width'], self.caption['height']
-            if top_c > top:
-                cap_shape = slide.shapes.add_textbox(Inches(left_c), Inches(top_c - (height - n_h)/2), Inches(width_c), Inches(height_c))
-            else:
-                cap_shape = slide.shapes.add_textbox(Inches(left_c), Inches(top_c + (height - n_h)/2), Inches(width_c), Inches(height_c))
+            cap_shape = slide.shapes.add_textbox(Inches(left_c), Inches(top_c), Inches(width_c), Inches(height_c))
             cap_shape.text = self.caption['value']
             self.apply_font_style(cap_shape)
             cap_shape.text_frame.auto_size = True
@@ -315,10 +309,7 @@ class Table(Element):
             resized_img_path, n_w, n_h = resize_image(self.content, width, height)
             if self.caption != None:
                 left_c, top_c, width_c, height_c = self.caption['xmin'], self.caption['ymin'], self.caption['width'], self.caption['height']
-                if top_c > top:
-                    cap_shape = slide.shapes.add_textbox(Inches(left_c), Inches(top_c - (height - n_h)/2), Inches(width_c), Inches(height_c))
-                else:
-                    cap_shape = slide.shapes.add_textbox(Inches(left_c), Inches(top_c + (height - n_h)/2), Inches(width_c), Inches(height_c))
+                cap_shape = slide.shapes.add_textbox(Inches(left_c), Inches(top_c), Inches(width_c), Inches(height_c))
                 cap_shape.text = self.caption['value']
                 self.apply_font_style(cap_shape)
                 cap_shape.text_frame.auto_size = True

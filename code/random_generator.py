@@ -358,21 +358,20 @@ def generate_title_slide_obj():
 
     return title_inds
 
-def add_random_images(data):
+def add_random_images(data, slide_id):
     _id_ = 0
-    presentation_ID = data["presentation_ID"]
     n_slides = len(data["slides"])
     for i in range(n_slides):
         data["slides"][i]["images"] = []
         n_body = sum(count_body_elements(data, i+1))
         if n_body == 1:
-            img_path = get_random_image(presentation_ID, _id_)
+            img_path = get_random_image(slide_id, _id_)
             obj = {
                 "label": "natural-image",
                 "path": img_path
             }
             data["slides"][i]["images"].append(obj)
-            print(data["slides"][i]["images"])
+            # print(data["slides"][i]["images"])
     
     return data
 

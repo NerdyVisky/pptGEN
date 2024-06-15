@@ -90,13 +90,15 @@ def generate_text_content(model, topic, instruction_content, presentation_ID, su
         examples=text_generation_example,
         example_prompt=example_prompt
     )
+    n_slide = len(instruction_content)
     prompt = ChatPromptTemplate.from_messages(
         [
             ('system', 'You are an capable and expert content creator. You are supposed to help a professor prepare content for a presentation.'),
             few_shot_prompt,
             ('human', """I am providing you with some instructions given to generate content for a presentation on {topic} on the subject {subject}\n
-The instructions have Slide Title as key and the value is a list of object describing what text/visual elements are required to explain that concept\n
+The instructions are for {n_slide} slides. The instructions have Slide Title as key and the value is a list of object describing what text/visual elements are required to explain that concept\n
 I want you to focus on generating the actual content for only the text elements, i.e. description, enumeration, and url.\n
+Make sure the that the content is generated for each of the {n_slide} slides.\n
 Following are the instructions:\n
 {instructions}\n
 While generating content keep the following in mind:\n
@@ -113,7 +115,7 @@ While generating content keep the following in mind:\n
     openai_functions = [fn]
     parser = JsonOutputFunctionsParser()
     chain = prompt | model.bind(functions=openai_functions) | parser
-    text_output = chain.invoke({"instructions": instruction_content , "presentation_ID": presentation_ID, "topic": topic, "subject": subject})
+    text_output = chain.invoke({"instructions": instruction_content , "presentation_ID": presentation_ID, "topic": topic, "subject": subject, "n_slide": n_slide})
     return text_output
    
 @traceable(name='Struct Content')
@@ -290,7 +292,7 @@ def generate_code_snippets(prompt, model, presentation_ID):
     code_snip_paths = []
     for i, match in enumerate(matches):
         code_snippet = match.strip() # Remove leading/trailing whitespace
-        print(code_snippet)
+        # print(code_snippet)
         os.makedirs(os.path.join(code_dir, presentation_ID), exist_ok=True)
         code_file_path = os.path.join(code_dir, presentation_ID, f'{i+1}') + '.txt'
         with open(code_file_path, 'w') as file:
@@ -300,7 +302,7 @@ def generate_code_snippets(prompt, model, presentation_ID):
     os.rename(code_dump, os.path.join(dir_path, presentation_ID, 'code_snips.txt'))
     return code_snip_paths
 
-def assemble_elements(text_json, struct_imgs, plot_imgs, figure_imgs, code_files, positions, prompts, captions):
+def assemble_elements(text_json, struct_imgs, plot_imgs, figure_imgs, code_files, positions, prompts, captions, slide_id):
     # text_json = json.loads(text_json)
     vis_eles = [struct_imgs, plot_imgs, figure_imgs]
     for slide in text_json["slides"]:
@@ -320,6 +322,7 @@ def assemble_elements(text_json, struct_imgs, plot_imgs, figure_imgs, code_files
             if int(name) in positions[ind][element_name].keys():
                 slide_number = positions[ind][element_name][int(name)]
                 caption = captions[ind][element_name][int(name)]
+                # print(slide_number, caption)
                 
             # presentation_id = int(parts[1].replace('.png', ''))
             # caption = prompt_lines[i+1].split(':')[1].strip()
@@ -329,7 +332,7 @@ def assemble_elements(text_json, struct_imgs, plot_imgs, figure_imgs, code_files
                     'path': img_path
                 }
             else:
-                print(f'{dir_name}/{file_name}')
+                # print(f'{dir_name}/{file_name}')
                 with open(img_path, 'r') as f:
                     content = f.read()
                 obj = {
@@ -363,7 +366,7 @@ def assemble_elements(text_json, struct_imgs, plot_imgs, figure_imgs, code_files
         }
         text_json["slides"][slide_number - 1]['code'].append(obj)
 
-    final_json = add_random_images(text_json)
+    final_json = add_random_images(text_json, slide_id)
     return final_json
 
 

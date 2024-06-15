@@ -191,8 +191,8 @@ TBL_BORDER_TYPES = [
 
 URL_PREFIXES = [
     'Source: ',
-    'Visit for more: ',
-    'Know more here: ',
+    'Visit: ',
+    'More: ',
 ]
 
 def random_logo_pos(footer_obj):

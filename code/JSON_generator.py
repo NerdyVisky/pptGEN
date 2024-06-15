@@ -18,7 +18,7 @@ from random_generator import (generate_random_style_obj,
                               modify_url_prefix,
                               random_logo_pos
                               )
-from utils.os_helpers import count_body_elements, count_footer_elements, remove_tmp_files
+from utils.os_helpers import count_body_elements, count_footer_elements, remove_tmp_files, resize_image
 
 def insert_title_slide(data, style_obj, course_code):
     slide = {
@@ -188,7 +188,7 @@ def generate_random_slide(slide_number, data, style_obj, footer_obj, course_code
     else:
         slide["bg_color"] = bg_color
     
-    if logo_path != '':
+    if logo_path != '' and layout_id % 2 == 0:
         # if title_align is left, then the logo should not be on the top left side, i.e. left = 0.25 and top = 0.25
         # if title_align is right, then the logo should not be on the top right side, i.e. left = 12.083 and top = 0.25
         # any other alignment, the logo can be anywhere
@@ -309,18 +309,24 @@ def generate_random_slide(slide_number, data, style_obj, footer_obj, course_code
             
             # below works for column oriented enumeration,
             # for row oriented enumeration, size and no of points should be reduced
-            enum = enum[1:] if hasHeading else enum
-            if len(enum) > 5:
-                enum = enum[:5]
+            enum = enum[1:]
+            if len(enum) > 4:
+                enum = enum[:4]
                 # count the number of words in the first 5 elements
                 n_words = sum([len(e.split()) for e in enum])
                 # if the number of words is greater than 12, then remove the last element
                 if n_words > 12:
                     enum = enum[:-1]
+            if len(enum) > 3:
+                if desc_font_attr["font_size"] >= 24:
+                    enum = enum[:3]
+
+
             if len(enum) > 2:
                 if all_dims['body'][element_index]['type'] == 4 or all_dims['body'][element_index]['type'] == 2:
                     enum = enum[:2]
-
+    
+                    
             enum_instance = {**enum_instance, **{
             "label": "enumeration",
             "value": enum,
@@ -355,13 +361,14 @@ def generate_random_slide(slide_number, data, style_obj, footer_obj, course_code
             if desc != "" and random.random() > 0.5:
                 prefix = modify_url_prefix(desc)
             url_value = prefix + desc
+            url_value = url_value[:60]
             if url_value == "":
                 break
             desc_instance = {
             "label": "url",
             "value": url_value,
             "xmin": 0.5 if random.random() > 0.5 else 5*1.333,
-            "ymin": 6.5 if random.random() > 0.5 else 1.5,
+            "ymin": 1.5,
             "width": 4.5*1.333,
             "height": 0.75,
             "style": {
@@ -384,19 +391,25 @@ def generate_random_slide(slide_number, data, style_obj, footer_obj, course_code
             ele_ymin = all_dims['body'][element_index]['top']
             ele_height = all_dims['body'][element_index]['height']
             eq_instance = {}
+            img_path = data["slides"][slide_number - 1]["equations"][i]["path"]
+            resized_img_path, n_w, n_h = resize_image(img_path, all_dims['body'][element_index]['width'], ele_height)
             if (P_E > random.random()):
+                # take only the first 6 words of the description
+                caption_value = data["slides"][slide_number - 1]["equations"][i]["desc"]
+                # take only the first 6 words of the description
+                caption_value = ' '.join(caption_value.split()[:7])
                 ele_height =all_dims['body'][element_index]['height'] - 0.45 
                 if random.random() > 0.5:
                 # Caption below the visual element
-                    cap_ymin = all_dims['body'][element_index]['top'] + all_dims['body'][element_index]['height'] - 0.35
+                    cap_ymin = all_dims['body'][element_index]['top'] + ele_height - 0.35 + (n_h - ele_height)/2
                     ele_ymin = all_dims['body'][element_index]['top']
                 else:
                     # Caption above the visual element
                     ele_ymin = all_dims['body'][element_index]['top'] + 0.45
-                    cap_ymin = all_dims['body'][element_index]['top']
+                    cap_ymin = all_dims['body'][element_index]['top'] - (n_h - ele_height)/2
                 eq_instance["caption"] = {
                     "label": "equation_caption",
-                    "value": data["slides"][slide_number - 1]["equations"][i]["desc"],
+                    "value": caption_value,
                     "xmin": all_dims['body'][element_index]['left'],
                     "ymin": cap_ymin,
                     "width": all_dims['body'][element_index]['width'],
@@ -410,15 +423,15 @@ def generate_random_slide(slide_number, data, style_obj, footer_obj, course_code
                         "underlined": random.random() > 0.75
                 }
                 }
-            img_path = data["slides"][slide_number - 1]["equations"][i]["path"]
+            
             eq_instance = {**eq_instance, **{
             "label": "equation",
-            "xmin": all_dims['body'][element_index]['left'],
-            "ymin": ele_ymin,
-            "width": all_dims['body'][element_index]['width'],
-            "height": ele_height,
+            "xmin": all_dims['body'][element_index]['left'] - (n_w - all_dims['body'][element_index]['width'])/2,
+            "ymin": ele_ymin - (n_h - ele_height)/2,
+            "width": n_w,
+            "height": n_h,
             "desc": data["slides"][slide_number - 1]["equations"][i]["desc"],
-            "path": img_path
+            "path": resized_img_path
             }}
             slide['elements']['equations'].append(eq_instance)
             element_index += 1
@@ -431,19 +444,32 @@ def generate_random_slide(slide_number, data, style_obj, footer_obj, course_code
             ele_ymin = all_dims['body'][element_index]['top']
             ele_height = all_dims['body'][element_index]['height']
             tab_instance = {}
+            n_w = all_dims['body'][element_index]['width']
+            n_h = ele_height
+
+            if 'path' in data["slides"][slide_number - 1]["tables"][i].keys():
+                img_path = data["slides"][slide_number - 1]["tables"][i]['path']
+                resized_img_path, n_w, n_h = resize_image(img_path, all_dims['body'][element_index]['width'], ele_height)
+                tab_instance['path'] = resized_img_path
+            elif 'content' in data["slides"][slide_number - 1]['tables'][i]:
+                tab_instance['content'] = data["slides"][slide_number - 1]['tables'][i]['content']
             if (P_T > random.random()):
-                ele_height =all_dims['body'][element_index]['height'] - 0.45 
+                # take only the first 6 words of the description
+                caption_value = data["slides"][slide_number - 1]["tables"][i]["desc"]
+                # take only the first 6 words of the description
+                caption_value = ' '.join(caption_value.split()[1:7])
+                ele_height = all_dims['body'][element_index]['height'] - 0.45 
                 if random.random() > 0.5:
                 # Caption below the visual element
-                    cap_ymin = all_dims['body'][element_index]['top'] + all_dims['body'][element_index]['height'] - 0.35 
+                    cap_ymin = all_dims['body'][element_index]['top'] + all_dims['body'][element_index]['height'] - 0.45 + (n_h - ele_height)/2
                     ele_ymin = all_dims['body'][element_index]['top']
                 else:
                     # Caption above the visual element
                     ele_ymin = all_dims['body'][element_index]['top'] + 0.45
-                    cap_ymin = all_dims['body'][element_index]['top']
+                    cap_ymin = all_dims['body'][element_index]['top'] - (n_h - ele_height)/2
                 tab_instance["caption"] = {
                     "label": "table_caption",
-                    "value": data["slides"][slide_number - 1]["tables"][i]["desc"],
+                    "value": caption_value,
                     "xmin": all_dims['body'][element_index]['left'],
                     "ymin": cap_ymin,
                     "width": all_dims['body'][element_index]['width'],
@@ -457,20 +483,19 @@ def generate_random_slide(slide_number, data, style_obj, footer_obj, course_code
                         "underlined": random.random() > 0.75
                 }
                 }
+
+            
             
             tab_instance = {**tab_instance, **{
             "label": "table",
-            "xmin": all_dims['body'][element_index]['left'],
-            "ymin": ele_ymin,
-            "width": all_dims['body'][element_index]['width'],
-            "height": ele_height,
+            "xmin": all_dims['body'][element_index]['left'] - (n_w - all_dims['body'][element_index]['width'])/2,
+            "ymin": ele_ymin - (n_h - ele_height)/2,
+            "width": n_w,
+            "height": n_h,
             "desc": data["slides"][slide_number - 1]["tables"][i]["desc"]
             }}
             
-            if 'path' in data["slides"][slide_number - 1]["tables"][i].keys():
-                tab_instance['path'] = data["slides"][slide_number - 1]["tables"][i]['path']
-            elif 'content' in data["slides"][slide_number - 1]['tables'][i]:
-                tab_instance['content'] = data["slides"][slide_number - 1]['tables'][i]['content']
+            
             
             slide['elements']['tables'].append(tab_instance)
             element_index += 1
@@ -489,20 +514,20 @@ def generate_random_slide(slide_number, data, style_obj, footer_obj, course_code
             label = data["slides"][slide_number - 1]["figures"][i]['label']
             ele_ymin = all_dims['body'][element_index]['top']
             ele_height =  all_dims['body'][element_index]['height']
+            resized_img_path, n_w, n_h = resize_image(img_path, all_dims['body'][element_index]['width'], ele_height)
             if (P_F > random.random()):
                 # take only the first 6 words of the description
                 caption_value = data["slides"][slide_number - 1]["figures"][i]["desc"]
                 # take only the first 6 words of the description
-                caption_value = ' '.join(caption_value.split()[:5])
-                
+                caption_value = ' '.join(caption_value.split()[:7])
                 ele_height =  all_dims['body'][element_index]['height'] - 0.45
                 if random.random() > 0.5:
                 # Caption below the visual element
-                    cap_ymin = all_dims['body'][element_index]['top'] + all_dims['body'][element_index]['height'] - 0.35 
+                    cap_ymin = all_dims['body'][element_index]['top'] + all_dims['body'][element_index]['height'] - 0.35 + (n_h - ele_height)/2
                     ele_ymin = all_dims['body'][element_index]['top']
                 else:
                     ele_ymin = all_dims['body'][element_index]['top'] + 0.45
-                    cap_ymin = all_dims['body'][element_index]['top']
+                    cap_ymin = all_dims['body'][element_index]['top'] - (n_h - ele_height)/2
                 
                 
                 fig_instance["caption"] = {
@@ -523,12 +548,12 @@ def generate_random_slide(slide_number, data, style_obj, footer_obj, course_code
                 }
             fig_instance = {**fig_instance, **{
             "label": label,
-            "xmin": all_dims['body'][element_index]['left'],
-            "ymin": ele_ymin,
-            "width": all_dims['body'][element_index]['width'],
-            "height": ele_height,
+            "xmin": all_dims['body'][element_index]['left'] - (n_w - all_dims['body'][element_index]['width'])/2,
+            "ymin": ele_ymin - (n_h - ele_height)/2,
+            "width": n_w,
+            "height": n_h,
             "desc": data["slides"][slide_number - 1]["figures"][i]["desc"],
-            "path": img_path
+            "path": resized_img_path
             }}
 
             slide['elements']['figures'].append(fig_instance)

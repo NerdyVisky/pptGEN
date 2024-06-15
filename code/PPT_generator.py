@@ -261,21 +261,15 @@ class Figure(Element):
         
     def render(self, slide):
         left, top, width, height = self.bounding_box
-        resized_img_path, n_w, n_h = resize_image(self.content, width, height)
         if self.caption != None:
             left_c, top_c, width_c, height_c = self.caption['xmin'], self.caption['ymin'], self.caption['width'], self.caption['height']
-            if top_c > top:
-                cap_shape = slide.shapes.add_textbox(Inches(left_c), Inches(top_c + (n_h - height)/2), Inches(width_c), Inches(height_c))
-            else:
-                cap_shape = slide.shapes.add_textbox(Inches(left_c), Inches(top_c - (n_h - height)/2), Inches(width_c), Inches(height_c))
             cap_shape = slide.shapes.add_textbox(Inches(left_c), Inches(top_c), Inches(width_c), Inches(height_c))
             cap_shape.text = self.caption['value']
             self.apply_font_style(cap_shape)
             cap_shape.text_frame.auto_size = True
             cap_shape.text_frame.word_wrap = True
             cap_shape.text_frame.paragraphs[0].alignment = PP_ALIGN.CENTER
-        img = slide.shapes.add_picture(resized_img_path, Inches(left - (n_w - width)/2), Inches(top - (n_h - height)/2), Inches(n_w), Inches(n_h))
-        
+        img = slide.shapes.add_picture(self.content, Inches(left), Inches(top ), Inches(width), Inches(height))
         self.image = img 
 
 class Equation(Element):
@@ -286,20 +280,15 @@ class Equation(Element):
 
     def render(self, slide):
         left, top, width, height = self.bounding_box
-        resized_img_path, n_w, n_h = resize_image(self.content, width, height)
         if self.caption != None:
             left_c, top_c, width_c, height_c = self.caption['xmin'], self.caption['ymin'], self.caption['width'], self.caption['height']
-            if top_c > top:
-                cap_shape = slide.shapes.add_textbox(Inches(left_c), Inches(top_c + (n_h - height)/2), Inches(width_c), Inches(height_c))
-            else:
-                cap_shape = slide.shapes.add_textbox(Inches(left_c), Inches(top_c - (n_h - height)/2), Inches(width_c), Inches(height_c))
             cap_shape = slide.shapes.add_textbox(Inches(left_c), Inches(top_c), Inches(width_c), Inches(height_c))
             cap_shape.text = self.caption['value']
             self.apply_font_style(cap_shape)
             cap_shape.text_frame.auto_size = True
             cap_shape.text_frame.word_wrap = True
             cap_shape.text_frame.paragraphs[0].alignment = PP_ALIGN.CENTER
-        img = slide.shapes.add_picture(resized_img_path, Inches(left - (n_w - width)/2), Inches(top - (n_h - height)/2), Inches(n_w), Inches(n_h))
+        img = slide.shapes.add_picture(self.content, Inches(left), Inches(top ), Inches(width), Inches(height))
         self.image = img 
 
 
@@ -314,20 +303,15 @@ class Table(Element):
     def render(self, slide):
         left, top, width, height = self.bounding_box
         if not self.content is None:
-            resized_img_path, n_w, n_h = resize_image(self.content, width, height)
             if self.caption != None:
                 left_c, top_c, width_c, height_c = self.caption['xmin'], self.caption['ymin'], self.caption['width'], self.caption['height']
-                if top_c > top:
-                    cap_shape = slide.shapes.add_textbox(Inches(left_c), Inches(top_c + (n_h - height)/2), Inches(width_c), Inches(height_c))
-                else:
-                    cap_shape = slide.shapes.add_textbox(Inches(left_c), Inches(top_c - (n_h - height)/2), Inches(width_c), Inches(height_c))
-
+                cap_shape = slide.shapes.add_textbox(Inches(left_c), Inches(top_c), Inches(width_c), Inches(height_c))
                 cap_shape.text = self.caption['value']
                 self.apply_font_style(cap_shape)
                 cap_shape.text_frame.auto_size = True
                 cap_shape.text_frame.word_wrap = True
                 cap_shape.text_frame.paragraphs[0].alignment = PP_ALIGN.CENTER
-            img = slide.shapes.add_picture(resized_img_path, Inches(left - (n_w - width)/2), Inches(top - (n_h - height)/2), Inches(n_w), Inches(n_h))
+            img = slide.shapes.add_picture(self.content, Inches(left), Inches(top ), Inches(width), Inches(height))
             self.image = img 
         else:
             rows = len(self.tbl_cnt)

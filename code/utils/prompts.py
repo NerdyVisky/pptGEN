@@ -371,7 +371,7 @@ def construct_generation_prompts(instruct_content, topic):
                 n_c += 1
                 positions[3][element_type][n_c] = i + 1
                 captions[3][element_type][n_c] = element_caption
-                prompts[3] += (context_line + f"generate {LANGUAGE} language code for: {element_caption}. Do not provide any input and output examples in the code. Just the basic code function. Do not provide more than 20 lines of code in any case.")
+                prompts[3] += (context_line + f"generate {LANGUAGE} language code for: {element_caption}. Do not provide any input and output examples in the code or any library imports. Just the basic code function. Do not provide more than 20 lines of code in any case.")
         i+=1
                 
   

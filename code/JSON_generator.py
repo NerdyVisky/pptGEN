@@ -2,6 +2,7 @@ import os
 import random
 import json
 from layouts import CustomLayouts
+import pandas as pd
 from random_generator import (generate_random_style_obj, 
                               generate_random_font, 
                               generate_random_value, 
@@ -19,6 +20,7 @@ from random_generator import (generate_random_style_obj,
                               random_logo_pos
                               )
 from utils.os_helpers import count_body_elements, count_footer_elements, remove_tmp_files, resize_image
+from utils.corpus_paths import DIAGRAMS, CHARTS, TABLES, EQUATIONS, CODE_SNIPS
 
 def insert_title_slide(data, style_obj, course_code):
     slide = {
@@ -119,7 +121,7 @@ def insert_title_slide(data, style_obj, course_code):
     
 
 
-def generate_random_slide(slide_number, data, style_obj, footer_obj, course_code, presentation_ID):
+def generate_random_slide(slide_number, data, style_obj, footer_obj, course_code, presentation_ID, url_df):
     bg_color, title_font_family, title_font_bold, title_font_attr, title_align,\
           desc_font_family, desc_font_attr, date, tmp_list = style_obj["bg_color"], style_obj["title_font_family"],\
               style_obj["title_font_bold"], style_obj["title_font_attr"], style_obj['title_align'], style_obj["desc_font_family"],\
@@ -358,31 +360,33 @@ def generate_random_slide(slide_number, data, style_obj, footer_obj, course_code
             font_obj = generate_random_font("url")
             desc = data["slides"][slide_number - 1]["url"]
             prefix = ""
-            if desc != "" and random.random() > 0.5:
-                prefix = modify_url_prefix(desc)
-            url_value = prefix + desc
-            url_value = url_value[:60]
-            if url_value == "":
-                break
-            desc_instance = {
-            "label": "url",
-            "value": url_value,
-            "xmin": 0.5 if random.random() > 0.5 else 5*1.333,
-            "ymin": 1.5,
-            "width": 4.5*1.333,
-            "height": 0.75,
-            "style": {
-                "font_name": desc_font_family,
-                "font_size": font_obj['font_size'],
-                "font_color": {"r": 0, "g": 0, "b": 225}, # if random.random() > 0.75 else url_font_color,
-                "bold": False,
-                "italics": True,
-                "underlined": True,
-                "h_align": h_url_align,
-                "v_align": v_url_align
-               }
-            } 
-            slide['elements']['refs'].append(desc_instance)
+            if desc != "":
+                # prefix = modify_url_prefix(desc)
+                # url_value = prefix + desc
+                random_url_inst = url_df.sample(n=1)
+                url_value = random_url_inst['URL'].values[0]
+                url_value = url_value[:60]
+                if url_value == "":
+                    break
+                desc_instance = {
+                "label": "url",
+                "value": url_value,
+                "xmin": 0.5 if random.random() > 0.5 else 5*1.333,
+                "ymin": 1.5,
+                "width": 4.5*1.333,
+                "height": 0.75,
+                "style": {
+                    "font_name": desc_font_family,
+                    "font_size": font_obj['font_size'],
+                    "font_color": {"r": 0, "g": 0, "b": 225}, # if random.random() > 0.75 else url_font_color,
+                    "bold": False,
+                    "italics": True,
+                    "underlined": True,
+                    "h_align": h_url_align,
+                    "v_align": v_url_align
+                }
+                } 
+                slide['elements']['refs'].append(desc_instance)
        
         # Render Equations
         P_E = 0.25
@@ -391,7 +395,8 @@ def generate_random_slide(slide_number, data, style_obj, footer_obj, course_code
             ele_ymin = all_dims['body'][element_index]['top']
             ele_height = all_dims['body'][element_index]['height']
             eq_instance = {}
-            img_path = data["slides"][slide_number - 1]["equations"][i]["path"]
+            # img_path = data["slides"][slide_number - 1]["equations"][i]["path"]
+            img_path = pick_random(EQUATIONS)
             resized_img_path, n_w, n_h = resize_image(img_path, all_dims['body'][element_index]['width'], ele_height)
             if (P_E > random.random()):
                 # take only the first 6 words of the description
@@ -448,7 +453,8 @@ def generate_random_slide(slide_number, data, style_obj, footer_obj, course_code
             n_h = ele_height
 
             if 'path' in data["slides"][slide_number - 1]["tables"][i].keys():
-                img_path = data["slides"][slide_number - 1]["tables"][i]['path']
+                # img_path = data["slides"][slide_number - 1]["tables"][i]['path']
+                img_path = pick_random(TABLES)
                 resized_img_path, n_w, n_h = resize_image(img_path, all_dims['body'][element_index]['width'], ele_height)
                 tab_instance['path'] = resized_img_path
             elif 'content' in data["slides"][slide_number - 1]['tables'][i]:
@@ -510,8 +516,12 @@ def generate_random_slide(slide_number, data, style_obj, footer_obj, course_code
             #     img_path = get_fig_img_path_matplot(data["slides"][slide_number - 1]["figures"][i]['fig_code'], slide_number, i)
             # else:
             fig_instance = {}
-            img_path = data["slides"][slide_number - 1]["figures"][i]['path']
+            # img_path = data["slides"][slide_number - 1]["figures"][i]['path']
             label = data["slides"][slide_number - 1]["figures"][i]['label']
+            if(label == 'pie-chart' or label == 'line-chart' or label == 'bar-chart' or label == 'plot' or label == '3d-plot'):
+                img_path = pick_random(CHARTS)
+            else:
+                img_path = pick_random(DIAGRAMS)
             ele_ymin = all_dims['body'][element_index]['top']
             ele_height =  all_dims['body'][element_index]['height']
             resized_img_path, n_w, n_h = resize_image(img_path, all_dims['body'][element_index]['width'], ele_height)
@@ -563,12 +573,25 @@ def generate_random_slide(slide_number, data, style_obj, footer_obj, course_code
         slide['elements']['code'] = []
         for i in range(n_elements_list[6]):
             font_obj = generate_random_font("url")
-            value = data["slides"][slide_number - 1]["code"][i]['value']
+            # value = data["slides"][slide_number - 1]["code"][i]['value']
+            random_code_snip = pick_random(CODE_SNIPS)
+            with open(random_code_snip, 'r') as file:
+                value = file.read()
+            codelines = value.split('\n')
+            if all_dims['body'][element_index]['type'] == 1:
+                codelines = codelines[:15]
+            elif all_dims['body'][element_index]['type'] == 3:
+                codelines = codelines[:10]
+            elif all_dims['body'][element_index]['type'] == 2:
+                codelines = codelines[:7]
+            else:
+                codelines = codelines[:4]
+
             caption = data["slides"][slide_number - 1]["code"][i]['desc']
             code_instance = {
             "label": "code",
             "desc": caption,
-            "value": value,
+            "value": codelines,
             "xmin": all_dims['body'][element_index]['left'],
             "ymin": all_dims['body'][element_index]['top'],
             "width": all_dims['body'][element_index]['width'],
@@ -637,8 +660,10 @@ if __name__ == "__main__":
             created_files.append(topic)
     print("Running layout discriminator module...")
     temp_dir = f"code/temp"
+    url_df = pd.read_csv('code\\buffer\\corpus\\urls.csv')
     entries = os.listdir(temp_dir)
     directories = [entry for entry in entries if os.path.isdir(os.path.join(temp_dir, entry))]
+
     DUP_FAC = 2
     for directory in directories:
         json_files = [f for f in os.listdir(os.path.join(temp_dir,directory)) if f.endswith('.json')][:25]
@@ -656,7 +681,7 @@ if __name__ == "__main__":
                 style_obj = generate_random_style_obj()
                 footer_obj = generate_footer_obj()
                 all_slide = [insert_title_slide(data, style_obj, course_code)]
-                slides = [generate_random_slide(i+1, data, style_obj, footer_obj, course_code, presentation_ID) for i in range(n_slides)]
+                slides = [generate_random_slide(i+1, data, style_obj, footer_obj, course_code, presentation_ID, url_df) for i in range(n_slides)]
                 all_slide.extend(slides)
                 new_data = {
                     "slide_id": presentation_ID,

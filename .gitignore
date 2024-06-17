@@ -23,3 +23,4 @@ Experiments/
 code/plot_test.py
 code/temp/*
 code/assets/
+code/utils/corpus_paths.py

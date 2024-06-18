@@ -1,6 +1,16 @@
 from PIL import Image
 import os
 import random 
+import tkinter as tk
+from tkinter.font import Font
+
+def get_line_height(font_family, font_size, font_weight='normal'):
+    root = tk.Tk()
+    font = Font(family=font_family, size=font_size, weight=font_weight)
+    line_height = font.metrics("linespace")
+    root.destroy()
+    return line_height
+
 
 def resize_image(input_image_path, box_width, box_height):
         dpi = 96

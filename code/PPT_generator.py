@@ -228,13 +228,14 @@ class Enumeration(Description):
                         run = p.add_run()
                         run.text = pt_text
                         self.apply_font_style_on_run(run)
-                        if random.random() > 0.5:
+                        if random.random() > 0.7:
                             p.level = 1
                             run.font.size = Pt(self.style['font_size'] - random.randint(0, 2))
-                            if self.style['font_color']['r'] == 0:
-                                run.font.color.rgb = RGBColor(169, 169, 169)
-                            else:
-                                run.font.color.rgb = RGBColor(211, 211, 211)
+                            if random.random() > 0.5:
+                                if self.style['font_color']['r'] == 0:
+                                    run.font.color.rgb = RGBColor(169, 169, 169)
+                                else:
+                                    run.font.color.rgb = RGBColor(211, 211, 211)
 
                     # elif isinstance(pt_text, list):
                     #     for sub_pt in pt_text:

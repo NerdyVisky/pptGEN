@@ -48,8 +48,8 @@ def insert_title_slide(data, style_obj, course_code):
                     "font_size": style_obj['title_font_attr']["font_size"],
                     "font_color": style_obj['title_font_dark'],
                     "bold": style_obj["title_font_bold"],
-                    "italics": random.random() > 0.8,
-                    "underlined": random.random() > 0.1
+                    "italics": random.random() > 0.9,
+                    "underlined": random.random() > 0.2
                 }
             }]
         if 'DT' in obj.keys():
@@ -156,7 +156,10 @@ def generate_random_slide(slide_number, data, style_obj, footer_obj, course_code
         layouts = CustomLayouts()
         all_dims = layouts.get_layout_dimensions(layout_id)
         if layout_id % 2 == 0:
-            title_value = data["slides"][random.randint(1, 15) - 1]["title"]
+            try:
+                title_value = data["slides"][random.randint(1, 15) - 1]["title"]
+            except:
+                title_value = data["slides"][random.randint(1, 12) - 1]["title"] # fix for 12 slide ppts
             slide['elements']['title'] = [{
                     "label": "title",
                     "value": title_value,
@@ -175,9 +178,10 @@ def generate_random_slide(slide_number, data, style_obj, footer_obj, course_code
                         "v_align": random.choice(['top', 'middle', 'bottom'])
                     }
                 }]
-        rand_element = pick_random(['code', 'chart', 'diagram', 'table', 'equation', 'enumeration'])
+        rand_element = pick_random(['code', 'chart', 'diagram', 'table', 'equation', 'enumeration', 'url'])
         # rand_element = pick_random(['enumeration'])
         pos = 0
+        pts = []
         if rand_element == 'enumeration':
             for slide_obj in data["slides"]:
                 if slide_obj["enumeration"] != [] and slide_obj["slide_number"] > pos:
@@ -185,9 +189,11 @@ def generate_random_slide(slide_number, data, style_obj, footer_obj, course_code
                     pos = slide_obj["slide_number"]
                     break
             brk_ind = random.randint(0, len(pts) - 2) if len(pts) > 2 else 0
+            brk_ind = random.randint(0, 2) if len(pts) > 2 else 0
             font_obj = generate_random_font("description")
-            for i, pt in enumerate(pts):
-                 pts[i] = ' '.join(pts[i].split()[:5])
+            if isinstance(pts, list):
+                for i, pt in enumerate(pts):
+                    pts[int(i)] = ' '.join(pts[int(i)].split()[:5])
             enum_instance = {
             "label": "enumeration",
             "value": pts,
@@ -225,8 +231,14 @@ def generate_random_slide(slide_number, data, style_obj, footer_obj, course_code
             img_path = pick_random(EQUATIONS)
 
         elif rand_element == 'table':
-            img_path = pick_random(TABLES)
-
+            try:
+                tabs = os.listdir(f'code/buffer/structs/tables/{presentation_ID}')
+                for tab in tabs:
+                    if tab.endswith('.png'):
+                        img_path = f'code/buffer/structs/tables/{presentation_ID}/{tab}'
+            except:
+                img_path = pick_random(TABLES)
+            
         img_instance = {}
         code_instance = {}
                         
@@ -243,7 +255,8 @@ def generate_random_slide(slide_number, data, style_obj, footer_obj, course_code
                     m_h = 3
                 resized_img_path, n_w, n_h = resize_image(img_path, m_w, m_h)
                 num_of_brks = math.ceil((n_h*72)/l_h)
-                pts[brk_ind] = pts[brk_ind] + '\n'*num_of_brks
+                if isinstance(pts, list):
+                    pts[brk_ind] = pts[brk_ind] + '\n'*num_of_brks
                 img_instance = {
                     "label": rand_element,
                     "xmin": random.randint(1, 4) - (n_w - 6)/2,
@@ -259,7 +272,8 @@ def generate_random_slide(slide_number, data, style_obj, footer_obj, course_code
                 code_lines = code_lines[:5]
                 cl_h = get_line_height('Courier New', 14)
                 num_of_brks = math.ceil((cl_h*5)/l_h)
-                pts[brk_ind] = pts[brk_ind] + '\n'*num_of_brks
+                if isinstance(pts, list):
+                    pts[brk_ind] = pts[brk_ind] + '\n'*num_of_brks
                 slide["elements"]["code"] = [{
                     "label": "code",
                     "value": code_lines,
@@ -320,6 +334,32 @@ def generate_random_slide(slide_number, data, style_obj, footer_obj, course_code
                      "v_align": "top"
                   }
                 }]
+            else:
+                random_url_inst = url_df.sample(n=5)
+                url_values = random_url_inst['URL'].values
+                # print(url_values)
+                slide['elements']['refs'] = []
+                for i, url_value in enumerate(url_values):
+                    # print(url_value)
+                    url_instance = {
+                        "label": "url",
+                        "value": url_value[:60],
+                        "xmin": 1.5,
+                        "ymin": 2 + i,
+                        "width": 4.5*1.333,
+                        "height": 0.75,
+                        "style": {
+                            "font_name": desc_font_family,
+                            "font_size": 16,
+                            "font_color": {"r": 0, "g": 0, "b": 225},
+                            "bold": False,
+                            "italics": False,
+                            "underlined": True,
+                            "h_align": 'left',
+                            "v_align": 'center'
+                        }
+                    }
+                    slide['elements']['refs'].append(url_instance)
         if img_instance != {}:
             if rand_element == 'chart' or rand_element == 'diagram':
                 ele_type = 'figures'
@@ -388,6 +428,7 @@ def generate_random_slide(slide_number, data, style_obj, footer_obj, course_code
         else:
             slide["bg_color"] = bg_color
         
+        slide["elements"]["graphic"] = []
         if logo_path != '' and layout_id % 2 == 0:
             # if title_align is left, then the logo should not be on the top left side, i.e. left = 0.25 and top = 0.25
             # if title_align is right, then the logo should not be on the top right side, i.e. left = 12.083 and top = 0.25
@@ -437,6 +478,7 @@ def generate_random_slide(slide_number, data, style_obj, footer_obj, course_code
             random.shuffle(all_dims['body'])
             element_index = 0
             h_desc_align, v_desc_align = pick_random("alignments")
+            
             ## Generate Descriptions
             slide['elements']['text'] = []
             for _ in range(n_elements_list[0]):
@@ -456,7 +498,7 @@ def generate_random_slide(slide_number, data, style_obj, footer_obj, course_code
                 "style": {
                     "font_name": desc_font_family,
                     "font_size": desc_font_attr["font_size"],
-                    "font_color": {"r": 0, "g": 0, "b": 1},
+                    "font_color": font_color,
                     "bold": False,
                     "italics": False,
                     "underlined": False,
@@ -558,7 +600,7 @@ def generate_random_slide(slide_number, data, style_obj, footer_obj, course_code
                 font_obj = generate_random_font("url")
                 desc = data["slides"][slide_number - 1]["url"]
                 prefix = ""
-                if desc != "":
+                if desc != "" and layout_id % 2 == 0: 
                     # prefix = modify_url_prefix(desc)
                     # url_value = prefix + desc
                     random_url_inst = url_df.sample(n=1)
@@ -651,8 +693,8 @@ def generate_random_slide(slide_number, data, style_obj, footer_obj, course_code
                 n_h = ele_height
 
                 if 'path' in data["slides"][slide_number - 1]["tables"][i].keys():
-                    # img_path = data["slides"][slide_number - 1]["tables"][i]['path']
-                    img_path = pick_random(TABLES)
+                    img_path = data["slides"][slide_number - 1]["tables"][i]['path']
+                    # img_path = pick_random(TABLES)
                     resized_img_path, n_w, n_h = resize_image(img_path, all_dims['body'][element_index]['width'], ele_height)
                     tab_instance['path'] = resized_img_path
                 elif 'content' in data["slides"][slide_number - 1]['tables'][i]:
@@ -808,6 +850,23 @@ def generate_random_slide(slide_number, data, style_obj, footer_obj, course_code
                 slide['elements']['code'].append(code_instance)
                 element_index += 1
             
+            for i in range(n_elements_list[7]):
+                fig_instance = {}
+                ele_ymin = all_dims['body'][element_index]['top']
+                ele_height = all_dims['body'][element_index]['height']
+                img_path = data["slides"][slide_number - 1]["images"][i]['path']
+                resized_img_path, n_w, n_h = resize_image(img_path, all_dims['body'][element_index]['width'], ele_height)
+                fig_instance = {
+                    "label": "natural_image",
+                    "xmin": all_dims['body'][element_index]['left'] - (n_w - all_dims['body'][element_index]['width'])/2,
+                    "ymin": ele_ymin - (n_h - ele_height)/2,
+                    "width": n_w,
+                    "height": n_h,
+                    "value": resized_img_path
+                }
+                slide['elements']['graphic'].append(fig_instance)
+                element_index += 1
+                remove_tmp_files()
 
         ##Footer generation
         slide['elements']['footer'] = []
@@ -864,11 +923,12 @@ if __name__ == "__main__":
 
     DUP_FAC = 2
     for directory in directories:
-        json_files = [f for f in os.listdir(os.path.join(temp_dir,directory)) if f.endswith('.json')][:25]
+        json_files = [f for f in os.listdir(os.path.join(temp_dir,directory)) if f.endswith('.json')]
         json_files = [f for f in json_files if f.split('.')[0] not in created_files]
         n_json_files = len(json_files)
         for i, json_file in enumerate(json_files): 
             presentation_ID, _ = os.path.splitext(json_file)
+            print(presentation_ID)
             file_path = os.path.join(temp_dir, directory, json_file)
             with open(file_path, 'r') as file:
                 data = json.load(file)

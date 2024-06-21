@@ -13,7 +13,7 @@ for sub in subjects:
         shutil.move(os.path.join(sub_path, ppt), os.path.join(DESTINATION, sub))
 print("PPT files saved and transferred.")
 
-parent_directories = ['code\json\\final', 'dataset\pdfs']
+parent_directories = ['dataset\pdfs']
 # parent_directories = ['code\\buffer', 'code\\temp', 'code\json\content', 'dataset\pdfs']
 def delete_subdirectories(parent_dirs):
     for parent_dir in parent_dirs:

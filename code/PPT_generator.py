@@ -322,13 +322,16 @@ class Table(Element):
             table = shape.table
             for i in range(rows):
                 for j in range(columns):
-                    cell = table.cell(i, j)
-                    words = self.tbl_cnt[i][j].split(' ')
-                    if len(words) > 4:
-                        content = " ".join(words[:4])
-                        cell.text = content
+                    if j < len(self.tbl_cnt[i]):
+                        cell = table.cell(i, j)
+                        words = self.tbl_cnt[i][j].split(' ')
+                        if len(words) > 4:
+                            content = " ".join(words[:4])
+                            cell.text = content
+                        else:
+                            cell.text = self.tbl_cnt[i][j]
                     else:
-                        cell.text = self.tbl_cnt[i][j]
+                        table.cell(i, j).text = ""
                 self.table = table
             
         
@@ -457,7 +460,7 @@ class PresentationGenerator:
             for element_type, elements in slide_info['elements'].items():
                 for element_info in elements:
                     if element_type == 'graphic':
-                        if element_info['label'] == 'logo' or element_info['label'] == 'natural-image':
+                        if element_info['label'] == 'logo' or element_info['label'] == 'natural_image':
                             element = Graphic(element_info['value'], None, (element_info['xmin'], element_info['ymin'], element_info['width'], element_info['height']))
                     elif element_type == 'figures':
                         if 'caption' in element_info.keys():
@@ -550,13 +553,13 @@ def main():
         slide_id = os.path.basename(os.path.dirname(json_file))
         version , _ = os.path.splitext(os.path.basename(json_file))
         json_payload = load_json_payload(json_file)
-
+        
         #Generate Presentation from JSON file and save it
         print(f"Generating : {subject_name} - {slide_id} - {version}.")
         presentation_generator = PresentationGenerator(json_payload, subject_name, slide_id, version)
         presentation_generator.generate_presentation()
         print(f"Presentation generated successfully.")
-
+        
     final_json_path = f"code/json/final"
     for i, json_file in enumerate(json_file_paths):
         subject_name = os.path.basename(os.path.dirname(os.path.dirname(json_file)))

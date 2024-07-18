@@ -24,7 +24,7 @@ code/test.py
 code/test2.py
 code/utils/__pycache__/
 code/buffer
-code/plot_test.py
+code/mask_test.py
 code/logs/
 Experiments/
 code/plot_test.py
@@ -32,3 +32,7 @@ code/temp/*
 code/assets/
 code/utils/corpus_paths.py
 code/assets/ppt_templates/*.png
+query_dataset
+code/masks
+a.py
+file_names.txt
